@@ -1,0 +1,11 @@
+{
+  "name": "tourkit-sdk",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "esbuild src/index.js --bundle --minify --format=iife --platform=browser --outfile=dist/tourkit.min.js"
+  },
+  "devDependencies": {
+    "esbuild": "latest"
+  }
+}

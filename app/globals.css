@@ -1,0 +1,175 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+  TourKit theme — palette (user-provided):
+  Background #070707, text #FFFFFF, accent Blazing Flame #F15025,
+  Alabaster #E6E8E6, Dust Grey #CED0CE
+*/
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Hero / landing atmospheric layers */
+  .tk-grid {
+    background-image:
+      linear-gradient(to right, color-mix(in srgb, var(--foreground) 7%, transparent) 1px, transparent 1px),
+      linear-gradient(to bottom, color-mix(in srgb, var(--foreground) 7%, transparent) 1px, transparent 1px);
+    background-size: 52px 52px;
+  }
+
+  .tk-glow-hero {
+    background:
+      radial-gradient(
+        ellipse 90% 60% at 50% -20%,
+        color-mix(in srgb, var(--primary) 28%, transparent),
+        transparent 55%
+      ),
+      radial-gradient(ellipse 60% 40% at 100% 0%, color-mix(in srgb, var(--primary) 12%, transparent), transparent 45%);
+  }
+
+  .tk-glow-soft {
+    background: radial-gradient(
+      ellipse 100% 70% at 50% -25%,
+      color-mix(in srgb, var(--primary) 18%, transparent),
+      transparent 55%
+    );
+  }
+}
+
+@layer components {
+  /* Web Interface Guidelines: skip navigation */
+  .skip-link {
+    @apply sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background;
+    background-color: var(--primary);
+    color: var(--primary-foreground);
+  }
+
+  .skip-link:focus {
+    box-shadow: 0 10px 25px color-mix(in srgb, var(--foreground) 12%, transparent);
+  }
+}
+
+@layer base {
+  :root {
+    --background: #070707;
+    --foreground: #ffffff;
+
+    --card: #101010;
+    --card-foreground: #ffffff;
+
+    --popover: #141414;
+    --popover-foreground: #ffffff;
+
+    --primary: #f15025;
+    --primary-foreground: #ffffff;
+
+    --secondary: #171717;
+    --secondary-foreground: #e6e8e6;
+
+    --muted: #121212;
+    --muted-foreground: #ced0ce;
+
+    --accent: #1a1a1a;
+    --accent-foreground: #ffffff;
+
+    --destructive: #e84848;
+    --destructive-foreground: #ffffff;
+
+    --border: rgb(230 232 230 / 0.14);
+    --input: rgb(230 232 230 / 0.09);
+    --ring: #f15025;
+
+    --radius: 0.625rem;
+
+    --sidebar: #050505;
+    --sidebar-foreground: #ffffff;
+    --sidebar-primary: #f15025;
+    --sidebar-primary-foreground: #ffffff;
+    --sidebar-accent: #151515;
+    --sidebar-accent-foreground: #e6e8e6;
+    --sidebar-border: rgb(206 208 206 / 0.14);
+    --sidebar-ring: #f15025;
+
+    --chart-1: #f15025;
+    --chart-2: #e6e8e6;
+    --chart-3: #ced0ce;
+    --chart-4: #ffffff;
+    --chart-5: #888888;
+  }
+
+  .dark {
+    --background: #070707;
+    --foreground: #ffffff;
+    --card: #101010;
+    --card-foreground: #ffffff;
+    --popover: #141414;
+    --popover-foreground: #ffffff;
+    --primary: #f15025;
+    --primary-foreground: #ffffff;
+    --secondary: #171717;
+    --secondary-foreground: #e6e8e6;
+    --muted: #121212;
+    --muted-foreground: #ced0ce;
+    --accent: #1a1a1a;
+    --accent-foreground: #ffffff;
+    --destructive: #e84848;
+    --destructive-foreground: #ffffff;
+    --border: rgb(230 232 230 / 0.14);
+    --input: rgb(230 232 230 / 0.09);
+    --ring: #f15025;
+    --sidebar: #050505;
+    --sidebar-foreground: #ffffff;
+    --sidebar-primary: #f15025;
+    --sidebar-primary-foreground: #ffffff;
+    --sidebar-accent: #151515;
+    --sidebar-accent-foreground: #e6e8e6;
+    --sidebar-border: rgb(206 208 206 / 0.14);
+    --sidebar-ring: #f15025;
+    --chart-1: #f15025;
+    --chart-2: #e6e8e6;
+    --chart-3: #ced0ce;
+    --chart-4: #ffffff;
+    --chart-5: #888888;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html {
+    @apply font-sans antialiased;
+    color-scheme: dark;
+    scroll-behavior: smooth;
+    letter-spacing: -0.02em;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+
+  body {
+    @apply bg-background text-foreground touch-manipulation;
+    -webkit-tap-highlight-color: color-mix(in srgb, var(--primary) 22%, transparent);
+  }
+
+  ::selection {
+    background-color: color-mix(in srgb, var(--primary) 38%, transparent);
+    color: var(--foreground);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+    }
+  }
+}
