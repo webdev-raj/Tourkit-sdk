@@ -1,6 +1,6 @@
 # TourKit 🚀
 
-TourKit is a modern SaaS platform designed to build, manage, and deploy interactive product tours and onboarding flows. Create dynamic, step-by-step guides for your web applications and seamlessly embed them using our lightweight, high-performance JS SDK.
+Onboarding tours for any website — one script tag, zero config. TourKit lets you create guided onboarding tours for any website from a simple dashboard. Add steps, configure messages, and your visitors get a smooth walkthrough automatically.
 
 ## ✨ Features
 
