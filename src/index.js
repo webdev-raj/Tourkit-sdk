@@ -139,7 +139,8 @@ import { startTour } from './renderer.js'
 
             if (!merged.length) return
 
-            startTour(merged, { scriptKey: key })
+            var apiBase = data.api_base || TK_API_ORIGIN
+            startTour(merged, key, apiBase, data.customization || null)
           })
           .catch(function () {})
       } catch (_) {

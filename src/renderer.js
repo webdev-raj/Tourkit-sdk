@@ -3,21 +3,37 @@ import { pingEvent } from './tracker.js'
 /** @typedef {{ id?: string, selector: string, title?: string|null, message: string, position?: string, step_order?: number }} TourStep */
 
 var CSS_SNIPPET = [
-  '.tk-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:99998;}',
-  '.tk-highlight{position:fixed;border:2px solid #F15025;border-radius:6px;z-index:99999;pointer-events:none;box-shadow:0 0 0 4px rgba(241,80,37,0.2);transition:all 0.3s ease;}',
-  '.tk-tooltip{position:fixed;background:#111;color:#fff;border:1px solid #222;border-radius:10px;padding:20px 24px;max-width:320px;width:320px;z-index:100000;font-family:system-ui,-apple-system,sans-serif;font-size:14px;line-height:1.5;box-sizing:border-box;box-shadow:0 8px 32px rgba(0,0,0,0.4);}',
-  '.tk-tooltip-title{font-size:16px;font-weight:600;margin-bottom:8px;color:#ffffff;}',
-  '.tk-tooltip-message{color:#aaaaaa;margin-bottom:16px;}',
-  '.tk-tooltip-footer{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;width:100%;}',
-  '.tk-tooltip-counter{font-size:12px;color:#666;text-align:center;flex:1;min-width:0;}',
-  '.tk-tooltip-nav{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-left:auto;}',
-  '.tk-btn{padding:8px 16px;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;border:none;font:inherit;}',
-  '.tk-btn-primary{background:#F15025;color:#fff;}',
-  '.tk-btn-ghost{background:transparent;color:#aaa;border:1px solid #333;}',
+  ':root{--tk-primary:#F15025;--tk-bg:#111111;--tk-border:#2a2a2a;--tk-text:#ffffff;--tk-subtext:#999999;--tk-radius:10px;--tk-font:Inter;--tk-buttonGhost:#1e1e1e;--tk-buttonGhostBorder:#333333;--tk-buttonGhostText:#cccccc;}',
+  '.tk-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(2px);z-index:99998;animation:tkFadeIn 0.2s ease;}',
+  '.tk-highlight{position:absolute;border:2px solid var(--tk-primary);border-radius:var(--tk-radius);z-index:99999;pointer-events:none;box-shadow:0 0 0 4px color-mix(in srgb,var(--tk-primary) 20%,transparent);transition:all 0.3s cubic-bezier(0.4,0,0.2,1);}',
+  '.tk-tooltip{position:fixed;background:var(--tk-bg);border:1px solid var(--tk-border);border-radius:var(--tk-radius);padding:20px;width:320px;max-width:320px;z-index:100000;font-family:var(--tk-font),system-ui,sans-serif;font-size:14px;line-height:1.6;color:var(--tk-text);box-sizing:border-box;box-shadow:0 20px 60px rgba(0,0,0,0.3),0 0 0 1px rgba(255,255,255,0.05);animation:tkSlideUp 0.25s cubic-bezier(0.4,0,0.2,1);}',
+  '.tk-tooltip-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}',
+  '.tk-tooltip-badge{font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--tk-primary);background:color-mix(in srgb,var(--tk-primary) 15%,transparent);padding:3px 8px;border-radius:20px;}',
+  '.tk-close-btn{background:none;border:none;color:var(--tk-subtext);cursor:pointer;font-size:18px;line-height:1;padding:0;width:24px;height:24px;display:flex;align-items:center;justify-content:center;border-radius:4px;transition:background .15s ease;}',
+  '.tk-close-btn:hover{background:rgba(255,255,255,0.1);}',
+  '.tk-progress-track{height:3px;background:rgba(255,255,255,0.1);border-radius:999px;margin-bottom:16px;overflow:hidden;}',
+  '.tk-progress-fill{height:100%;background:var(--tk-primary);border-radius:999px;transition:width .3s ease;}',
+  '.tk-tooltip-title{font-size:15px;font-weight:600;color:var(--tk-text);margin:0 0 6px 0;line-height:1.4;}',
+  '.tk-tooltip-message{font-size:13px;color:var(--tk-subtext);margin:0 0 16px 0;line-height:1.6;}',
+  '.tk-tooltip-footer{display:flex;justify-content:flex-end;gap:8px;align-items:center;}',
+  '.tk-btn{padding:8px 16px;border-radius:calc(var(--tk-radius) - 2px);font-size:13px;font-weight:500;cursor:pointer;font-family:var(--tk-font),system-ui,sans-serif;transition:all .15s ease;border:none;}',
+  '.tk-btn-primary{background:var(--tk-primary);color:#fff;}',
+  '.tk-btn-primary:hover{filter:brightness(1.1);}',
+  '.tk-btn-ghost{background:var(--tk-buttonGhost);color:var(--tk-buttonGhostText);border:1px solid var(--tk-buttonGhostBorder);}',
+  '.tk-btn-ghost:hover{background:rgba(255,255,255,0.05);}',
+  '@keyframes tkFadeIn{from{opacity:0}to{opacity:1}}',
+  '@keyframes tkSlideUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}',
 ].join('')
 
 function injectStylesOnce() {
   try {
+    if (document.head && !document.getElementById('tourkit-sdk-font')) {
+      const fontLink = document.createElement('link')
+      fontLink.id = 'tourkit-sdk-font'
+      fontLink.rel = 'stylesheet'
+      fontLink.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap'
+      document.head.appendChild(fontLink)
+    }
     if (document.head && document.getElementById('tourkit-sdk-styles')) return
     var tag = document.createElement('style')
     tag.id = 'tourkit-sdk-styles'
@@ -28,23 +44,53 @@ function injectStylesOnce() {
   }
 }
 
-/**
- * @param {string|null|undefined} p
- * @returns {'top'|'bottom'|'left'|'right'}
- */
+function applyCustomization(customization) {
+  try {
+    const primaryColor = customization?.primary_color || '#F15025'
+    const fontFamily = customization?.font_family || 'Inter'
+    const borderRadius = customization?.border_radius || '10px'
+    const theme = customization?.theme || 'dark'
+
+    let bg = '#111111'
+    let border = '#2a2a2a'
+    let text = '#ffffff'
+    let subtext = '#999999'
+    let buttonGhost = '#1e1e1e'
+    let buttonGhostBorder = '#333333'
+    let buttonGhostText = '#cccccc'
+
+    if (theme === 'light') {
+      bg = '#ffffff'
+      border = '#e5e7eb'
+      text = '#111111'
+      subtext = '#6b7280'
+      buttonGhost = '#f9fafb'
+      buttonGhostBorder = '#e5e7eb'
+      buttonGhostText = '#374151'
+    }
+
+    const root = document.documentElement
+    root.style.setProperty('--tk-primary', primaryColor)
+    root.style.setProperty('--tk-bg', bg)
+    root.style.setProperty('--tk-border', border)
+    root.style.setProperty('--tk-text', text)
+    root.style.setProperty('--tk-subtext', subtext)
+    root.style.setProperty('--tk-radius', borderRadius)
+    root.style.setProperty('--tk-font', fontFamily)
+    root.style.setProperty('--tk-buttonGhost', buttonGhost)
+    root.style.setProperty('--tk-buttonGhostBorder', buttonGhostBorder)
+    root.style.setProperty('--tk-buttonGhostText', buttonGhostText)
+  } catch (_) {
+    /* silent */
+  }
+}
+
 function normalizePosition(p) {
-  var v = (String(p || 'bottom') + '').toLowerCase()
+  var v = String(p || 'bottom').toLowerCase()
   if (v === 'top' || v === 'left' || v === 'right') return v
   return 'bottom'
 }
 
-/**
- * @param {number} left
- * @param {number} top
- * @param {number} w
- * @param {number} h
- * @returns {[number, number]}
- */
 function clampViewport(left, top, w, h) {
   var pad = 8
   var maxL = Math.max(pad, window.innerWidth - w - pad)
@@ -54,16 +100,12 @@ function clampViewport(left, top, w, h) {
   return [left, top]
 }
 
-/**
- * @param {TourStep[]} stepsSorted
- * @param {{ scriptKey?: string }} opts
- */
-export function startTour(stepsSorted, opts) {
+export function startTour(stepsSorted, scriptKey, apiBase, customization) {
   try {
-    var scriptKey = (opts && opts.scriptKey) || ''
-    if (!scriptKey) return
+    if (!scriptKey || !apiBase) return
 
     injectStylesOnce()
+    applyCustomization(customization)
 
     var steps = Array.isArray(stepsSorted) ? stepsSorted.slice() : []
     if (!steps.length) return
@@ -77,48 +119,59 @@ export function startTour(stepsSorted, opts) {
     var tooltip = document.createElement('div')
     tooltip.className = 'tk-tooltip'
 
-    tooltip.innerHTML = ''
-    tooltip.className = 'tk-tooltip'
+    var header = document.createElement('div')
+    header.className = 'tk-tooltip-header'
 
-    var ttl = document.createElement('div')
+    var badge = document.createElement('div')
+    badge.className = 'tk-tooltip-badge'
+
+    var closeBtn = document.createElement('button')
+    closeBtn.type = 'button'
+    closeBtn.className = 'tk-close-btn'
+    closeBtn.setAttribute('aria-label', 'Close')
+    closeBtn.textContent = '×'
+
+    header.appendChild(badge)
+    header.appendChild(closeBtn)
+
+    var progressTrack = document.createElement('div')
+    progressTrack.className = 'tk-progress-track'
+
+    var progressFill = document.createElement('div')
+    progressFill.className = 'tk-progress-fill'
+    progressTrack.appendChild(progressFill)
+
+    var content = document.createElement('div')
+    content.className = 'tk-tooltip-content'
+
+    var ttl = document.createElement('h3')
     ttl.className = 'tk-tooltip-title'
 
-    var msg = document.createElement('div')
+    var msg = document.createElement('p')
     msg.className = 'tk-tooltip-message'
+
+    content.appendChild(ttl)
+    content.appendChild(msg)
 
     var footer = document.createElement('div')
     footer.className = 'tk-tooltip-footer'
 
-    var btnSkip = document.createElement('button')
-    btnSkip.type = 'button'
-    btnSkip.className = 'tk-btn tk-btn-ghost'
-    btnSkip.textContent = 'Skip'
-
-    var counter = document.createElement('div')
-    counter.className = 'tk-tooltip-counter'
-
-    var nav = document.createElement('div')
-    nav.className = 'tk-tooltip-nav'
-
     var btnPrev = document.createElement('button')
     btnPrev.type = 'button'
     btnPrev.className = 'tk-btn tk-btn-ghost'
-    btnPrev.textContent = 'Prev'
+    btnPrev.textContent = '← Prev'
 
     var btnNext = document.createElement('button')
     btnNext.type = 'button'
     btnNext.className = 'tk-btn tk-btn-primary'
-    btnNext.textContent = 'Next'
+    btnNext.textContent = 'Next →'
 
-    nav.appendChild(btnPrev)
-    nav.appendChild(btnNext)
+    footer.appendChild(btnPrev)
+    footer.appendChild(btnNext)
 
-    footer.appendChild(btnSkip)
-    footer.appendChild(counter)
-    footer.appendChild(nav)
-
-    tooltip.appendChild(ttl)
-    tooltip.appendChild(msg)
+    tooltip.appendChild(header)
+    tooltip.appendChild(progressTrack)
+    tooltip.appendChild(content)
     tooltip.appendChild(footer)
 
     document.body.appendChild(overlay)
@@ -134,9 +187,7 @@ export function startTour(stepsSorted, opts) {
       try {
         window.removeEventListener('scroll', scheduleReflow, true)
         window.removeEventListener('resize', scheduleReflow)
-      } catch (_) {
-        /* silent */
-      }
+      } catch (_) {}
     }
 
     function removeNodes() {
@@ -144,12 +195,9 @@ export function startTour(stepsSorted, opts) {
         if (tooltip.parentNode) tooltip.parentNode.removeChild(tooltip)
         if (highlight.parentNode) highlight.parentNode.removeChild(highlight)
         if (overlay.parentNode) overlay.parentNode.removeChild(overlay)
-      } catch (_) {
-        /* silent */
-      }
+      } catch (_) {}
     }
 
-    /** @param {boolean} markSeen */
     function destroyQuiet(markSeen) {
       if (destroyed) return
       destroyed = true
@@ -157,18 +205,14 @@ export function startTour(stepsSorted, opts) {
       cancelAnimationFrameMaybe()
       try {
         if (markSeen) window.localStorage.setItem('tourkit_seen_' + scriptKey, '1')
-      } catch (_) {
-        /* silent */
-      }
+      } catch (_) {}
       removeNodes()
     }
 
     function cancelAnimationFrameMaybe() {
       try {
         if (pendingRaf) cancelAnimationFrame(pendingRaf)
-      } catch (_) {
-        /* silent */
-      }
+      } catch (_) {}
       pendingRaf = 0
     }
 
@@ -181,46 +225,30 @@ export function startTour(stepsSorted, opts) {
           if (destroyed) return
           showStep(currentIdx, true)
         })
-      } catch (_) {
-        /* silent */
-      }
+      } catch (_) {}
     }
 
     window.addEventListener('scroll', scheduleReflow, true)
     window.addEventListener('resize', scheduleReflow)
 
-    /**
-     * @param {TourStep} step
-     */
     function orderFor(step) {
       try {
         if (step && typeof step.step_order === 'number' && Number.isFinite(step.step_order)) return step.step_order
-      } catch (_) {
-        /* ignore */
-      }
-
+      } catch (_) {}
       try {
         if (steps.indexOf(step) >= 0) return steps.indexOf(step)
-      } catch (_) {
-        /* ignore */
-      }
-
+      } catch (_) {}
       return null
     }
 
-    /** @param {DOMRect} rect */
     function layoutHighlight(rect) {
       highlight.style.display = 'block'
-      highlight.style.left = rect.left + 'px'
-      highlight.style.top = rect.top + 'px'
+      highlight.style.left = rect.left + window.scrollX + 'px'
+      highlight.style.top = rect.top + window.scrollY + 'px'
       highlight.style.width = rect.width + 'px'
       highlight.style.height = rect.height + 'px'
     }
 
-    /**
-     * @param {DOMRect} elRect
-     * @param {TourStep} step
-     */
     function layoutTooltip(elRect, step, logicalIndexZero) {
       var pos = normalizePosition(step && step.position)
       tooltip.style.display = 'block'
@@ -241,113 +269,83 @@ export function startTour(stepsSorted, opts) {
         left = elRect.left - ttW - gap
         top = elRect.top + elRect.height / 2 - ttH / 2
       } else {
-        /** right */
         left = elRect.right + gap
         top = elRect.top + elRect.height / 2 - ttH / 2
       }
 
-      tooltip.style.left = left + 'px'
-      tooltip.style.top = top + 'px'
+      var cl = clampViewport(left, top, tooltip.offsetWidth || ttW, tooltip.offsetHeight || ttH)
+      tooltip.style.left = cl[0] + 'px'
+      tooltip.style.top = cl[1] + 'px'
+
+      var total = steps.length
+      var n = logicalIndexZero + 1
+      badge.textContent = 'Step ' + n + ' of ' + total
+      progressFill.style.width = total > 0 ? (n / total) * 100 + '%' : '0%'
 
       var titleTxt = ''
       try {
         if (step.title && String(step.title).trim()) titleTxt = String(step.title).trim()
-        else titleTxt = 'Step ' + (logicalIndexZero + 1)
+        else titleTxt = 'Step ' + n
       } catch (_) {
         titleTxt = 'Step'
       }
-
       ttl.textContent = titleTxt
       msg.textContent = step.message ? String(step.message) : ''
-
-      var total = steps.length
-      var n = logicalIndexZero + 1
-      counter.textContent = n + ' of ' + total
-
-      var tw = tooltip.offsetWidth || ttW
-      var th = tooltip.offsetHeight || ttH
-
-      left = parseFloat(tooltip.style.left || '0') || 0
-      top = parseFloat(tooltip.style.top || '0') || 0
-      var cl = clampViewport(left, top, tw, th)
-      tooltip.style.left = cl[0] + 'px'
-      tooltip.style.top = cl[1] + 'px'
     }
 
-    btnSkip.onclick = function () {
+    function skipTour() {
       if (destroyed) return
       var cs = steps[currentIdx]
       var ord = cs ? orderFor(cs) : currentIdx
-
-      pingEvent(scriptKey, 'tour_skipped', ord === null ? null : ord)
-
+      pingEvent(apiBase, scriptKey, 'tour_skipped', ord === null ? null : ord)
       destroyQuiet(true)
     }
+
+    closeBtn.onclick = skipTour
+    overlay.onclick = skipTour
 
     btnPrev.onclick = function () {
       if (destroyed || currentIdx <= 0) return
       currentIdx -= 1
-
       showStep(currentIdx, false)
     }
 
     btnNext.onclick = function () {
       if (destroyed) return
-
       var lastIx = steps.length - 1
       var active = steps[currentIdx]
       var ordFinish = active ? orderFor(active) : currentIdx
 
       if (currentIdx >= lastIx) {
-        pingEvent(scriptKey, 'tour_completed', ordFinish === null ? null : ordFinish)
-
+        pingEvent(apiBase, scriptKey, 'tour_completed', ordFinish === null ? null : ordFinish)
         destroyQuiet(true)
         return
       }
 
       currentIdx += 1
-
       showStep(currentIdx, false)
     }
 
     var guardLoops = 0
 
-    /**
-     * @param {boolean} silent — true on layout-only reflow or auto-skipped missing targets (no pings)
-     */
     function showStep(initialIndex, silent) {
       if (destroyed) return
-
       guardLoops = 0
       attempt(initialIndex, silent)
 
       function attempt(i, sil) {
         if (destroyed) return
-
-        if (i >= steps.length) {
-          destroyQuiet(false)
-          return
-        }
-
-        if (guardLoops++ > steps.length + 20) {
-          destroyQuiet(false)
-          return
-        }
+        if (i >= steps.length) return destroyQuiet(false)
+        if (guardLoops++ > steps.length + 20) return destroyQuiet(false)
 
         var step = steps[i]
         var sel = ''
-
         try {
           sel = step && step.selector ? String(step.selector).trim() : ''
         } catch (_) {
           sel = ''
         }
-
-        if (!sel || !step) {
-          attempt(i + 1, true)
-
-          return
-        }
+        if (!sel || !step) return attempt(i + 1, true)
 
         var el = null
         try {
@@ -355,21 +353,14 @@ export function startTour(stepsSorted, opts) {
         } catch (_) {
           el = null
         }
-
-        if (!el) {
-          attempt(i + 1, true)
-
-          return
-        }
+        if (!el) return attempt(i + 1, true)
 
         try {
           el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' })
         } catch (_) {
           try {
             el.scrollIntoView()
-          } catch (_) {
-            /* silent */
-          }
+          } catch (_) {}
         }
 
         var rect = null
@@ -378,30 +369,20 @@ export function startTour(stepsSorted, opts) {
         } catch (_) {
           rect = null
         }
-
-        if (!rect || rect.width <= 0 || rect.height <= 0) {
-          attempt(i + 1, true)
-
-          return
-        }
+        if (!rect || rect.width <= 0 || rect.height <= 0) return attempt(i + 1, true)
 
         layoutHighlight(rect)
-
         layoutTooltip(rect, step, i)
 
         if (!sil && !tourStartedSent) {
           tourStartedSent = true
-
-          pingEvent(scriptKey, 'tour_started', orderFor(step))
+          pingEvent(apiBase, scriptKey, 'tour_started', orderFor(step))
         }
-
-        if (!sil) pingEvent(scriptKey, 'step_viewed', orderFor(step))
+        if (!sil) pingEvent(apiBase, scriptKey, 'step_viewed', orderFor(step))
 
         currentIdx = i
-
-        btnPrev.style.visibility = currentIdx <= 0 ? 'hidden' : 'visible'
-
-        btnNext.textContent = currentIdx >= steps.length - 1 ? 'Finish' : 'Next'
+        btnPrev.style.display = currentIdx <= 0 ? 'none' : 'inline-flex'
+        btnNext.textContent = currentIdx >= steps.length - 1 ? 'Finish' : 'Next →'
       }
     }
 
