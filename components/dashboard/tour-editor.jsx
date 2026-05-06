@@ -5,13 +5,29 @@ import { useEffect, useMemo, useState, useTransition } from 'react'
 import Link from 'next/link'
 import {
   CheckIcon,
-  ChevronDownIcon,
   ChevronLeftIcon,
-  ChevronUpIcon,
   CopyIcon,
   MapIcon,
+  GripVerticalIcon,
   Trash2Icon,
 } from 'lucide-react'
+
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core'
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable,
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 
 import {
   createStep,
@@ -29,6 +45,17 @@ import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
+import { TourPreview } from '@/components/dashboard/tour-preview'
 
 const POSITION_OPTIONS = [
   { value: 'top', label: 'Top' },
@@ -99,10 +126,12 @@ export function TourEditor({ project, tour, initialSteps }) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [actionError, setActionError] = useState(null)
-  const steps = useMemo(
+  const initialSorted = useMemo(
     () => (initialSteps ?? []).map(normalizeStep).sort((a, b) => a.step_order - b.step_order),
     [initialSteps],
   )
+
+  const [steps, setSteps] = useState(initialSorted)
 
   const [panelMode, setPanelMode] = useState('add')
   const [selectedId, setSelectedId] = useState(null)
@@ -114,6 +143,10 @@ export function TourEditor({ project, tour, initialSteps }) {
   useEffect(() => {
     setTourActive(Boolean(tour.is_active))
   }, [tour.is_active])
+
+  useEffect(() => {
+    setSteps(initialSorted)
+  }, [initialSorted])
 
   useEffect(() => {
     if (selectedId && !steps.some((s) => s.id === selectedId)) {
@@ -154,20 +187,48 @@ export function TourEditor({ project, tour, initialSteps }) {
     })
   }
 
-  const moveStep = (index, direction) => {
-    const nextIndex = index + direction
-    if (nextIndex < 0 || nextIndex >= steps.length) return
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [pendingDeleteId, setPendingDeleteId] = useState(null)
 
-    const reordered = [...steps]
-    const [removed] = reordered.splice(index, 1)
-    reordered.splice(nextIndex, 0, removed)
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  )
 
-    const payload = reordered.map((s, i) => ({ id: s.id, step_order: i }))
-    runAction(async () => reorderSteps(payload))
+  function handleDragEnd(event) {
+    const { active, over } = event
+    if (!active?.id || !over?.id) return
+    if (active.id === over.id) return
+
+    const oldIndex = steps.findIndex((s) => s.id === active.id)
+    const newIndex = steps.findIndex((s) => s.id === over.id)
+    if (oldIndex < 0 || newIndex < 0) return
+
+    const newSteps = arrayMove(steps, oldIndex, newIndex)
+    setSteps(newSteps)
+
+    const reordered = newSteps.map((s, i) => ({ id: s.id, step_order: i + 1 }))
+
+    setActionError(null)
+    startTransition(async () => {
+      const result = await reorderSteps(reordered)
+      if (result?.error) {
+        setActionError(result.error)
+        return
+      }
+      router.refresh()
+    })
   }
 
-  const handleDelete = (stepId) => {
-    if (!window.confirm('Delete this step? This cannot be undone.')) return
+  const confirmDelete = () => {
+    const stepId = pendingDeleteId
+    if (!stepId) return
+
+    setDeleteDialogOpen(false)
+    setPendingDeleteId(null)
+
     runAction(async () => deleteStep(stepId))
     if (selectedId === stepId) {
       setSelectedId(null)
@@ -185,6 +246,37 @@ export function TourEditor({ project, tour, initialSteps }) {
     setSelectedId(null)
     document.getElementById('tour-editor-right-panel')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
   }
+
+  const [draft, setDraft] = useState({
+    title: '',
+    message: '',
+    selector: '',
+    position: 'bottom',
+  })
+
+  const [editDraft, setEditDraft] = useState({
+    title: '',
+    message: '',
+    selector: '',
+    position: 'bottom',
+  })
+
+  useEffect(() => {
+    if (panelMode === 'edit' && selected) {
+      setEditDraft({
+        title: selected.title ?? '',
+        message: selected.message ?? '',
+        selector: selected.selector ?? '',
+        position: selected.position ?? 'bottom',
+      })
+    }
+  }, [panelMode, selectedId]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const previewData = panelMode === 'edit' && selected ? editDraft : draft
+
+  const selectedIndex = selected ? steps.findIndex((s) => s.id === selected.id) : -1
+  const previewStepNumber = panelMode === 'edit' && selected ? selectedIndex + 1 : steps.length + 1
+  const previewTotalSteps = panelMode === 'edit' && selected ? steps.length : steps.length + 1
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-10">
@@ -241,13 +333,32 @@ export function TourEditor({ project, tour, initialSteps }) {
         <InstallSnippetBlock scriptKey={project.script_key} />
       </div>
 
-      <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(280px,26rem)] lg:items-start">
+      <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,26rem)] lg:items-start xl:grid-cols-[minmax(0,1fr)_minmax(0,26rem)_minmax(0,22rem)]">
         <Card className="border-border/80 bg-card/60 backdrop-blur-sm">
           <CardHeader className="pb-3">
             <CardTitle className="text-lg">Steps ({steps.length})</CardTitle>
             <CardDescription>Order matches how the tour runs on your site.</CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-3">
+            <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Delete step?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This will permanently delete the step. This action cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel type="button" onClick={() => setPendingDeleteId(null)}>
+                    Cancel
+                  </AlertDialogCancel>
+                  <AlertDialogAction type="button" onClick={confirmDelete}>
+                    Delete
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+
             {steps.length === 0 ? (
               <div className="flex flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-border/70 bg-muted/20 px-6 py-12 text-center">
                 <div
@@ -263,81 +374,24 @@ export function TourEditor({ project, tour, initialSteps }) {
                 </div>
               </div>
             ) : (
-              steps.map((step, index) => {
-                const isSelected = selectedId === step.id && panelMode === 'edit'
-                return (
-                  <div
-                    key={step.id}
-                    role="button"
-                    tabIndex={0}
-                    onClick={() => openEditForStep(step.id)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault()
-                        openEditForStep(step.id)
-                      }
-                    }}
-                    className={`flex cursor-pointer flex-col gap-2 rounded-lg border p-4 text-left transition-[border-color,box-shadow,background-color] hover:border-[#F15025]/45 ${
-                      isSelected
-                        ? 'border-2 border-[#F15025] bg-[#F15025]/[0.07] shadow-[inset_0_0_0_1px_rgba(241,80,37,0.25)]'
-                        : 'border border-border/80 bg-muted/25'
-                    }`}>
-                    <div className="flex items-start justify-between gap-3">
-                      <span className="text-xs font-medium text-muted-foreground">Step {index + 1}</span>
-                      <div className="flex shrink-0 items-center gap-1" onClick={(e) => e.stopPropagation()}>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="icon-xs"
-                          disabled={isPending || index === 0}
-                          aria-label="Move step up"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            moveStep(index, -1)
-                          }}>
-                          <ChevronUpIcon />
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="icon-xs"
-                          disabled={isPending || index === steps.length - 1}
-                          aria-label="Move step down"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            moveStep(index, 1)
-                          }}>
-                          <ChevronDownIcon />
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="destructive"
-                          size="icon-xs"
-                          disabled={isPending}
-                          aria-label="Delete step"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            handleDelete(step.id)
-                          }}>
-                          <Trash2Icon />
-                        </Button>
-                      </div>
-                    </div>
-                    <div className="truncate text-sm font-semibold text-foreground">
-                      {step.title?.trim() ? step.title : '(No title)'}
-                    </div>
-                    <code className="truncate font-mono text-xs" style={{ color: ACCENT }}>
-                      {step.selector}
-                    </code>
-                    <p className="line-clamp-1 text-xs text-muted-foreground">{step.message}</p>
-                    <div>
-                      <span className="inline-flex rounded-full border border-border/60 bg-muted/50 px-2 py-0.5 text-[0.65rem] font-semibold tracking-wide text-muted-foreground">
-                        {positionPillLabel(step.position)}
-                      </span>
-                    </div>
-                  </div>
-                )
-              })
+              <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                <SortableContext items={steps.map((s) => s.id)} strategy={verticalListSortingStrategy}>
+                  {steps.map((step, index) => (
+                    <SortableStepCard
+                      key={step.id}
+                      step={step}
+                      index={index}
+                      disabled={isPending}
+                      isSelected={selectedId === step.id && panelMode === 'edit'}
+                      onSelect={() => openEditForStep(step.id)}
+                      onDelete={() => {
+                        setPendingDeleteId(step.id)
+                        setDeleteDialogOpen(true)
+                      }}
+                    />
+                  ))}
+                </SortableContext>
+              </DndContext>
             )}
 
             <Button
@@ -370,37 +424,82 @@ export function TourEditor({ project, tour, initialSteps }) {
           <CardContent>
             {panelMode === 'edit' && selected ? (
               <EditStepForm
-                key={selected.id}
-                step={selected}
                 disabled={isPending}
-                onError={setActionError}
+                draft={editDraft}
+                onDraftChange={setEditDraft}
                 onCancel={() => {
                   setActionError(null)
                   setPanelMode('add')
                   setSelectedId(null)
                 }}
-                onSuccess={() => {
+                onSave={() => {
                   setActionError(null)
-                  setPanelMode('add')
-                  setSelectedId(null)
-                  router.refresh()
+                  startTransition(async () => {
+                    const result = await updateStep(selected.id, editDraft)
+                    if (result?.error) {
+                      setActionError(result.error)
+                      return
+                    }
+                    setSteps((prev) =>
+                      prev.map((s) => (s.id === selected.id ? { ...s, ...editDraft, position: editDraft.position || s.position } : s)),
+                    )
+                    setPanelMode('add')
+                    setSelectedId(null)
+                    router.refresh()
+                  })
                 }}
               />
             ) : (
               <AddStepForm
-                key={addFormKey}
-                tourId={tour.id}
                 disabled={isPending}
-                onCreated={() => {
-                  setAddFormKey((k) => k + 1)
-                }}
-                onError={setActionError}
-                onSuccess={() => {
+                draft={draft}
+                onDraftChange={setDraft}
+                onAdd={() => {
                   setActionError(null)
-                  router.refresh()
+                  startTransition(async () => {
+                    const result = await createStep(tour.id, draft)
+                    if (result?.error) {
+                      setActionError(result.error)
+                      return
+                    }
+                    setAddFormKey((k) => k + 1)
+                    setSteps((prev) => {
+                      const nextOrder = prev.length ? Math.max(...prev.map((s) => Number(s.step_order) || 0)) + 1 : 1
+                      return [
+                        ...prev,
+                        {
+                          id: result.id,
+                          tour_id: tour.id,
+                          selector: draft.selector,
+                          title: draft.title,
+                          message: draft.message,
+                          position: draft.position || 'bottom',
+                          step_order: nextOrder,
+                        },
+                      ]
+                    })
+                    setDraft({ title: '', message: '', selector: '', position: 'bottom' })
+                    router.refresh()
+                  })
                 }}
               />
             )}
+          </CardContent>
+        </Card>
+
+        <Card className="min-w-0 border-border/80 bg-card/60 backdrop-blur-sm lg:col-span-2 xl:col-span-1">
+          <CardContent className="pt-4">
+            <TourPreview
+              title={previewData.title}
+              message={previewData.message}
+              position={previewData.position}
+              stepNumber={previewStepNumber}
+              totalSteps={previewTotalSteps}
+              onPositionChange={(pos) => {
+                if (panelMode === 'edit') setEditDraft((s) => ({ ...s, position: pos }))
+                else setDraft((s) => ({ ...s, position: pos }))
+              }}
+            />
           </CardContent>
         </Card>
       </div>
@@ -408,140 +507,128 @@ export function TourEditor({ project, tour, initialSteps }) {
   )
 }
 
-function AddStepForm({ tourId, disabled, onCreated, onError, onSuccess }) {
-  const [isPending, startTransition] = useTransition()
+function SortableStepCard({ step, index, disabled, isSelected, onSelect, onDelete }) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: step.id })
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.6 : 1,
+  }
 
   return (
-    <form
-      className="flex flex-col gap-4"
-      action={(formData) => {
-        onError(null)
-        const title = String(formData.get('title') || '')
-        const message = String(formData.get('message') || '')
-        const selector = String(formData.get('selector') || '')
-        const position = String(formData.get('position') || 'bottom')
-        startTransition(async () => {
-          const result = await createStep(tourId, { title, message, selector, position })
-          if (result?.error) {
-            onError(result.error)
-            return
-          }
-          onCreated(result.id)
-          onSuccess()
-        })
-      }}>
-      <FieldGroup
-        idPrefix="add"
-        defaultTitle=""
-        defaultMessage=""
-        defaultSelector=""
-        defaultPosition="bottom"
-        disabled={disabled || isPending}
-      />
-      <div className="flex justify-end">
-        <Button type="submit" disabled={disabled || isPending}>
-          {isPending ? 'Adding…' : 'Add step'}
+    <div
+      ref={setNodeRef}
+      style={style}
+      role="button"
+      tabIndex={0}
+      onClick={onSelect}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          onSelect?.()
+        }
+      }}
+      className={`flex cursor-pointer flex-col gap-2 rounded-lg border p-4 text-left transition-[border-color,box-shadow,background-color] hover:border-[#F15025]/45 ${
+        isSelected
+          ? 'border-2 border-[#F15025] bg-[#F15025]/[0.07] shadow-[inset_0_0_0_1px_rgba(241,80,37,0.25)]'
+          : 'border border-border/80 bg-muted/25'
+      }`}>
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <span
+            className="inline-flex items-center text-muted-foreground hover:text-foreground"
+            style={{ cursor: disabled ? 'not-allowed' : 'grab' }}
+            onClick={(e) => e.stopPropagation()}
+            {...(disabled ? {} : attributes)}
+            {...(disabled ? {} : listeners)}>
+            <GripVerticalIcon className="size-4" aria-hidden />
+          </span>
+          <span className="text-xs font-medium text-muted-foreground">Step {index + 1}</span>
+        </div>
+        <Button
+          type="button"
+          variant="destructive"
+          size="icon-xs"
+          disabled={disabled}
+          aria-label="Delete step"
+          onClick={(e) => {
+            e.stopPropagation()
+            onDelete?.()
+          }}>
+          <Trash2Icon />
         </Button>
       </div>
-    </form>
+      <div className="truncate text-sm font-semibold text-foreground">
+        {step.title?.trim() ? step.title : '(No title)'}
+      </div>
+      <code className="truncate font-mono text-xs" style={{ color: ACCENT }}>
+        {step.selector}
+      </code>
+      <p className="line-clamp-1 text-xs text-muted-foreground">{step.message}</p>
+      <div>
+        <span className="inline-flex rounded-full border border-border/60 bg-muted/50 px-2 py-0.5 text-[0.65rem] font-semibold tracking-wide text-muted-foreground">
+          {positionPillLabel(step.position)}
+        </span>
+      </div>
+    </div>
   )
 }
 
-function EditStepForm({ step, disabled, onError, onSuccess, onCancel }) {
-  const [isPending, startTransition] = useTransition()
-
-  return (
-    <form
-      className="flex flex-col gap-4"
-      action={(formData) => {
-        onError(null)
-        const title = String(formData.get('title') || '')
-        const message = String(formData.get('message') || '')
-        const selector = String(formData.get('selector') || '')
-        const position = String(formData.get('position') || 'bottom')
-        startTransition(async () => {
-          const result = await updateStep(step.id, { title, message, selector, position })
-          if (result?.error) {
-            onError(result.error)
-            return
-          }
-          onSuccess()
-        })
-      }}>
-      <FieldGroup
-        idPrefix={`edit-${step.id}`}
-        defaultTitle={step.title ?? ''}
-        defaultMessage={step.message ?? ''}
-        defaultSelector={step.selector ?? ''}
-        defaultPosition={step.position ?? 'bottom'}
-        disabled={disabled || isPending}
-      />
-      <div className="flex flex-wrap justify-end gap-2">
-        <Button type="button" variant="outline" disabled={disabled || isPending} onClick={() => onCancel?.()}>
-          Cancel
-        </Button>
-        <Button type="submit" disabled={disabled || isPending}>
-          {isPending ? 'Saving…' : 'Save changes'}
-        </Button>
-      </div>
-    </form>
-  )
-}
-
-function FieldGroup({
-  idPrefix,
-  defaultTitle,
-  defaultMessage,
-  defaultSelector,
-  defaultPosition,
-  disabled,
-}) {
+function StepFields({ value, onChange, disabled }) {
   return (
     <>
       <div className="flex flex-col gap-2">
-        <Label htmlFor={`${idPrefix}-title`}>Title</Label>
+        <Label htmlFor="step-title">Title</Label>
         <Input
-          id={`${idPrefix}-title`}
-          name="title"
+          id="step-title"
           placeholder="Welcome"
-          defaultValue={defaultTitle}
+          value={value.title}
           disabled={disabled}
           autoComplete="off"
+          onChange={(e) => onChange({ ...value, title: e.target.value })}
         />
       </div>
       <div className="flex flex-col gap-2">
-        <Label htmlFor={`${idPrefix}-message`}>Message</Label>
+        <Label htmlFor="step-message">Message</Label>
         <Textarea
-          id={`${idPrefix}-message`}
-          name="message"
+          id="step-message"
           placeholder="Explain what this part of the page does…"
-          defaultValue={defaultMessage}
+          value={value.message}
           disabled={disabled}
           required
           rows={4}
+          onChange={(e) => onChange({ ...value, message: e.target.value })}
         />
       </div>
       <div className="flex flex-col gap-2">
-        <Label htmlFor={`${idPrefix}-selector`}>CSS selector</Label>
+        <Label htmlFor="step-selector">CSS selector</Label>
         <Input
-          id={`${idPrefix}-selector`}
-          name="selector"
+          id="step-selector"
           placeholder="nav, #hero, .cta-button"
-          defaultValue={defaultSelector}
+          value={value.selector}
           disabled={disabled}
           required
           spellCheck={false}
           autoComplete="off"
+          onChange={(e) => onChange({ ...value, selector: e.target.value })}
         />
       </div>
       <div className="flex flex-col gap-2">
-        <Label htmlFor={`${idPrefix}-position`}>Position</Label>
+        <Label htmlFor="step-position">Position</Label>
         <select
-          id={`${idPrefix}-position`}
-          name="position"
+          id="step-position"
           className={SELECT_INPUT}
-          defaultValue={defaultPosition}
-          disabled={disabled}>
+          value={value.position}
+          disabled={disabled}
+          onChange={(e) => onChange({ ...value, position: e.target.value })}>
           {POSITION_OPTIONS.map((opt) => (
             <option key={opt.value} value={opt.value}>
               {opt.label}
@@ -550,5 +637,34 @@ function FieldGroup({
         </select>
       </div>
     </>
+  )
+}
+
+function AddStepForm({ disabled, draft, onDraftChange, onAdd }) {
+  return (
+    <div className="flex flex-col gap-4">
+      <StepFields value={draft} onChange={onDraftChange} disabled={disabled} />
+      <div className="flex justify-end">
+        <Button type="button" disabled={disabled} onClick={onAdd}>
+          {disabled ? 'Adding…' : 'Add step'}
+        </Button>
+      </div>
+    </div>
+  )
+}
+
+function EditStepForm({ disabled, draft, onDraftChange, onSave, onCancel }) {
+  return (
+    <div className="flex flex-col gap-4">
+      <StepFields value={draft} onChange={onDraftChange} disabled={disabled} />
+      <div className="flex flex-wrap justify-end gap-2">
+        <Button type="button" variant="outline" disabled={disabled} onClick={onCancel}>
+          Cancel
+        </Button>
+        <Button type="button" disabled={disabled} onClick={onSave}>
+          {disabled ? 'Saving…' : 'Save changes'}
+        </Button>
+      </div>
+    </div>
   )
 }
