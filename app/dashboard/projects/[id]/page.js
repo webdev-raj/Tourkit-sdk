@@ -1,6 +1,7 @@
 import { Suspense } from 'react'
 import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
+import { BarChart2Icon, PlayIcon } from 'lucide-react'
 
 
 import { deleteProject } from '@/app/actions/projects'
@@ -88,20 +89,27 @@ async function TourEditorGate({ projectId, deleteError }) {
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-8">
-      {/* <div className="flex justify-end">
+      <div className="flex flex-wrap justify-end gap-2">
+        <Button variant="outline" asChild>
+          <Link href={`/demo/${project.script_key}`} target="_blank" rel="noreferrer">
+            <PlayIcon className="mr-2 size-4" />
+            Live Demo
+          </Link>
+        </Button>
+
         <Button variant="outline" asChild>
           <Link href={`/dashboard/projects/${project.id}/analytics`}>
             <BarChart2Icon className="mr-2 size-4" />
             View Analytics
           </Link>
         </Button>
-      </div> */}
+      </div>
 
       <TourEditor
         project={project}
         tour={tourRes.data}
         initialSteps={stepsRes.data}
-        analyticsHref={`/dashboard/projects/${project.id}/analytics`}
+        analyticsHref={null}
       />
 
       <section className="rounded-lg border border-red-900/70 bg-card/40 p-5">

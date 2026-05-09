@@ -1,20 +1,117 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TourKit SDK Test Playground</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <style>
+      body {
+        font-family: "Poppins", sans-serif;
+        letter-spacing: -0.04em;
+      }
+    </style>
+  </head>
+  <body class="min-h-screen bg-[#060606] text-white antialiased">
+    <div class="relative isolate">
+      <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(241,80,37,0.18),transparent_45%),radial-gradient(circle_at_85%_0%,rgba(241,80,37,0.09),transparent_35%)]"></div>
 
-<head>
-  <title>TourKit SDK Test</title>
-  <link rel="stylesheet" href="./../app/globals.css">
-</head>
+      <header class="relative z-10 border-b border-white/10 bg-black/50 backdrop-blur">
+        <div class="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-4">
+          <div class="flex items-center gap-3">
+            <div class="h-3 w-3 rounded-full bg-[#F15025]"></div>
+            <p class="text-sm font-semibold tracking-wide text-white">TourKit SDK Sandbox</p>
+          </div>
+          <div class="rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs text-gray-300">
+            Test page
+          </div>
+        </div>
+      </header>
 
-<body class="bg-black">
-  <nav>Navigation bar</nav>
-  <main id="hero">
-    <h1>Hello World</h1>
-    <button>Get Started</button>
-  </main>
-  <script src="https://cdn.jsdelivr.net/gh/webdev-raj/Tourkit@main/sdk/dist/tourkit.min.js?v=2"
-    data-key="6693b4f6-cf28-4920-b921-4c77487d0f03" data-api="https://tourkit-phi.vercel.app" async>
-    </script>
-</body>
+      <main class="relative z-10 mx-auto grid w-full max-w-6xl gap-8 px-6 py-10 lg:grid-cols-[1.5fr_1fr]">
+        <section id="hero" class="rounded-2xl border border-white/10 bg-[#111111]/90 p-8 shadow-2xl shadow-black/40">
+          <p class="mb-3 inline-flex rounded-full border border-[#F15025]/40 bg-[#F15025]/10 px-3 py-1 text-xs font-medium text-[#F15025]">
+            Primary demo surface
+          </p>
+          <h1 class="text-4xl font-semibold leading-tight text-white md:text-5xl">
+            Test your tour on realistic UI targets
+          </h1>
+          <p class="mt-4 max-w-2xl text-sm leading-relaxed text-gray-300">
+            This page is intentionally structured for TourKit QA. Use the stable selectors below in your dashboard to validate tooltip position, flow, and analytics events.
+          </p>
+          <div class="mt-8 flex flex-wrap items-center gap-3">
+            <button class="cta-primary rounded-xl bg-[#F15025] px-5 py-2.5 text-sm font-semibold text-white transition hover:brightness-110">
+              Get Started
+            </button>
+            <button class="rounded-xl border border-white/15 bg-white/5 px-5 py-2.5 text-sm font-medium text-gray-200 transition hover:bg-white/10">
+              Secondary Action
+            </button>
+          </div>
+        </section>
 
+        <aside class="rounded-2xl border border-white/10 bg-[#101010] p-6">
+          <h2 class="text-lg font-semibold text-white">Selector Targets</h2>
+          <p class="mt-2 text-xs text-gray-400">Copy any selector into step editor.</p>
+          <div class="mt-5 flex flex-col gap-2">
+            <code class="rounded-md border border-white/10 bg-black/40 px-3 py-2 text-xs text-[#F15025]">nav</code>
+            <code class="rounded-md border border-white/10 bg-black/40 px-3 py-2 text-xs text-[#F15025]">#hero</code>
+            <code class="rounded-md border border-white/10 bg-black/40 px-3 py-2 text-xs text-[#F15025]">.cta-primary</code>
+            <code class="rounded-md border border-white/10 bg-black/40 px-3 py-2 text-xs text-[#F15025]">#features</code>
+            <code class="rounded-md border border-white/10 bg-black/40 px-3 py-2 text-xs text-[#F15025]">#pricing</code>
+            <code class="rounded-md border border-white/10 bg-black/40 px-3 py-2 text-xs text-[#F15025]">footer</code>
+          </div>
+        </aside>
+
+        <section id="features" class="rounded-2xl border border-white/10 bg-[#111111]/85 p-6 lg:col-span-2">
+          <div class="mb-4 flex items-center justify-between">
+            <h3 class="text-xl font-semibold text-white">Feature Grid</h3>
+            <span class="text-xs text-gray-500">Good for step-by-step highlighting</span>
+          </div>
+          <div class="grid gap-4 md:grid-cols-3">
+            <article class="rounded-xl border border-white/10 bg-black/30 p-4">
+              <h4 class="text-sm font-medium text-white">Auto-detect elements</h4>
+              <p class="mt-2 text-xs text-gray-400">Falls back gracefully if selectors are missing.</p>
+            </article>
+            <article class="rounded-xl border border-white/10 bg-black/30 p-4">
+              <h4 class="text-sm font-medium text-white">Theme-safe tooltip</h4>
+              <p class="mt-2 text-xs text-gray-400">Supports dark/light theme customization.</p>
+            </article>
+            <article class="rounded-xl border border-white/10 bg-black/30 p-4">
+              <h4 class="text-sm font-medium text-white">Analytics tracking</h4>
+              <p class="mt-2 text-xs text-gray-400">Captures starts, completions, skips, and step views.</p>
+            </article>
+          </div>
+        </section>
+
+        <section id="pricing" class="rounded-2xl border border-white/10 bg-[#111111]/85 p-6 lg:col-span-2">
+          <h3 class="text-xl font-semibold text-white">Pricing CTA Area</h3>
+          <p class="mt-2 text-sm text-gray-300">Another useful area to test bottom and right tooltip positions.</p>
+          <div class="mt-5 flex flex-wrap gap-3">
+            <button class="rounded-lg border border-white/15 bg-white/5 px-4 py-2 text-sm text-gray-200 hover:bg-white/10">
+              View Plans
+            </button>
+            <button class="rounded-lg bg-[#F15025] px-4 py-2 text-sm font-medium text-white hover:brightness-110">
+              Start Free Trial
+            </button>
+          </div>
+        </section>
+      </main>
+
+      <footer class="relative z-10 border-t border-white/10 bg-black/40">
+        <div class="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-4 text-xs text-gray-500">
+          <span>TourKit test footer</span>
+          <span>Use this as a final step target</span>
+        </div>
+      </footer>
+    </div>
+
+    <script
+      src="https://cdn.jsdelivr.net/gh/webdev-raj/Tourkit@main/sdk/dist/tourkit.min.js?v=2"
+      data-key="6693b4f6-cf28-4920-b921-4c77487d0f03"
+      data-api="https://tourkit-phi.vercel.app"
+      async></script>
+  </body>
 </html>

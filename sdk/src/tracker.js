@@ -5,9 +5,13 @@
  * @param {string} eventType
  * @param {number|null|undefined} stepOrder
  * @param {string} sessionId
+ * @param {boolean} isDemo
  */
-export function pingEvent(apiBase, scriptKey, eventType, stepOrder, sessionId) {
+export function pingEvent(apiBase, scriptKey, eventType, stepOrder, sessionId, isDemo) {
   try {
+    // Skip analytics completely in demo mode
+    if (isDemo) return
+
     if (!apiBase || !scriptKey || !eventType) return
 
     var body = JSON.stringify({

@@ -100,7 +100,7 @@ function clampViewport(left, top, w, h) {
   return [left, top]
 }
 
-export function startTour(stepsSorted, scriptKey, apiBase, customization, sessionId) {
+export function startTour(stepsSorted, scriptKey, apiBase, customization, sessionId, isDemo) {
   try {
     if (!scriptKey || !apiBase) return
 
@@ -297,7 +297,7 @@ export function startTour(stepsSorted, scriptKey, apiBase, customization, sessio
       if (destroyed) return
       var cs = steps[currentIdx]
       var ord = cs ? orderFor(cs) : currentIdx
-      pingEvent(apiBase, scriptKey, 'tour_skipped', ord === null ? null : ord, sessionId)
+      pingEvent(apiBase, scriptKey, 'tour_skipped', ord === null ? null : ord, sessionId, isDemo)
       destroyQuiet(true)
     }
 
@@ -317,7 +317,7 @@ export function startTour(stepsSorted, scriptKey, apiBase, customization, sessio
       var ordFinish = active ? orderFor(active) : currentIdx
 
       if (currentIdx >= lastIx) {
-        pingEvent(apiBase, scriptKey, 'tour_completed', ordFinish === null ? null : ordFinish, sessionId)
+        pingEvent(apiBase, scriptKey, 'tour_completed', ordFinish === null ? null : ordFinish, sessionId, isDemo)
         destroyQuiet(true)
         return
       }
@@ -376,9 +376,9 @@ export function startTour(stepsSorted, scriptKey, apiBase, customization, sessio
 
         if (!sil && !tourStartedSent) {
           tourStartedSent = true
-          pingEvent(apiBase, scriptKey, 'tour_started', orderFor(step), sessionId)
+          pingEvent(apiBase, scriptKey, 'tour_started', orderFor(step), sessionId, isDemo)
         }
-        if (!sil) pingEvent(apiBase, scriptKey, 'step_viewed', orderFor(step), sessionId)
+        if (!sil) pingEvent(apiBase, scriptKey, 'step_viewed', orderFor(step), sessionId, isDemo)
 
         currentIdx = i
         btnPrev.style.display = currentIdx <= 0 ? 'none' : 'inline-flex'

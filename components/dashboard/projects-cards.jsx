@@ -9,6 +9,7 @@ import {
   ArrowRightIcon,
   ChevronDownIcon,
   ChevronUpIcon,
+  ExternalLinkIcon,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -144,6 +145,24 @@ function ProjectCard({ project, appUrl, open, onToggle }) {
                   e.stopPropagation()
                 }}>
                 Edit Tour
+              </Link>
+            </Button>
+
+            <Button
+              asChild
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="rounded-xl text-muted-foreground hover:text-foreground">
+              <Link
+                href={`/demo/${project.script_key}`}
+                target="_blank"
+                rel="noreferrer"
+                onClick={(e) => {
+                  e.stopPropagation()
+                }}>
+                <ExternalLinkIcon className="size-4" />
+                Live Demo
               </Link>
             </Button>
 
