@@ -4,25 +4,36 @@ import { startTour } from './renderer.js'
 
 ;(function tourkitBootstrap() {
   try {
-    /**
-     * Async script tags do not get document.currentScript — walk scripts for data-key.
-     * @returns {string}
-     */
-    function getScriptDatasetKey() {
-      try {
-        var scripts = document.getElementsByTagName('script')
+    function getScriptConfig() {
+      var SCRIPT_KEY = ''
+      var API_BASE = ''
+      var IS_DEMO = false
 
-        for (var i = scripts.length - 1; i >= 0; i--) {
-          var s = scripts[i]
-          if (!s || !s.getAttribute) continue
-          var k = s.getAttribute('data-key')
-          if (k && String(k).trim()) return String(k).trim()
+      try {
+        if (document.currentScript && document.currentScript.getAttribute) {
+          SCRIPT_KEY = String(document.currentScript.getAttribute('data-key') || '').trim()
+          API_BASE = String(document.currentScript.getAttribute('data-api') || '').trim()
+          IS_DEMO = document.currentScript.getAttribute('data-demo') === 'true'
+        }
+
+        if (!SCRIPT_KEY) {
+          var scripts = document.getElementsByTagName('script')
+          for (var i = scripts.length - 1; i >= 0; i--) {
+            var s = scripts[i]
+            if (!s || !s.getAttribute) continue
+            var k = String(s.getAttribute('data-key') || '').trim()
+            if (!k) continue
+            SCRIPT_KEY = k
+            API_BASE = String(s.getAttribute('data-api') || '').trim()
+            IS_DEMO = s.getAttribute('data-demo') === 'true'
+            break
+          }
         }
       } catch (_) {
         /* silent */
       }
 
-      return ''
+      return { key: SCRIPT_KEY, apiBase: API_BASE, isDemo: IS_DEMO }
     }
 
     /**
@@ -119,8 +130,10 @@ import { startTour } from './renderer.js'
 
     function main() {
       try {
-        var key = getScriptDatasetKey()
+        var scriptConfig = getScriptConfig()
+        var key = scriptConfig.key
         if (!key) return
+        var isDemo = Boolean(scriptConfig.isDemo)
         var sessionId = getSessionId()
 
         try {
@@ -153,8 +166,8 @@ import { startTour } from './renderer.js'
 
             if (!merged.length) return
 
-            var apiBase = data.api_base || TK_API_ORIGIN
-            startTour(merged, key, apiBase, data.customization || null, sessionId)
+            var apiBase = scriptConfig.apiBase || data.api_base || TK_API_ORIGIN
+            startTour(merged, key, apiBase, data.customization || null, sessionId, isDemo)
           })
           .catch(function () {})
       } catch (_) {
