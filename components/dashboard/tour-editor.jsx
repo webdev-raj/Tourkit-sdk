@@ -15,6 +15,7 @@ import {
   PaletteIcon,
   MoonIcon,
   SunIcon,
+  BarChart2Icon
 } from 'lucide-react'
 
 import {
@@ -358,7 +359,7 @@ export function TourEditor({ project, tour, initialSteps, analyticsHref }) {
           <div className="flex shrink-0 items-center gap-3">
             {analyticsHref ? (
               <Button variant="outline" size="sm" asChild className="border-white/10 bg-background/20 hover:bg-muted/20">
-                <Link href={analyticsHref}>View Analytics</Link>
+                <Link href={analyticsHref}><BarChart2Icon className="mr-2 size-4" /> View Analytics</Link>
               </Button>
             ) : null}
             <div className="flex shrink-0 items-center gap-3 rounded-lg border border-border/50 bg-muted/40 px-3 py-2.5">

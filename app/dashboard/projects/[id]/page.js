@@ -2,6 +2,7 @@ import { Suspense } from 'react'
 import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 
+
 import { deleteProject } from '@/app/actions/projects'
 import { getStepsByTourId, getTourByProjectId } from '@/app/actions/tours'
 import { TourEditor } from '@/components/dashboard/tour-editor'
@@ -87,6 +88,15 @@ async function TourEditorGate({ projectId, deleteError }) {
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-8">
+      {/* <div className="flex justify-end">
+        <Button variant="outline" asChild>
+          <Link href={`/dashboard/projects/${project.id}/analytics`}>
+            <BarChart2Icon className="mr-2 size-4" />
+            View Analytics
+          </Link>
+        </Button>
+      </div> */}
+
       <TourEditor
         project={project}
         tour={tourRes.data}
