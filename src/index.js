@@ -104,10 +104,24 @@ import { startTour } from './renderer.js'
       }
     }
 
+    function getSessionId() {
+      try {
+        var sid = sessionStorage.getItem('tourkit_sid')
+        if (!sid) {
+          sid = 'tk_' + Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2)
+          sessionStorage.setItem('tourkit_sid', sid)
+        }
+        return sid
+      } catch (_) {
+        return 'tk_' + Math.random().toString(36).slice(2)
+      }
+    }
+
     function main() {
       try {
         var key = getScriptDatasetKey()
         if (!key) return
+        var sessionId = getSessionId()
 
         try {
           if (window.localStorage.getItem('tourkit_seen_' + key) === '1') return
@@ -140,7 +154,7 @@ import { startTour } from './renderer.js'
             if (!merged.length) return
 
             var apiBase = data.api_base || TK_API_ORIGIN
-            startTour(merged, key, apiBase, data.customization || null)
+            startTour(merged, key, apiBase, data.customization || null, sessionId)
           })
           .catch(function () {})
       } catch (_) {
