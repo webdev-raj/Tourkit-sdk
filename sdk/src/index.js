@@ -134,6 +134,9 @@ import { startTour } from './renderer.js'
         var key = scriptConfig.key
         if (!key) return
         var isDemo = Boolean(scriptConfig.isDemo)
+        try {
+          if (typeof window !== 'undefined' && window.__TOURKIT_DEMO__ === true) isDemo = true
+        } catch (_) {}
         var sessionId = getSessionId()
 
         try {

@@ -159,10 +159,13 @@ export default async function DemoPage({ params }) {
         </footer>
       </div>
 
+      <Script id="tourkit-demo-flag" strategy="beforeInteractive">
+        {`window.__TOURKIT_DEMO__ = true`}
+      </Script>
       <Script
-        src="https://cdn.jsdelivr.net/gh/webdev-raj/Tourkit@main/sdk/dist/tourkit.min.js?v=3"
+        src="/tourkit.min.js"
         data-key={scriptKey}
-        data-api={process.env.NEXT_PUBLIC_APP_URL}
+        data-api={process.env.NEXT_PUBLIC_APP_URL || ''}
         data-demo="true"
         strategy="afterInteractive"
       />

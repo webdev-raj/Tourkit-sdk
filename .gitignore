@@ -16,6 +16,9 @@
 # production
 /build
 
+# generated from sdk/dist at build/dev time
+/public/tourkit.min.js
+
 # misc
 .DS_Store
 *.pem
