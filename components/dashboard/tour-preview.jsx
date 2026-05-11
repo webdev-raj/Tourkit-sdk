@@ -1,20 +1,21 @@
 "use client"
 
-import { useMemo } from "react"
-
 import { Button } from "@/components/ui/button"
 
 const ACCENT = "#F15025"
 
-function PositionButton({ value, selected, onSelect, children }) {
+function PositionButton({ value, selected, onSelect, children, primaryColor }) {
   return (
     <Button
       type="button"
       variant="outline"
       size="sm"
-      className={`h-9 flex-1 rounded-xl border-white/10 bg-background/20 text-xs ${
-        selected ? "border-[#F15025]/60 bg-[#F15025]/10 text-[#F15025]" : "hover:bg-muted/20"
-      }`}
+      className="h-9 flex-1 rounded-xl border text-xs hover:bg-transparent"
+      style={{
+        background: selected ? primaryColor + "26" : "transparent",
+        borderColor: selected ? primaryColor : "rgba(255,255,255,0.1)",
+        color: selected ? primaryColor : "#666666",
+      }}
       onClick={() => onSelect?.(value)}>
       {children}
     </Button>
@@ -28,90 +29,115 @@ export function TourPreview({
   stepNumber,
   totalSteps,
   onPositionChange,
-  customization,
+  appearance = {},
 }) {
-  const primaryColor = customization?.primary_color || "#F15025"
-  const fontFamily = customization?.font_family || "Inter"
-  const borderRadius = customization?.border_radius || "10px"
-  const theme = customization?.theme || "dark"
+  const primaryColor = appearance.primary_color || ACCENT
+  const theme = appearance.theme || "dark"
+  const fontFamily = appearance.font_family || "Inter"
+  const borderRadius = appearance.border_radius || "10px"
 
-  const dark = theme !== "light"
-  const bg = dark ? "#111111" : "#ffffff"
-  const border = dark ? "#2a2a2a" : "#e5e7eb"
-  const text = dark ? "#ffffff" : "#111111"
-  const subtext = dark ? "#999999" : "#6b7280"
-  const buttonGhost = dark ? "#1e1e1e" : "#f9fafb"
-  const buttonGhostBorder = dark ? "#333333" : "#e5e7eb"
-  const buttonGhostText = dark ? "#cccccc" : "#374151"
+  const isDark = theme === "dark"
+  const colors = {
+    bg: isDark ? "#111111" : "#ffffff",
+    border: isDark ? "rgba(255,255,255,0.08)" : "#e5e7eb",
+    text: isDark ? "#ffffff" : "#111111",
+    subtext: isDark ? "#999999" : "#6b7280",
+    footerBorder: isDark ? "rgba(255,255,255,0.06)" : "#f3f4f6",
+    prevBg: isDark ? "rgba(255,255,255,0.05)" : "#f9fafb",
+    prevBorder: isDark ? "rgba(255,255,255,0.1)" : "#e5e7eb",
+    prevText: isDark ? "#ffffff" : "#374151",
+    dotBg: isDark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.15)",
+    dotDone: primaryColor + "66",
+  }
 
   const safeTitle = String(title || "").trim() || `Step ${stepNumber || 1}`
   const safeMessage = String(message || "").trim() || "Your tooltip message will appear here."
   const pos = String(position || "bottom").toLowerCase()
 
-  const nextLabel = useMemo(() => {
-    if (!totalSteps || !stepNumber) return "Next"
-    return stepNumber >= totalSteps ? "Finish" : "Next"
-  }, [stepNumber, totalSteps])
+  const n = Math.max(stepNumber || 1, 1)
+  const t = Math.max(totalSteps || 1, 1)
+  const isFirst = n <= 1
+  const isLast = n >= t
+  const skipLabel = isFirst ? "Skip tour" : "Skip"
+  const primaryLabel = isLast ? "Got it!" : "Next →"
+
+  const dots = Array.from({ length: t }, (_, index) => {
+    let style = {
+      width: "6px",
+      height: "6px",
+      borderRadius: "50%",
+      background: colors.dotBg,
+      transition: "all 0.3s ease",
+      flexShrink: 0,
+    }
+
+    if (index < n - 1) style = { ...style, background: colors.dotDone }
+    if (index === n - 1) style = { ...style, width: "20px", borderRadius: "3px", background: primaryColor }
+
+    return <span key={`dot-${index}`} style={style} />
+  })
 
   const tooltip = (
     <div
-      className="w-full max-w-[320px] rounded-[10px] border px-6 py-5 text-[14px] leading-[1.6] shadow-[0_20px_60px_rgba(0,0,0,0.3),0_0_0_1px_rgba(255,255,255,0.05)]"
+      className="w-[280px]"
       style={{
-        fontFamily: `${fontFamily}, system-ui, -apple-system, sans-serif`,
-        borderRadius,
-        borderColor: border,
-        backgroundColor: bg,
-        color: text,
+        width: "280px",
+        background: colors.bg,
+        border: "1px solid " + colors.border,
+        borderRadius: borderRadius,
+        padding: "20px",
+        fontFamily: fontFamily + ", system-ui, sans-serif",
+        boxShadow: isDark
+          ? "0 0 0 1px rgba(255,255,255,0.05), 0 4px 6px rgba(0,0,0,0.1), 0 20px 40px rgba(0,0,0,0.5)"
+          : "0 0 0 1px rgba(255,255,255,0.05), 0 20px 40px rgba(0,0,0,0.15)",
       }}>
-      <div className="mb-3 flex items-center justify-between gap-3">
-        <div
-          className="rounded-full px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider"
-          style={{
-            color: primaryColor,
-            backgroundColor: `${primaryColor}26`,
-          }}>
-          Step {Math.max(stepNumber || 1, 1)} of {Math.max(totalSteps || 1, 1)}
-        </div>
-        <button
-          type="button"
-          className="inline-flex size-6 items-center justify-center rounded text-sm"
-          style={{ color: subtext }}
-          aria-label="Close preview">
-          ×
-        </button>
-      </div>
-      <div className="mb-4 h-[3px] overflow-hidden rounded-full bg-white/10">
-        <div
-          className="h-full rounded-full transition-[width] duration-300"
-          style={{
-            width: `${(Math.max(stepNumber || 1, 1) / Math.max(totalSteps || 1, 1)) * 100}%`,
-            backgroundColor: primaryColor,
-          }}
-        />
-      </div>
-      <div className="mb-1 text-[15px] font-semibold" style={{ color: text }}>
+      <div className="mb-4 flex items-center gap-[6px]">{dots}</div>
+      <div
+        className="mb-2 text-[15px] font-semibold leading-[1.4] capitalize"
+        style={{ color: colors.text }}>
         {safeTitle}
       </div>
-      <div className="mb-4 text-[13px]" style={{ color: subtext }}>
+      <div className="mb-5 text-[13px] leading-[1.7]" style={{ color: colors.subtext }}>
         {safeMessage}
       </div>
-      <div className="flex items-center justify-end gap-2">
-        <button
-          type="button"
-          className="rounded-[6px] border px-4 py-2 text-[13px] font-medium"
-          style={{
-            borderColor: buttonGhostBorder,
-            backgroundColor: buttonGhost,
-            color: buttonGhostText,
-          }}>
-          ← Prev
-        </button>
+      <div
+        className="flex items-center justify-between gap-3 pt-4"
+        style={{
+          borderTop: "1px solid " + colors.footerBorder,
+        }}>
+        <div className="flex min-w-0 flex-1 items-center">
+          {!isLast ? (
+            <span className="text-xs font-medium" style={{ color: colors.subtext, opacity: 0.6 }}>
+              {skipLabel}
+            </span>
+          ) : null}
+        </div>
+        <div className="flex shrink-0 items-center gap-2">
+          {!isFirst ? (
+            <button
+              type="button"
+              className="rounded-lg px-[14px] py-[7px] text-xs font-medium"
+              style={{
+                background: colors.prevBg,
+                border: "1px solid " + colors.prevBorder,
+                color: colors.prevText,
+                cursor: "default",
+              }}>
+              ← Prev
+            </button>
+          ) : null}
           <button
             type="button"
-            className="rounded-[6px] border border-transparent px-4 py-2 text-[13px] font-medium text-white"
-            style={{ backgroundColor: primaryColor }}>
-            {nextLabel === "Finish" ? "Finish" : "Next →"}
+            className="rounded-lg px-[14px] py-[7px] text-xs font-medium text-white"
+            style={{
+              border: "none",
+              background: primaryColor,
+              color: "#ffffff",
+              cursor: "default",
+            }}>
+            {primaryLabel}
           </button>
+        </div>
       </div>
     </div>
   )
@@ -132,8 +158,13 @@ export function TourPreview({
       <div className="flex flex-col gap-3">
         <div className="text-xs font-medium text-muted-foreground">Element highlight</div>
         <div
-          className="rounded-lg border border-dashed px-4 py-4 text-sm text-muted-foreground"
-          style={{ borderColor: ACCENT }}>
+          className="rounded-xl px-4 py-4 text-center text-[13px]"
+          style={{
+            border: "2px dashed " + primaryColor,
+            borderRadius: borderRadius,
+            marginBottom: "16px",
+            color: "#666666",
+          }}>
           ← Your selected element appears here
         </div>
       </div>
@@ -156,16 +187,16 @@ export function TourPreview({
       <div className="flex flex-col gap-3">
         <div className="text-xs font-medium text-muted-foreground">Position</div>
         <div className="grid grid-cols-2 gap-2">
-          <PositionButton value="top" selected={pos === "top"} onSelect={onPositionChange}>
+          <PositionButton value="top" selected={pos === "top"} onSelect={onPositionChange} primaryColor={primaryColor}>
             Top
           </PositionButton>
-          <PositionButton value="bottom" selected={pos === "bottom"} onSelect={onPositionChange}>
+          <PositionButton value="bottom" selected={pos === "bottom"} onSelect={onPositionChange} primaryColor={primaryColor}>
             Bottom
           </PositionButton>
-          <PositionButton value="left" selected={pos === "left"} onSelect={onPositionChange}>
+          <PositionButton value="left" selected={pos === "left"} onSelect={onPositionChange} primaryColor={primaryColor}>
             Left
           </PositionButton>
-          <PositionButton value="right" selected={pos === "right"} onSelect={onPositionChange}>
+          <PositionButton value="right" selected={pos === "right"} onSelect={onPositionChange} primaryColor={primaryColor}>
             Right
           </PositionButton>
         </div>

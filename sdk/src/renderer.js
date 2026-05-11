@@ -2,27 +2,28 @@ import { pingEvent } from './tracker.js'
 
 /** @typedef {{ id?: string, selector: string, title?: string|null, message: string, position?: string, step_order?: number }} TourStep */
 
+var SPOT_PADDING = 6
+
 var CSS_SNIPPET = [
   ':root{--tk-primary:#F15025;--tk-bg:#111111;--tk-border:#2a2a2a;--tk-text:#ffffff;--tk-subtext:#999999;--tk-radius:10px;--tk-font:Inter;--tk-buttonGhost:#1e1e1e;--tk-buttonGhostBorder:#333333;--tk-buttonGhostText:#cccccc;}',
-  '.tk-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(2px);z-index:99998;animation:tkFadeIn 0.2s ease;}',
-  '.tk-highlight{position:absolute;border:2px solid var(--tk-primary);border-radius:var(--tk-radius);z-index:99999;pointer-events:none;box-shadow:0 0 0 4px color-mix(in srgb,var(--tk-primary) 20%,transparent);transition:all 0.3s cubic-bezier(0.4,0,0.2,1);}',
-  '.tk-tooltip{position:fixed;background:var(--tk-bg);border:1px solid var(--tk-border);border-radius:var(--tk-radius);padding:20px;width:320px;max-width:320px;z-index:100000;font-family:var(--tk-font),system-ui,sans-serif;font-size:14px;line-height:1.6;color:var(--tk-text);box-sizing:border-box;box-shadow:0 20px 60px rgba(0,0,0,0.3),0 0 0 1px rgba(255,255,255,0.05);animation:tkSlideUp 0.25s cubic-bezier(0.4,0,0.2,1);}',
-  '.tk-tooltip-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}',
-  '.tk-tooltip-badge{font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--tk-primary);background:color-mix(in srgb,var(--tk-primary) 15%,transparent);padding:3px 8px;border-radius:20px;}',
-  '.tk-close-btn{background:none;border:none;color:var(--tk-subtext);cursor:pointer;font-size:18px;line-height:1;padding:0;width:24px;height:24px;display:flex;align-items:center;justify-content:center;border-radius:4px;transition:background .15s ease;}',
-  '.tk-close-btn:hover{background:rgba(255,255,255,0.1);}',
-  '.tk-progress-track{height:3px;background:rgba(255,255,255,0.1);border-radius:999px;margin-bottom:16px;overflow:hidden;}',
-  '.tk-progress-fill{height:100%;background:var(--tk-primary);border-radius:999px;transition:width .3s ease;}',
-  '.tk-tooltip-title{font-size:15px;font-weight:600;color:var(--tk-text);margin:0 0 6px 0;line-height:1.4;}',
-  '.tk-tooltip-message{font-size:13px;color:var(--tk-subtext);margin:0 0 16px 0;line-height:1.6;}',
-  '.tk-tooltip-footer{display:flex;justify-content:flex-end;gap:8px;align-items:center;}',
-  '.tk-btn{padding:8px 16px;border-radius:calc(var(--tk-radius) - 2px);font-size:13px;font-weight:500;cursor:pointer;font-family:var(--tk-font),system-ui,sans-serif;transition:all .15s ease;border:none;}',
-  '.tk-btn-primary{background:var(--tk-primary);color:#fff;}',
-  '.tk-btn-primary:hover{filter:brightness(1.1);}',
-  '.tk-btn-ghost{background:var(--tk-buttonGhost);color:var(--tk-buttonGhostText);border:1px solid var(--tk-buttonGhostBorder);}',
-  '.tk-btn-ghost:hover{background:rgba(255,255,255,0.05);}',
-  '@keyframes tkFadeIn{from{opacity:0}to{opacity:1}}',
-  '@keyframes tkSlideUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}',
+  '.tk-spot{position:fixed;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);z-index:99998;pointer-events:auto;transition:all 0.4s cubic-bezier(0.4,0,0.2,1);}',
+  '.tk-tooltip{position:fixed;width:280px;background:var(--tk-bg);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:20px;z-index:100000;font-family:var(--tk-font),system-ui,sans-serif;box-sizing:border-box;box-shadow:0 0 0 1px rgba(255,255,255,0.05),0 4px 6px rgba(0,0,0,0.1),0 20px 40px rgba(0,0,0,0.5);opacity:0;transform:translateY(8px);}',
+  '.tk-dots{display:flex;gap:6px;margin-bottom:16px;align-items:center;}',
+  '.tk-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.2);transition:all 0.3s ease;flex-shrink:0;}',
+  '.tk-dot.active{width:20px;border-radius:3px;background:var(--tk-primary);}',
+  '.tk-dot.done{background:var(--tk-primary);opacity:0.4;}',
+  '.tk-content{}',
+  '.tk-title{font-size:15px;font-weight:600;color:var(--tk-text);margin:0 0 8px 0;line-height:1.4;text-transform:capitalize;}',
+  '.tk-message{font-size:13px;color:var(--tk-subtext);margin:0 0 20px 0;line-height:1.7;}',
+  '.tk-footer{display:flex;justify-content:space-between;align-items:center;gap:12px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.06);}',
+  '.tk-footer-left{flex:1;min-width:0;display:flex;align-items:center;}',
+  '.tk-skip{background:transparent;border:none;color:var(--tk-subtext);font-size:11px;font-weight:500;cursor:pointer;padding:6px 8px;margin:0;border-radius:6px;font-family:inherit;opacity:0.75;transition:opacity 0.15s ease,background 0.15s ease;-webkit-tap-highlight-color:transparent;}',
+  '.tk-skip:hover{opacity:1;background:rgba(255,255,255,0.06);}',
+  '.tk-nav{display:flex;gap:8px;}',
+  '.tk-prev{padding:7px 14px;border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:var(--tk-text);font-family:inherit;transition:all 0.15s ease;}',
+  '.tk-prev:hover{background:rgba(255,255,255,0.1);}',
+  '.tk-next{padding:7px 14px;border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;border:none;background:var(--tk-primary);color:#fff;font-family:inherit;transition:all 0.15s ease;}',
+  '.tk-next:hover{filter:brightness(1.1);}',
 ].join('')
 
 function injectStylesOnce() {
@@ -91,13 +92,223 @@ function normalizePosition(p) {
   return 'bottom'
 }
 
-function clampViewport(left, top, w, h) {
-  var pad = 8
-  var maxL = Math.max(pad, window.innerWidth - w - pad)
-  var maxT = Math.max(pad, window.innerHeight - h - pad)
-  left = Math.min(Math.max(left, pad), maxL)
-  top = Math.min(Math.max(top, pad), maxT)
-  return [left, top]
+function sleep(ms) {
+  return new Promise(function (resolve) {
+    try {
+      setTimeout(resolve, ms)
+    } catch (_) {
+      resolve()
+    }
+  })
+}
+
+function getCssVar(name, fallback) {
+  try {
+    var v = String(getComputedStyle(document.documentElement).getPropertyValue(name) || '').trim()
+    return v || fallback
+  } catch (_) {
+    return fallback
+  }
+}
+
+function createSpotlightOverlay(rect, overlayPieces) {
+  try {
+    while (overlayPieces.length) {
+      var old = overlayPieces.pop()
+      try {
+        if (old && old.parentNode) old.parentNode.removeChild(old)
+      } catch (_) {}
+    }
+
+    if (!rect || rect.width <= 0 || rect.height <= 0) return
+
+    var pad = SPOT_PADDING
+    var t = rect.top - pad
+    var b = rect.bottom + pad
+    var l = rect.left - pad
+    var r = rect.right + pad
+    var h = rect.height + pad * 2
+
+    var mk = function (stylesObj) {
+      var d = document.createElement('div')
+      d.className = 'tk-spot'
+      try {
+        for (var key in stylesObj) {
+          if (Object.prototype.hasOwnProperty.call(stylesObj, key)) d.style[key] = stylesObj[key]
+        }
+      } catch (_) {}
+      document.body.appendChild(d)
+      overlayPieces.push(d)
+    }
+
+    mk({
+      top: '0',
+      left: '0',
+      right: '0',
+      height: Math.max(0, t) + 'px',
+    })
+
+    mk({
+      top: b + 'px',
+      left: '0',
+      right: '0',
+      bottom: '0',
+    })
+
+    mk({
+      top: Math.max(0, t) + 'px',
+      left: '0',
+      width: Math.max(0, l) + 'px',
+      height: Math.max(0, h) + 'px',
+    })
+
+    mk({
+      top: Math.max(0, t) + 'px',
+      left: r + 'px',
+      right: '0',
+      height: Math.max(0, h) + 'px',
+    })
+  } catch (_) {
+    /* silent */
+  }
+}
+
+function wireSpotlightClicks(overlayPieces, onSkip) {
+  try {
+    overlayPieces.forEach(function (piece) {
+      piece.onclick = function (e) {
+        try {
+          e.stopPropagation()
+        } catch (_) {}
+        onSkip()
+      }
+    })
+  } catch (_) {}
+}
+
+function restoreElementStyles(el) {
+  try {
+    if (!el || !el._tourkitSaved) return
+    var s = el._tourkitSaved
+    el.style.outline = s.outline
+    el.style.outlineOffset = s.outlineOffset
+    el.style.zIndex = s.zIndex
+    el.style.position = s.position
+    el.style.borderRadius = s.borderRadius
+    el.style.boxShadow = s.boxShadow
+    delete el._tourkitSaved
+  } catch (_) {}
+}
+
+function applyHighlight(el) {
+  try {
+    if (!el) return
+    if (!el._tourkitSaved) {
+      el._tourkitSaved = {
+        outline: el.style.outline,
+        outlineOffset: el.style.outlineOffset,
+        zIndex: el.style.zIndex,
+        position: el.style.position,
+        borderRadius: el.style.borderRadius,
+        boxShadow: el.style.boxShadow,
+      }
+    }
+    var primary = getCssVar('--tk-primary', '#F15025')
+    var radius = getCssVar('--tk-radius', '10px')
+    el.style.outline = '2px solid ' + primary
+    el.style.outlineOffset = '4px'
+    el.style.zIndex = '99999'
+    el.style.position = 'relative'
+    el.style.borderRadius = radius
+    var hex = String(primary).replace('#', '')
+    var glow = '0 0 0 4px rgba(241,80,37,0.2)'
+    if (hex.length === 6) {
+      var r = parseInt(hex.slice(0, 2), 16)
+      var g = parseInt(hex.slice(2, 4), 16)
+      var b = parseInt(hex.slice(4, 6), 16)
+      if (!isNaN(r) && !isNaN(g) && !isNaN(b)) glow = '0 0 0 4px rgba(' + r + ',' + g + ',' + b + ',0.2)'
+    }
+    el.style.boxShadow = glow
+  } catch (_) {}
+}
+
+function positionTooltip(tooltipEl, element, position) {
+  try {
+    if (!tooltipEl || !element) return
+
+    var rect = element.getBoundingClientRect()
+    var tooltipWidth = 280
+    var tooltipHeight = tooltipEl.offsetHeight || 180
+    var gap = 16
+    var padding = 12
+
+    var pos = normalizePosition(position)
+    var top = 0
+    var left = 0
+
+    if (pos === 'bottom') {
+      top = rect.bottom + gap
+      left = rect.left + rect.width / 2 - tooltipWidth / 2
+    } else if (pos === 'top') {
+      top = rect.top - tooltipHeight - gap
+      left = rect.left + rect.width / 2 - tooltipWidth / 2
+    } else if (pos === 'right') {
+      top = rect.top + rect.height / 2 - tooltipHeight / 2
+      left = rect.right + gap
+    } else if (pos === 'left') {
+      top = rect.top + rect.height / 2 - tooltipHeight / 2
+      left = rect.left - tooltipWidth - gap
+    } else {
+      top = rect.bottom + gap
+      left = rect.left + rect.width / 2 - tooltipWidth / 2
+    }
+
+    var maxLeft = window.innerWidth - tooltipWidth - padding
+    var maxTop = window.innerHeight - tooltipHeight - padding
+    left = Math.max(padding, Math.min(left, maxLeft))
+    top = Math.max(padding, Math.min(top, maxTop))
+
+    tooltipEl.style.position = 'fixed'
+    tooltipEl.style.top = top + 'px'
+    tooltipEl.style.left = left + 'px'
+    tooltipEl.style.width = tooltipWidth + 'px'
+  } catch (_) {
+    /* silent */
+  }
+}
+
+function updateDots(dotsRoot, total, currentIndex) {
+  try {
+    if (!dotsRoot) return
+    while (dotsRoot.firstChild) dotsRoot.removeChild(dotsRoot.firstChild)
+    for (var d = 0; d < total; d++) {
+      var dot = document.createElement('span')
+      dot.className = 'tk-dot'
+      if (d < currentIndex) dot.className += ' done'
+      if (d === currentIndex) dot.className += ' active'
+      dotsRoot.appendChild(dot)
+    }
+  } catch (_) {}
+}
+
+function updateTooltipContent(ttl, msg, dotsRoot, step, logicalIndexZero, steps) {
+  try {
+    var total = steps.length
+    var n = logicalIndexZero + 1
+    updateDots(dotsRoot, total, logicalIndexZero)
+
+    var titleTxt = ''
+    try {
+      if (step.title && String(step.title).trim()) titleTxt = String(step.title).trim()
+      else titleTxt = 'Step ' + n
+    } catch (_) {
+      titleTxt = 'Step'
+    }
+    ttl.textContent = titleTxt
+    msg.textContent = step.message ? String(step.message) : ''
+  } catch (_) {
+    /* silent */
+  }
 }
 
 export function startTour(stepsSorted, scriptKey, apiBase, customization, sessionId, isDemo) {
@@ -110,78 +321,68 @@ export function startTour(stepsSorted, scriptKey, apiBase, customization, sessio
     var steps = Array.isArray(stepsSorted) ? stepsSorted.slice() : []
     if (!steps.length) return
 
-    var overlay = document.createElement('div')
-    overlay.className = 'tk-overlay'
-
-    var highlight = document.createElement('div')
-    highlight.className = 'tk-highlight'
-
+    var overlayPieces = []
     var tooltip = document.createElement('div')
     tooltip.className = 'tk-tooltip'
 
-    var header = document.createElement('div')
-    header.className = 'tk-tooltip-header'
-
-    var badge = document.createElement('div')
-    badge.className = 'tk-tooltip-badge'
-
-    var closeBtn = document.createElement('button')
-    closeBtn.type = 'button'
-    closeBtn.className = 'tk-close-btn'
-    closeBtn.setAttribute('aria-label', 'Close')
-    closeBtn.textContent = '×'
-
-    header.appendChild(badge)
-    header.appendChild(closeBtn)
-
-    var progressTrack = document.createElement('div')
-    progressTrack.className = 'tk-progress-track'
-
-    var progressFill = document.createElement('div')
-    progressFill.className = 'tk-progress-fill'
-    progressTrack.appendChild(progressFill)
+    var dotsRoot = document.createElement('div')
+    dotsRoot.className = 'tk-dots'
 
     var content = document.createElement('div')
-    content.className = 'tk-tooltip-content'
+    content.className = 'tk-content'
 
     var ttl = document.createElement('h3')
-    ttl.className = 'tk-tooltip-title'
+    ttl.className = 'tk-title'
 
     var msg = document.createElement('p')
-    msg.className = 'tk-tooltip-message'
+    msg.className = 'tk-message'
 
     content.appendChild(ttl)
     content.appendChild(msg)
 
     var footer = document.createElement('div')
-    footer.className = 'tk-tooltip-footer'
+    footer.className = 'tk-footer'
+
+    var skipLeft = document.createElement('div')
+    skipLeft.className = 'tk-footer-left'
+
+    var btnSkip = document.createElement('button')
+    btnSkip.type = 'button'
+    btnSkip.className = 'tk-skip'
+    btnSkip.textContent = 'Skip tour'
+
+    var nav = document.createElement('div')
+    nav.className = 'tk-nav'
 
     var btnPrev = document.createElement('button')
     btnPrev.type = 'button'
-    btnPrev.className = 'tk-btn tk-btn-ghost'
+    btnPrev.className = 'tk-prev'
     btnPrev.textContent = '← Prev'
 
     var btnNext = document.createElement('button')
     btnNext.type = 'button'
-    btnNext.className = 'tk-btn tk-btn-primary'
+    btnNext.className = 'tk-next'
     btnNext.textContent = 'Next →'
 
-    footer.appendChild(btnPrev)
-    footer.appendChild(btnNext)
+    nav.appendChild(btnPrev)
+    nav.appendChild(btnNext)
+    skipLeft.appendChild(btnSkip)
+    footer.appendChild(skipLeft)
+    footer.appendChild(nav)
 
-    tooltip.appendChild(header)
-    tooltip.appendChild(progressTrack)
+    tooltip.appendChild(dotsRoot)
     tooltip.appendChild(content)
     tooltip.appendChild(footer)
 
-    document.body.appendChild(overlay)
-    document.body.appendChild(highlight)
     document.body.appendChild(tooltip)
 
     var currentIdx = 0
     var destroyed = false
     var tourStartedSent = false
     var pendingRaf = 0
+    var previousElement = null
+    var currentElement = null
+    var stepGen = 0
 
     function teardownListeners() {
       try {
@@ -190,17 +391,33 @@ export function startTour(stepsSorted, scriptKey, apiBase, customization, sessio
       } catch (_) {}
     }
 
+    function removeSpotlight() {
+      try {
+        while (overlayPieces.length) {
+          var p = overlayPieces.pop()
+          try {
+            if (p && p.parentNode) p.parentNode.removeChild(p)
+          } catch (_) {}
+        }
+      } catch (_) {}
+    }
+
     function removeNodes() {
       try {
-        if (tooltip.parentNode) tooltip.parentNode.removeChild(tooltip)
-        if (highlight.parentNode) highlight.parentNode.removeChild(highlight)
-        if (overlay.parentNode) overlay.parentNode.removeChild(overlay)
+        if (previousElement) restoreElementStyles(previousElement)
+        previousElement = null
+        currentElement = null
       } catch (_) {}
+      try {
+        if (tooltip.parentNode) tooltip.parentNode.removeChild(tooltip)
+      } catch (_) {}
+      removeSpotlight()
     }
 
     function destroyQuiet(markSeen) {
       if (destroyed) return
       destroyed = true
+      stepGen += 1
       teardownListeners()
       cancelAnimationFrameMaybe()
       try {
@@ -214,6 +431,49 @@ export function startTour(stepsSorted, scriptKey, apiBase, customization, sessio
         if (pendingRaf) cancelAnimationFrame(pendingRaf)
       } catch (_) {}
       pendingRaf = 0
+    }
+
+    function skipTour() {
+      if (destroyed) return
+      var lastIx = steps.length - 1
+      if (currentIdx >= lastIx) return
+      var cs = steps[currentIdx]
+      var ord = cs ? orderFor(cs) : currentIdx
+      pingEvent(apiBase, scriptKey, 'tour_skipped', ord === null ? null : ord, sessionId, isDemo)
+      destroyQuiet(true)
+    }
+
+    function onSpotlightClick() {
+      if (destroyed) return
+      var lastIx = steps.length - 1
+      if (currentIdx >= lastIx) {
+        var active = steps[currentIdx]
+        var ordFinish = active ? orderFor(active) : currentIdx
+        pingEvent(apiBase, scriptKey, 'tour_completed', ordFinish === null ? null : ordFinish, sessionId, isDemo)
+        destroyQuiet(true)
+        return
+      }
+      skipTour()
+    }
+
+    function updateFooterUi(idx) {
+      try {
+        var lastIx = steps.length - 1
+        var isFirst = idx <= 0
+        var isLast = idx >= lastIx
+
+        if (isLast) {
+          btnSkip.style.display = 'none'
+          btnSkip.setAttribute('aria-hidden', 'true')
+        } else {
+          btnSkip.style.display = 'inline-block'
+          btnSkip.removeAttribute('aria-hidden')
+          btnSkip.textContent = isFirst ? 'Skip tour' : 'Skip'
+        }
+
+        btnPrev.style.display = isFirst ? 'none' : 'inline-flex'
+        btnNext.textContent = isLast ? 'Got it!' : 'Next →'
+      } catch (_) {}
     }
 
     function scheduleReflow() {
@@ -241,68 +501,7 @@ export function startTour(stepsSorted, scriptKey, apiBase, customization, sessio
       return null
     }
 
-    function layoutHighlight(rect) {
-      highlight.style.display = 'block'
-      highlight.style.left = rect.left + window.scrollX + 'px'
-      highlight.style.top = rect.top + window.scrollY + 'px'
-      highlight.style.width = rect.width + 'px'
-      highlight.style.height = rect.height + 'px'
-    }
-
-    function layoutTooltip(elRect, step, logicalIndexZero) {
-      var pos = normalizePosition(step && step.position)
-      tooltip.style.display = 'block'
-
-      var ttW = tooltip.offsetWidth || 320
-      var ttH = tooltip.offsetHeight || 120
-      var gap = 12
-      var left = 0
-      var top = 0
-
-      if (pos === 'bottom') {
-        left = elRect.left + elRect.width / 2 - ttW / 2
-        top = elRect.bottom + gap
-      } else if (pos === 'top') {
-        left = elRect.left + elRect.width / 2 - ttW / 2
-        top = elRect.top - ttH - gap
-      } else if (pos === 'left') {
-        left = elRect.left - ttW - gap
-        top = elRect.top + elRect.height / 2 - ttH / 2
-      } else {
-        left = elRect.right + gap
-        top = elRect.top + elRect.height / 2 - ttH / 2
-      }
-
-      var cl = clampViewport(left, top, tooltip.offsetWidth || ttW, tooltip.offsetHeight || ttH)
-      tooltip.style.left = cl[0] + 'px'
-      tooltip.style.top = cl[1] + 'px'
-
-      var total = steps.length
-      var n = logicalIndexZero + 1
-      badge.textContent = 'Step ' + n + ' of ' + total
-      progressFill.style.width = total > 0 ? (n / total) * 100 + '%' : '0%'
-
-      var titleTxt = ''
-      try {
-        if (step.title && String(step.title).trim()) titleTxt = String(step.title).trim()
-        else titleTxt = 'Step ' + n
-      } catch (_) {
-        titleTxt = 'Step'
-      }
-      ttl.textContent = titleTxt
-      msg.textContent = step.message ? String(step.message) : ''
-    }
-
-    function skipTour() {
-      if (destroyed) return
-      var cs = steps[currentIdx]
-      var ord = cs ? orderFor(cs) : currentIdx
-      pingEvent(apiBase, scriptKey, 'tour_skipped', ord === null ? null : ord, sessionId, isDemo)
-      destroyQuiet(true)
-    }
-
-    closeBtn.onclick = skipTour
-    overlay.onclick = skipTour
+    btnSkip.onclick = skipTour
 
     btnPrev.onclick = function () {
       if (destroyed || currentIdx <= 0) return
@@ -330,60 +529,152 @@ export function startTour(stepsSorted, scriptKey, apiBase, customization, sessio
 
     function showStep(initialIndex, silent) {
       if (destroyed) return
+
+      if (silent) {
+        cancelAnimationFrameMaybe()
+        try {
+          pendingRaf = requestAnimationFrame(function () {
+            pendingRaf = 0
+            if (destroyed || !currentElement) return
+            try {
+              var st = steps[currentIdx]
+              var r = currentElement.getBoundingClientRect()
+              if (r && r.width > 0 && r.height > 0) {
+                createSpotlightOverlay(r, overlayPieces)
+                wireSpotlightClicks(overlayPieces, onSpotlightClick)
+                positionTooltip(tooltip, currentElement, normalizePosition(st && st.position))
+              }
+            } catch (_) {}
+          })
+        } catch (_) {}
+        return
+      }
+
       guardLoops = 0
-      attempt(initialIndex, silent)
+      void runAttempt(initialIndex, false)
+    }
 
-      function attempt(i, sil) {
-        if (destroyed) return
-        if (i >= steps.length) return destroyQuiet(false)
-        if (guardLoops++ > steps.length + 20) return destroyQuiet(false)
+    async function runAttempt(initialIndex, sil) {
+      var myGen = ++stepGen
+      if (destroyed) return
 
-        var step = steps[i]
+      var loops = 0
+      var i = initialIndex
+      var step = null
+      var el = null
+      var rect = null
+
+      while (i < steps.length && loops++ < steps.length + 20) {
+        if (destroyed || myGen !== stepGen) return
+        step = steps[i]
         var sel = ''
         try {
           sel = step && step.selector ? String(step.selector).trim() : ''
         } catch (_) {
           sel = ''
         }
-        if (!sel || !step) return attempt(i + 1, true)
+        if (!sel || !step) {
+          i += 1
+          continue
+        }
 
-        var el = null
+        el = null
         try {
           el = document.querySelector(sel)
         } catch (_) {
           el = null
         }
-        if (!el) return attempt(i + 1, true)
-
-        try {
-          el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' })
-        } catch (_) {
-          try {
-            el.scrollIntoView()
-          } catch (_) {}
+        if (!el) {
+          i += 1
+          continue
         }
 
-        var rect = null
+        rect = null
         try {
           rect = el.getBoundingClientRect()
         } catch (_) {
           rect = null
         }
-        if (!rect || rect.width <= 0 || rect.height <= 0) return attempt(i + 1, true)
-
-        layoutHighlight(rect)
-        layoutTooltip(rect, step, i)
-
-        if (!sil && !tourStartedSent) {
-          tourStartedSent = true
-          pingEvent(apiBase, scriptKey, 'tour_started', orderFor(step), sessionId, isDemo)
+        if (!rect || rect.width <= 0 || rect.height <= 0) {
+          i += 1
+          continue
         }
-        if (!sil) pingEvent(apiBase, scriptKey, 'step_viewed', orderFor(step), sessionId, isDemo)
 
-        currentIdx = i
-        btnPrev.style.display = currentIdx <= 0 ? 'none' : 'inline-flex'
-        btnNext.textContent = currentIdx >= steps.length - 1 ? 'Finish' : 'Next →'
+        break
       }
+
+      if (i >= steps.length || !step || !el || !rect) return destroyQuiet(false)
+      if (destroyed || myGen !== stepGen) return
+
+      try {
+        if (!sil && tooltip.parentNode && previousElement !== null && previousElement !== el) {
+          tooltip.style.transition = 'opacity 0.25s ease, transform 0.25s ease'
+          tooltip.style.opacity = '0'
+          tooltip.style.transform = 'translateY(4px)'
+          await sleep(150)
+          if (destroyed || myGen !== stepGen) return
+        }
+      } catch (_) {}
+
+      try {
+        if (previousElement && previousElement !== el) restoreElementStyles(previousElement)
+      } catch (_) {}
+
+      try {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' })
+      } catch (_) {
+        try {
+          el.scrollIntoView()
+        } catch (_) {}
+      }
+
+      await sleep(sil ? 0 : 300)
+      if (destroyed || myGen !== stepGen) return
+
+      try {
+        rect = el.getBoundingClientRect()
+      } catch (_) {
+        rect = null
+      }
+      if (!rect || rect.width <= 0 || rect.height <= 0) {
+        void runAttempt(i + 1, true)
+        return
+      }
+
+      applyHighlight(el)
+      createSpotlightOverlay(rect, overlayPieces)
+      wireSpotlightClicks(overlayPieces, onSpotlightClick)
+
+      updateTooltipContent(ttl, msg, dotsRoot, step, i, steps)
+
+      tooltip.style.display = 'block'
+      positionTooltip(tooltip, el, step.position)
+
+      try {
+        tooltip.style.transition = 'none'
+        tooltip.style.opacity = '0'
+        tooltip.style.transform = 'translateY(8px)'
+        requestAnimationFrame(function () {
+          try {
+            if (destroyed || myGen !== stepGen) return
+            tooltip.style.transition = 'opacity 0.25s ease, transform 0.25s ease'
+            tooltip.style.opacity = '1'
+            tooltip.style.transform = 'translateY(0)'
+          } catch (_) {}
+        })
+      } catch (_) {}
+
+      if (!sil && !tourStartedSent) {
+        tourStartedSent = true
+        pingEvent(apiBase, scriptKey, 'tour_started', orderFor(step), sessionId, isDemo)
+      }
+      if (!sil) pingEvent(apiBase, scriptKey, 'step_viewed', orderFor(step), sessionId, isDemo)
+
+      currentIdx = i
+      previousElement = el
+      currentElement = el
+
+      updateFooterUi(currentIdx)
     }
 
     showStep(0, false)

@@ -1,7 +1,7 @@
 "use client"
 
 import { useRouter } from 'next/navigation'
-import { useEffect, useMemo, useState, useTransition } from 'react'
+import { forwardRef, useEffect, useMemo, useState, useTransition } from 'react'
 import Link from 'next/link'
 import {
   CheckIcon,
@@ -329,6 +329,11 @@ export function TourEditor({ project, tour, initialSteps, analyticsHref }) {
   const previewStepNumber = panelMode === 'edit' && selected ? selectedIndex + 1 : steps.length + 1
   const previewTotalSteps = panelMode === 'edit' && selected ? steps.length : steps.length + 1
 
+  const [dndReady, setDndReady] = useState(false)
+  useEffect(() => {
+    setDndReady(true)
+  }, [])
+
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-10">
       <nav>
@@ -571,24 +576,42 @@ export function TourEditor({ project, tour, initialSteps, analyticsHref }) {
                   </p>
                 </div>
               </div>
-            ) : (
+            ) : dndReady ? (
               <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
                 <SortableContext items={steps.map((s) => s.id)} strategy={verticalListSortingStrategy}>
-                  {steps.map((step, index) => (
-                    <SortableStepCard
-                      key={step.id}
-                      step={step}
-                      index={index}
-                      disabled={isPending}
-                      isSelected={selectedId === step.id && panelMode === 'edit'}
-                      onSelect={() => openEditForStep(step.id)}
-                      onDelete={() => {
-                        setStepToDelete(step.id)
-                      }}
-                    />
-                  ))}
+                  <div className="flex flex-col gap-3">
+                    {steps.map((step, index) => (
+                      <SortableStepCard
+                        key={step.id}
+                        step={step}
+                        index={index}
+                        disabled={isPending}
+                        isSelected={selectedId === step.id && panelMode === 'edit'}
+                        onSelect={() => openEditForStep(step.id)}
+                        onDelete={() => {
+                          setStepToDelete(step.id)
+                        }}
+                      />
+                    ))}
+                  </div>
                 </SortableContext>
               </DndContext>
+            ) : (
+              <div className="flex flex-col gap-3">
+                {steps.map((step, index) => (
+                  <StaticStepCard
+                    key={step.id}
+                    step={step}
+                    index={index}
+                    disabled={isPending}
+                    isSelected={selectedId === step.id && panelMode === 'edit'}
+                    onSelect={() => openEditForStep(step.id)}
+                    onDelete={() => {
+                      setStepToDelete(step.id)
+                    }}
+                  />
+                ))}
+              </div>
             )}
 
             <Button
@@ -698,7 +721,7 @@ export function TourEditor({ project, tour, initialSteps, analyticsHref }) {
               position={previewData.position}
               stepNumber={previewStepNumber}
               totalSteps={previewTotalSteps}
-              customization={appearanceState}
+              appearance={appearanceState}
               onPositionChange={(pos) => {
                 if (panelMode === 'edit') setEditDraft((s) => ({ ...s, position: pos }))
                 else setDraft((s) => ({ ...s, position: pos }))
@@ -711,25 +734,13 @@ export function TourEditor({ project, tour, initialSteps, analyticsHref }) {
   )
 }
 
-function SortableStepCard({ step, index, disabled, isSelected, onSelect, onDelete }) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: step.id })
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.6 : 1,
-  }
-
+const StepCardRow = forwardRef(function StepCardRow(
+  { step, index, disabled, isSelected, onSelect, onDelete, dragHandle, style },
+  ref,
+) {
   return (
     <div
-      ref={setNodeRef}
+      ref={ref}
       style={style}
       role="button"
       tabIndex={0}
@@ -747,14 +758,7 @@ function SortableStepCard({ step, index, disabled, isSelected, onSelect, onDelet
       }`}>
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-2">
-          <span
-            className="inline-flex items-center text-muted-foreground hover:text-foreground"
-            style={{ cursor: disabled ? 'not-allowed' : 'grab' }}
-            onClick={(e) => e.stopPropagation()}
-            {...(disabled ? {} : attributes)}
-            {...(disabled ? {} : listeners)}>
-            <GripVerticalIcon className="size-4" aria-hidden />
-          </span>
+          {dragHandle}
           <span className="text-xs font-medium text-muted-foreground">Step {index + 1}</span>
         </div>
         <Button
@@ -783,6 +787,64 @@ function SortableStepCard({ step, index, disabled, isSelected, onSelect, onDelet
         </span>
       </div>
     </div>
+  )
+})
+
+function StaticStepCard({ step, index, disabled, isSelected, onSelect, onDelete }) {
+  const dragHandle = (
+    <span
+      className="inline-flex items-center text-muted-foreground"
+      style={{ cursor: disabled ? 'not-allowed' : 'grab' }}
+      onClick={(e) => e.stopPropagation()}
+      aria-hidden>
+      <GripVerticalIcon className="size-4" aria-hidden />
+    </span>
+  )
+  return (
+    <StepCardRow
+      step={step}
+      index={index}
+      disabled={disabled}
+      isSelected={isSelected}
+      onSelect={onSelect}
+      onDelete={onDelete}
+      dragHandle={dragHandle}
+    />
+  )
+}
+
+function SortableStepCard({ step, index, disabled, isSelected, onSelect, onDelete }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: step.id })
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.6 : 1,
+  }
+
+  const dragHandle = (
+    <span
+      className="inline-flex items-center text-muted-foreground hover:text-foreground"
+      style={{ cursor: disabled ? 'not-allowed' : 'grab' }}
+      onClick={(e) => e.stopPropagation()}
+      {...(disabled ? {} : attributes)}
+      {...(disabled ? {} : listeners)}>
+      <GripVerticalIcon className="size-4" aria-hidden />
+    </span>
+  )
+
+  return (
+    <StepCardRow
+      ref={setNodeRef}
+      style={style}
+      step={step}
+      index={index}
+      disabled={disabled}
+      isSelected={isSelected}
+      onSelect={onSelect}
+      onDelete={onDelete}
+      dragHandle={dragHandle}
+    />
   )
 }
 
