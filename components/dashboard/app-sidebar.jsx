@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { LayoutGridIcon, LogOutIcon, Settings } from "lucide-react"
+import { BookOpen, LayoutGridIcon, LogOutIcon, Settings } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -22,6 +22,7 @@ import {
 
 const navItems = [
   { href: "/dashboard", label: "Projects", icon: LayoutGridIcon },
+  { href: "/docs", label: "Docs", icon: BookOpen },
   { href: "/dashboard/settings", label: "Settings", icon: Settings },
 ]
 
@@ -51,7 +52,8 @@ export function AppSidebar({ userEmail, onSignOut }) {
               {navItems.map((item) => {
                 const isActive =
                   pathname === item.href ||
-                  (item.href === '/dashboard' && pathname?.startsWith('/dashboard/projects'))
+                  (item.href === '/dashboard' && pathname?.startsWith('/dashboard/projects')) ||
+                  (item.href === '/docs' && pathname?.startsWith('/docs'))
                 const Icon = item.icon
                 return (
                   <SidebarMenuItem key={item.href}>

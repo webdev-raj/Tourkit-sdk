@@ -1,10 +1,11 @@
 import { createProject } from '@/app/actions/projects'
 import { getUserPlan } from '@/app/actions/billing'
 import { ProjectCreateForm } from '@/components/dashboard/project-create-form'
-import { ProjectsCards, EmptyProjectsState } from '@/components/dashboard/projects-cards'
+import { ProjectsCards } from '@/components/dashboard/projects-cards'
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { createClient } from '@/lib/supabase/server'
+import { ArrowRightIcon, BookOpen, FolderOpenIcon } from 'lucide-react'
 import Link from 'next/link'
 
 export const metadata = {
@@ -150,7 +151,36 @@ export default async function DashboardProjectsPage() {
           {enhancedProjects.length ? (
             <ProjectsCards projects={enhancedProjects} appUrl={appUrl} />
           ) : (
-            <EmptyProjectsState />
+            <div className="flex flex-col items-center justify-center gap-4 py-16 text-center">
+              <div className="flex size-14 items-center justify-center rounded-2xl border border-white/10 bg-card/20">
+                <FolderOpenIcon className="size-7 text-primary" />
+              </div>
+              <div className="space-y-1">
+                <h2 className="text-2xl font-semibold">No projects yet</h2>
+                <p className="text-sm text-muted-foreground">Create your first project to get started</p>
+              </div>
+
+              <a
+                href="#create-project-form"
+                className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-background/20 px-4 py-2 text-sm font-medium text-foreground transition-colors hover:border-white/20 hover:bg-muted/20">
+                Go to create form <ArrowRightIcon className="size-4" />
+              </a>
+
+              <a
+                href="/docs/getting-started/quick-start"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  fontSize: '13px',
+                  color: '#666',
+                  marginTop: '8px',
+                  textDecoration: 'none',
+                }}>
+                <BookOpen size={14} />
+                Read the docs to get started
+              </a>
+            </div>
           )}
         </div>
 
