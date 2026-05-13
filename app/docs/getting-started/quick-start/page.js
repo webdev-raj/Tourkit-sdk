@@ -1,15 +1,15 @@
 import {
   DocCallout,
   DocH2,
-  DocImage,
   DocLi,
   DocOl,
   DocP,
-  DocPre,
   DocSection,
   DocUl,
 } from '@/components/docs/doc-article'
 import { DocHeader } from '@/components/docs/doc-header'
+import CodeBlock from '@/components/docs/code-block'
+import { TOURKIT_SCRIPT_SNIPPET } from '@/app/docs/_constants'
 
 export const metadata = {
   title: 'Quick start (5 minutes)',
@@ -35,20 +35,18 @@ export default function Page() {
       <DocSection>
         <DocH2>1. Create a project</DocH2>
         <DocP>In the dashboard, create a project and note your unique script key.</DocP>
-        <DocImage caption="Dashboard — project card with script key (placeholder)" ratio="video" />
       </DocSection>
 
       <DocSection>
         <DocH2>2. Install the snippet</DocH2>
         <DocP>
-          Add the TourKit script before <code className="text-primary">&lt;/body&gt;</code>. Point{' '}
-          <code className="text-primary">data-api</code> at your app URL if you self-host.
+          The TourKit SDK is hosted on jsDelivr CDN. Add this script tag before your closing <code className="text-primary">&lt;/body&gt;</code> tag:
         </DocP>
-        <DocPre>{`<script
-  src="https://cdn.example/tourkit.min.js"
-  data-key="YOUR_SCRIPT_KEY"
-  async
-></script>`}</DocPre>
+        <CodeBlock code={TOURKIT_SCRIPT_SNIPPET} />
+        <DocP>Replace YOUR_SCRIPT_KEY with the script key from your TourKit dashboard project.</DocP>
+        <p className="text-sm leading-relaxed text-muted-foreground">
+          The <code className="rounded-md border border-white/10 bg-[#0c0c0c] px-1.5 py-0.5 font-mono text-[0.9em] text-primary">data-api</code> attribute tells the SDK where to fetch your tour configuration from.
+        </p>
       </DocSection>
 
       <DocSection>
@@ -58,7 +56,6 @@ export default function Page() {
           <DocLi>Add a step: CSS selector, title, message, position.</DocLi>
           <DocLi>Activate the tour when you are ready.</DocLi>
         </DocOl>
-        <DocImage caption="Tour editor — steps list and preview (placeholder)" ratio="wide" />
       </DocSection>
 
       <DocSection>

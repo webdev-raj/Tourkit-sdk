@@ -1,4 +1,4 @@
-import { DocCallout, DocH2, DocLi, DocOl, DocP, DocSection } from '@/components/docs/doc-article'
+import { DocH2, DocP, DocSection } from '@/components/docs/doc-article'
 import { DocHeader } from '@/components/docs/doc-header'
 
 export const metadata = {
@@ -15,24 +15,66 @@ export default function Page() {
       />
 
       <DocSection>
-        <DocH2>Checklist</DocH2>
-        <DocOl>
-          <DocLi>Script tag loads without 404 — verify URL and deployment path.</DocLi>
-          <DocLi>
-            <code className="text-primary">data-key</code> matches an active project script key.
-          </DocLi>
-          <DocLi>Tour is active in the dashboard and project is not disabled.</DocLi>
-          <DocLi>API base URL is reachable from the browser (CORS / network).</DocLi>
-        </DocOl>
+        <DocH2>Common reasons tour is not showing</DocH2>
+        <ul className="space-y-2.5 font-mono text-[13px] leading-relaxed text-muted-foreground">
+          <li className="flex gap-2">
+            <span className="text-foreground" aria-hidden>
+              □
+            </span>
+            <span>Script tag is missing data-key attribute</span>
+          </li>
+          <li className="flex gap-2">
+            <span className="text-foreground" aria-hidden>
+              □
+            </span>
+            <span>Script key doesn&apos;t match your project</span>
+          </li>
+          <li className="flex gap-2">
+            <span className="text-foreground" aria-hidden>
+              □
+            </span>
+            <span>Tour is set to inactive in dashboard</span>
+          </li>
+          <li className="flex gap-2">
+            <span className="text-foreground" aria-hidden>
+              □
+            </span>
+            <span>No steps added to the tour yet</span>
+          </li>
+          <li className="flex gap-2">
+            <span className="text-foreground" aria-hidden>
+              □
+            </span>
+            <span>
+              localStorage has seen flag set (clear with:{' '}
+              <code className="rounded border border-white/10 bg-[#0c0c0c] px-1.5 py-0.5 text-[#e6e8e6]">
+                localStorage.removeItem(&apos;tourkit_seen_YOUR_KEY&apos;)
+              </code>
+              )
+            </span>
+          </li>
+          <li className="flex gap-2">
+            <span className="text-foreground" aria-hidden>
+              □
+            </span>
+            <span>data-api URL is wrong or unreachable</span>
+          </li>
+          <li className="flex gap-2">
+            <span className="text-foreground" aria-hidden>
+              □
+            </span>
+            <span>Ad blocker is blocking the script</span>
+          </li>
+        </ul>
       </DocSection>
 
-      <DocCallout title="Demo mode" variant="info">
-        Demo pages may flag analytics separately — confirm you are testing the same embed path production uses.
-      </DocCallout>
-
       <DocSection>
-        <DocH2>Still stuck?</DocH2>
-        <DocP>Open DevTools → Network and confirm the tour JSON request returns 200 with steps.</DocP>
+        <DocH2>How to debug</DocH2>
+        <DocP>Open the browser console and look for any errors.</DocP>
+        <DocP>
+          In the Network tab you should see a request to: <code className="text-primary">/api/tour/YOUR_SCRIPT_KEY</code> (relative to your{' '}
+          <code className="text-primary">data-api</code> base URL).
+        </DocP>
       </DocSection>
     </article>
   )

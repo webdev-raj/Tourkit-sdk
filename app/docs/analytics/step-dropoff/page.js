@@ -1,4 +1,4 @@
-import { DocH2, DocImage, DocLi, DocP, DocSection, DocUl } from '@/components/docs/doc-article'
+import { DocH2, DocLi, DocP, DocSection, DocUl } from '@/components/docs/doc-article'
 import { DocHeader } from '@/components/docs/doc-header'
 
 export const metadata = {
@@ -17,7 +17,6 @@ export default function Page() {
       <DocSection>
         <DocH2>Reading the funnel</DocH2>
         <DocP>Step-view counts show where attention concentrates; compare consecutive steps to spot cliffs.</DocP>
-        <DocImage caption="Step funnel — views per step (placeholder)" ratio="video" />
       </DocSection>
 
       <DocSection>

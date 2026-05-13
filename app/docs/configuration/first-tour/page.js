@@ -1,4 +1,4 @@
-import { DocCallout, DocH2, DocImage, DocLi, DocOl, DocP, DocSection } from '@/components/docs/doc-article'
+import { DocCallout, DocH2, DocLi, DocOl, DocP, DocSection } from '@/components/docs/doc-article'
 import { DocHeader } from '@/components/docs/doc-header'
 
 export const metadata = {
@@ -22,7 +22,6 @@ export default function Page() {
           <DocLi>Add steps with selectors that exist on your live pages.</DocLi>
           <DocLi>Preview positioning, then activate the tour.</DocLi>
         </DocOl>
-        <DocImage caption="Tour editor — empty state → first step (placeholder)" ratio="video" />
       </DocSection>
 
       <DocCallout title="Naming" variant="tip">

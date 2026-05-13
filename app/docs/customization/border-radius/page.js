@@ -1,4 +1,4 @@
-import { DocH2, DocImage, DocP, DocSection } from '@/components/docs/doc-article'
+import { DocH2, DocP, DocSection } from '@/components/docs/doc-article'
 import { DocHeader } from '@/components/docs/doc-header'
 
 export const metadata = {
@@ -17,7 +17,6 @@ export default function Page() {
       <DocSection>
         <DocH2>Corner presets</DocH2>
         <DocP>Select radius tokens from the appearance panel — preview updates live before you save.</DocP>
-        <DocImage caption="Corner style presets — sharp vs pill (placeholder)" ratio="video" />
       </DocSection>
 
       <DocSection>

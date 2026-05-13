@@ -1,4 +1,4 @@
-import { DocH2, DocImage, DocLi, DocP, DocSection, DocUl } from '@/components/docs/doc-article'
+import { DocH2, DocLi, DocP, DocSection, DocUl } from '@/components/docs/doc-article'
 import { DocHeader } from '@/components/docs/doc-header'
 
 export const metadata = {
@@ -27,7 +27,6 @@ export default function Page() {
             <strong className="text-foreground">Position</strong> — top, bottom, left, or right relative to the element box.
           </DocLi>
         </DocUl>
-        <DocImage caption="Step form — selector, copy, position (placeholder)" ratio="video" />
       </DocSection>
 
       <DocSection>

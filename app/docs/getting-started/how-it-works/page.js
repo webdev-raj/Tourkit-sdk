@@ -1,4 +1,4 @@
-import { DocCallout, DocH2, DocImage, DocLi, DocP, DocSection, DocUl } from '@/components/docs/doc-article'
+import { DocCallout, DocH2, DocLi, DocP, DocSection, DocUl } from '@/components/docs/doc-article'
 import { DocHeader } from '@/components/docs/doc-header'
 
 export const metadata = {
@@ -27,7 +27,6 @@ export default function Page() {
             <strong className="text-foreground">SDK</strong> — positions tooltips, handles navigation, and sends analytics events.
           </DocLi>
         </DocUl>
-        <DocImage caption="High-level flow: browser → API → Supabase (placeholder diagram)" ratio="wide" />
       </DocSection>
 
       <DocSection>

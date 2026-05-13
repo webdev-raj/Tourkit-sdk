@@ -1,4 +1,4 @@
-import { DocH2, DocImage, DocLi, DocP, DocSection, DocUl } from '@/components/docs/doc-article'
+import { DocH2, DocLi, DocP, DocSection, DocUl } from '@/components/docs/doc-article'
 import { DocHeader } from '@/components/docs/doc-header'
 
 export const metadata = {
@@ -27,7 +27,6 @@ export default function Page() {
             <strong className="text-foreground">Completed / skipped</strong> — visitor finished or exited early.
           </DocLi>
         </DocUl>
-        <DocImage caption="Analytics dashboard — overview charts (placeholder)" ratio="wide" />
       </DocSection>
 
       <DocSection>

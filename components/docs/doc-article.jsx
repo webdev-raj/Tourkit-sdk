@@ -44,14 +44,6 @@ export function DocCode({ children }) {
   )
 }
 
-export function DocPre({ children }) {
-  return (
-    <pre className="overflow-x-auto rounded-xl border border-white/10 bg-[#050505] p-4 text-[13px] leading-relaxed text-[#e6e8e6]">
-      <code className="font-mono">{children}</code>
-    </pre>
-  )
-}
-
 export function DocCallout({ title, children, variant = 'info' }) {
   const styles =
     variant === 'warning'
@@ -65,35 +57,6 @@ export function DocCallout({ title, children, variant = 'info' }) {
       {title ? <p className="mb-2 text-sm font-semibold">{title}</p> : null}
       <div className="text-sm leading-relaxed text-muted-foreground [&_strong]:text-foreground">{children}</div>
     </aside>
-  )
-}
-
-/**
- * Placeholder region for screenshots — replace src when assets are ready,
- * or swap this component for next/image.
- *
- * @param {'video' | 'wide' | 'square'} ratio
- */
-export function DocImage({ caption, ratio = 'video', alt = '' }) {
-  const ratioClass =
-    ratio === 'square' ? 'aspect-square max-w-md mx-auto' : ratio === 'wide' ? 'aspect-[21/9]' : 'aspect-video'
-
-  return (
-    <figure className="my-10">
-      <div
-        className={`relative overflow-hidden rounded-xl border border-dashed border-white/12 bg-gradient-to-br from-[#0c0c0c] to-[#080808] ${ratioClass}`}
-        role="img"
-        aria-label={alt || caption || 'Documentation image placeholder'}>
-        <div className="pointer-events-none absolute inset-0 tk-grid opacity-[0.2]" aria-hidden />
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 px-6 text-center">
-          <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary/90">Image slot</span>
-          <span className="max-w-xs text-sm text-muted-foreground">
-            Add your screenshot or diagram here (recommended: PNG or WebP, 2× for retina)
-          </span>
-        </div>
-      </div>
-      {caption ? <figcaption className="mt-3 text-center text-sm text-muted-foreground">{caption}</figcaption> : null}
-    </figure>
   )
 }
 

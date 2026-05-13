@@ -1,4 +1,4 @@
-import { DocH2, DocImage, DocLi, DocP, DocSection, DocUl } from '@/components/docs/doc-article'
+import { DocH2, DocLi, DocP, DocSection, DocUl } from '@/components/docs/doc-article'
 import { DocHeader } from '@/components/docs/doc-header'
 
 export const metadata = {
@@ -20,7 +20,6 @@ export default function Page() {
           Sets accent elements — progress dots, primary buttons, and highlights. Default TourKit orange is{' '}
           <code className="rounded bg-[#0c0c0c] px-1.5 py-0.5 font-mono text-[13px] text-primary">#F15025</code>.
         </DocP>
-        <DocImage caption="Appearance panel — color swatches (placeholder)" ratio="video" />
       </DocSection>
 
       <DocSection>

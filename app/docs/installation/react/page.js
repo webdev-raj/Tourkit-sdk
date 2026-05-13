@@ -1,5 +1,21 @@
-import { DocH2, DocLi, DocP, DocPre, DocSection, DocUl } from '@/components/docs/doc-article'
+import { DocH2, DocLi, DocP, DocSection, DocUl } from '@/components/docs/doc-article'
 import { DocHeader } from '@/components/docs/doc-header'
+import CodeBlock from '@/components/docs/code-block'
+import { TOURKIT_SCRIPT_SNIPPET } from '@/app/docs/_constants'
+
+const OPTION_A_HTML = `<!-- In public/index.html, paste before </body> -->
+
+${TOURKIT_SCRIPT_SNIPPET}`
+
+const OPTION_B_USEEFFECT = `useEffect(() => {
+  const script = document.createElement('script')
+  script.src = 'https://cdn.jsdelivr.net/gh/webdev-raj/Tourkit@main/sdk/dist/tourkit.min.js?v=2'
+  script.setAttribute('data-key', 'YOUR_SCRIPT_KEY')
+  script.setAttribute('data-api', 'https://tourkit-phi.vercel.app')
+  script.async = true
+  document.body.appendChild(script)
+  return () => document.body.removeChild(script)
+}, [])`
 
 export const metadata = {
   title: 'React.js',
@@ -15,31 +31,26 @@ export default function Page() {
       />
 
       <DocSection>
-        <DocH2>Recommended placement</DocH2>
-        <DocUl>
-          <DocLi>
-            In <strong className="text-foreground">index.html</strong> for CRA/Vite, or
-          </DocLi>
-          <DocLi>
-            In your root <strong className="text-foreground">layout</strong> / App component using a small effect or a
-            dedicated component that mounts the script once.
-          </DocLi>
-        </DocUl>
+        <DocH2>1. Add to index.html or use useEffect</DocH2>
+        <DocP>Prefer adding the snippet to <strong className="text-foreground">public/index.html</strong> (CRA/Vite) so it loads before your bundle. Alternatively, append the script once from a root component.</DocP>
       </DocSection>
 
       <DocSection>
-        <DocH2>Example: append script once</DocH2>
-        <DocPre>{`useEffect(() => {
-  const s = document.createElement('script')
-  s.src = '/tourkit.min.js'
-  s.async = true
-  s.dataset.key = import.meta.env.VITE_TOURKIT_KEY
-  document.body.appendChild(s)
-  return () => { document.body.removeChild(s) }
-}, [])`}</DocPre>
-        <p className="text-sm text-muted-foreground">
-          Prefer loading from HTML when possible so the SDK is available before hydration-heavy routes paint.
-        </p>
+        <DocH2>Option A — Add to public/index.html</DocH2>
+        <CodeBlock code={OPTION_A_HTML} language="html" />
+      </DocSection>
+
+      <DocSection>
+        <DocH2>Option B — Load dynamically in useEffect</DocH2>
+        <CodeBlock code={OPTION_B_USEEFFECT} language="javascript" />
+      </DocSection>
+
+      <DocSection>
+        <DocH2>Single-page apps</DocH2>
+        <DocUl>
+          <DocLi>Vue Router and React Router do not reload the page — ensure you only mount the script once.</DocLi>
+          <DocLi>Prefer HTML injection when possible so the SDK is available before heavy client hydration.</DocLi>
+        </DocUl>
       </DocSection>
     </article>
   )
