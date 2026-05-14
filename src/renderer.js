@@ -1,6 +1,6 @@
 import { pingEvent } from './tracker.js'
 
-/** @typedef {{ id?: string, selector: string, title?: string|null, message: string, position?: string, step_order?: number }} TourStep */
+/** @typedef {{ id?: string, selector: string, title?: string|null, message: string, position?: string, step_order?: number, url_pattern?: string|null }} TourStep */
 
 var SPOT_PADDING = 6
 
@@ -311,7 +311,7 @@ function updateTooltipContent(ttl, msg, dotsRoot, step, logicalIndexZero, steps)
   }
 }
 
-export function startTour(stepsSorted, scriptKey, apiBase, customization, sessionId, isDemo) {
+export function startTour(stepsSorted, scriptKey, apiBase, customization, sessionId, isDemo, startIndex) {
   try {
     if (!scriptKey || !apiBase) return
 
@@ -320,6 +320,17 @@ export function startTour(stepsSorted, scriptKey, apiBase, customization, sessio
 
     var steps = Array.isArray(stepsSorted) ? stepsSorted.slice() : []
     if (!steps.length) return
+
+    var startIdx = 0
+    try {
+      startIdx = Number(startIndex)
+      if (!Number.isFinite(startIdx)) startIdx = 0
+    } catch (_) {
+      startIdx = 0
+    }
+    startIdx = Math.floor(startIdx)
+    if (startIdx < 0) startIdx = 0
+    if (startIdx >= steps.length) startIdx = 0
 
     var overlayPieces = []
     var tooltip = document.createElement('div')
@@ -376,7 +387,7 @@ export function startTour(stepsSorted, scriptKey, apiBase, customization, sessio
 
     document.body.appendChild(tooltip)
 
-    var currentIdx = 0
+    var currentIdx = startIdx
     var destroyed = false
     var tourStartedSent = false
     var pendingRaf = 0
@@ -677,7 +688,7 @@ export function startTour(stepsSorted, scriptKey, apiBase, customization, sessio
       updateFooterUi(currentIdx)
     }
 
-    showStep(0, false)
+    showStep(currentIdx, false)
   } catch (_) {
     /* silent */
   }

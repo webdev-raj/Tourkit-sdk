@@ -38,7 +38,7 @@ import { startTour } from './renderer.js'
 
     /**
      * API steps win; detectElements() fills missing selectors by index.
-     * @param {Array<{ id?: string, selector?: string, title?: string|null, message: string, position?: string, step_order?: number }>} apiSteps
+     * @param {Array<{ id?: string, selector?: string, title?: string|null, message: string, position?: string, step_order?: number, url_pattern?: string|null }>} apiSteps
      */
     function mergeDetected(apiSteps) {
       try {
@@ -101,6 +101,16 @@ import { startTour } from './renderer.js'
             message: step.message ? String(step.message) : '',
             position: step.position,
             step_order: so,
+            url_pattern: null,
+          }
+
+          try {
+            if (step && step.url_pattern != null) {
+              var up = String(step.url_pattern).trim()
+              row.url_pattern = up || null
+            }
+          } catch (_) {
+            row.url_pattern = null
           }
 
           /** schema requires message; skip broken rows silently */
@@ -112,6 +122,63 @@ import { startTour } from './renderer.js'
         return out
       } catch (_) {
         return []
+      }
+    }
+
+    function findStartingStep(steps) {
+      try {
+        var currentPath = ''
+        try {
+          currentPath = String(window.location.pathname || '')
+        } catch (_) {
+          return 0
+        }
+
+        var hasUrlTriggers = false
+        try {
+          hasUrlTriggers = steps.some(function (s) {
+            try {
+              return Boolean(s && s.url_pattern && String(s.url_pattern).trim())
+            } catch (_) {
+              return false
+            }
+          })
+        } catch (_) {
+          hasUrlTriggers = false
+        }
+
+        if (!hasUrlTriggers) return 0
+
+        var matchingIndex = -1
+        try {
+          matchingIndex = steps.findIndex(function (step) {
+            try {
+              if (!step || !step.url_pattern) return false
+              var pattern = String(step.url_pattern).trim()
+              if (!pattern) return false
+
+              if (currentPath === pattern) return true
+
+              if (pattern.length > 0 && pattern.charAt(pattern.length - 1) === '*') {
+                var prefix = pattern.slice(0, -1)
+                if (prefix && currentPath.indexOf(prefix) === 0) return true
+              }
+
+              if (currentPath.indexOf(pattern) !== -1) return true
+
+              return false
+            } catch (_) {
+              return false
+            }
+          })
+        } catch (_) {
+          matchingIndex = -1
+        }
+
+        if (matchingIndex !== -1) return matchingIndex
+        return 0
+      } catch (e) {
+        return 0
       }
     }
 
@@ -169,8 +236,15 @@ import { startTour } from './renderer.js'
 
             if (!merged.length) return
 
+            var startIndex = 0
+            try {
+              startIndex = findStartingStep(merged)
+            } catch (_) {
+              startIndex = 0
+            }
+
             var apiBase = scriptConfig.apiBase || data.api_base || TK_API_ORIGIN
-            startTour(merged, key, apiBase, data.customization || null, sessionId, isDemo)
+            startTour(merged, key, apiBase, data.customization || null, sessionId, isDemo, startIndex)
           })
           .catch(function () {})
       } catch (_) {
