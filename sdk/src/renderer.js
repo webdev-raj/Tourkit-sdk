@@ -1,4 +1,5 @@
 import { pingEvent } from './tracker.js'
+import { buildSessionKey } from './session-key.js'
 
 /** @typedef {{ id?: string, selector: string, title?: string|null, message: string, position?: string, step_order?: number, url_pattern?: string|null }} TourStep */
 
@@ -323,29 +324,15 @@ export function startTour(stepsSorted, scriptKey, apiBase, customization, sessio
     }
     if (!storageKey) {
       try {
-        var cp2 = ''
+        var pathnameForKey = '/'
         try {
-          cp2 = String(window.location.pathname || '')
+          pathnameForKey = String(window.location.pathname || '/') || '/'
         } catch (_) {
-          cp2 = ''
+          pathnameForKey = '/'
         }
-        var sp2 = ''
-        try {
-          sp2 =
-            cp2
-              .replace(/^\//, '')
-              .replace(/\//g, '-')
-              .replace(/[^a-zA-Z0-9-_]/g, '') || 'root'
-        } catch (_) {
-          sp2 = 'root'
-        }
-        storageKey = 'tourkit_seen_' + scriptKey + '_' + sp2
+        storageKey = buildSessionKey(scriptKey, pathnameForKey)
       } catch (_) {
-        try {
-          storageKey = 'tourkit_seen_' + scriptKey
-        } catch (e2) {
-          storageKey = ''
-        }
+        storageKey = ''
       }
     }
 
@@ -466,17 +453,27 @@ export function startTour(stepsSorted, scriptKey, apiBase, customization, sessio
       teardownListeners()
       cancelAnimationFrameMaybe()
       try {
-        if (
-          markSeen &&
-          !isDemo &&
-          typeof window !== 'undefined' &&
-          window.__TOURKIT_DEMO__ !== true &&
-          storageKey
-        ) {
-          try {
-            window.localStorage.setItem(storageKey, '1')
-          } catch (e) {
-            /* silent */
+        if (markSeen && !isDemo && typeof window !== 'undefined' && window.__TOURKIT_DEMO__ !== true) {
+          var seenKey = storageKey
+          if (!seenKey) {
+            try {
+              var pathnameForSeen = '/'
+              try {
+                pathnameForSeen = String(window.location.pathname || '/') || '/'
+              } catch (_) {
+                pathnameForSeen = '/'
+              }
+              seenKey = buildSessionKey(scriptKey, pathnameForSeen)
+            } catch (_) {
+              seenKey = ''
+            }
+          }
+          if (seenKey) {
+            try {
+              window.localStorage.setItem(seenKey, '1')
+            } catch (e) {
+              /* silent */
+            }
           }
         }
       } catch (_) {

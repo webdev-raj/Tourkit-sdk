@@ -1,6 +1,7 @@
 import { TK_API_ORIGIN } from './config.js'
 import { detectElements } from './scanner.js'
 import { startTour } from './renderer.js'
+import { buildSessionKey, tourkitSeenPrefix } from './session-key.js'
 
 ;(function tourkitBootstrap() {
   try {
@@ -58,18 +59,6 @@ import { startTour } from './renderer.js'
         return 'tk_' + Math.random().toString(36).slice(2)
       }
     })()
-
-    function buildSessionKey(scriptKey, path) {
-      try {
-        const safePath = (path || '/')
-          .replace(/^\//, '')
-          .replace(/\//g, '-')
-          .replace(/[^a-zA-Z0-9-_]/g, '') || 'root'
-        return 'tourkit_seen_' + scriptKey + '_' + safePath
-      } catch (e) {
-        return 'tourkit_seen_' + scriptKey
-      }
-    }
 
     /**
      * @param {Array<{ url_pattern?: string|null }>} steps
@@ -271,7 +260,13 @@ import { startTour } from './renderer.js'
         } catch (_) {}
 
         try {
-          if (!isDemo && window.localStorage.getItem(sessionKey) === '1') return
+          var seenPath = currentPath
+          try {
+            seenPath = String(window.location.pathname || '/') || '/'
+          } catch (_) {
+            seenPath = currentPath
+          }
+          if (!isDemo && window.localStorage.getItem(buildSessionKey(SCRIPT_KEY, seenPath)) === '1') return
         } catch (_) {
           /* silent */
         }
@@ -390,7 +385,7 @@ import { startTour } from './renderer.js'
           var i = 0
           for (i = 0; i < window.localStorage.length; i++) {
             var key = window.localStorage.key(i)
-            if (key && key.startsWith('tourkit_seen_' + SCRIPT_KEY)) {
+            if (key && key.startsWith(tourkitSeenPrefix(SCRIPT_KEY))) {
               keysToRemove.push(key)
             }
           }
