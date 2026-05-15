@@ -260,13 +260,7 @@ import { buildSessionKey, tourkitSeenPrefix } from './session-key.js'
         } catch (_) {}
 
         try {
-          var seenPath = currentPath
-          try {
-            seenPath = String(window.location.pathname || '/') || '/'
-          } catch (_) {
-            seenPath = currentPath
-          }
-          if (!isDemo && window.localStorage.getItem(buildSessionKey(SCRIPT_KEY, seenPath)) === '1') return
+          if (!isDemo && window.localStorage.getItem(sessionKey) === '1') return
         } catch (_) {
           /* silent */
         }

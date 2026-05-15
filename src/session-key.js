@@ -1,12 +1,21 @@
 export function buildSessionKey(scriptKey, path) {
   try {
-    const safePath = (path || '/')
+    var safePath = String(path == null || path === '' ? '/' : path)
       .replace(/^\//, '')
       .replace(/\//g, '-')
-      .replace(/[^a-zA-Z0-9-_]/g, '') || 'root'
-    return 'tourkit_seen_' + scriptKey + '_' + safePath
+      .replace(/[^a-zA-Z0-9-_]/g, '')
+    if (!safePath) safePath = 'root'
+    var result = 'tourkit_seen_' + scriptKey + '_' + safePath
+    try {
+      console.log('Building key for path:', path, '→', result)
+    } catch (_) {}
+    return result
   } catch (e) {
-    return 'tourkit_seen_' + scriptKey + '_root'
+    var fallback = 'tourkit_seen_' + scriptKey + '_root'
+    try {
+      console.log('Building key for path:', path, '→', fallback, '(fallback)')
+    } catch (_) {}
+    return fallback
   }
 }
 
