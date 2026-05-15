@@ -323,21 +323,29 @@ export function startTour(stepsSorted, scriptKey, apiBase, customization, sessio
     }
     if (!storageKey) {
       try {
-        var cp = ''
+        var cp2 = ''
         try {
-          cp = String(window.location.pathname || '')
+          cp2 = String(window.location.pathname || '')
         } catch (_) {
-          cp = ''
+          cp2 = ''
         }
-        var pp = ''
+        var sp2 = ''
         try {
-          pp = cp.replace(/\//g, '_').replace(/[^a-zA-Z0-9_-]/g, '')
+          sp2 =
+            cp2
+              .replace(/^\//, '')
+              .replace(/\//g, '-')
+              .replace(/[^a-zA-Z0-9-_]/g, '') || 'root'
         } catch (_) {
-          pp = ''
+          sp2 = 'root'
         }
-        storageKey = 'tourkit_seen_' + scriptKey + '_' + pp
+        storageKey = 'tourkit_seen_' + scriptKey + '_' + sp2
       } catch (_) {
-        storageKey = 'tourkit_seen_' + scriptKey + '_'
+        try {
+          storageKey = 'tourkit_seen_' + scriptKey
+        } catch (e2) {
+          storageKey = ''
+        }
       }
     }
 
@@ -475,6 +483,18 @@ export function startTour(stepsSorted, scriptKey, apiBase, customization, sessio
         /* silent */
       }
       removeNodes()
+      try {
+        window.__TOURKIT_DESTROY__ = null
+      } catch (_) {}
+    }
+
+    function destroyTour() {
+      try {
+        window.__TOURKIT_DESTROY__ = null
+      } catch (_) {}
+      try {
+        destroyQuiet(false)
+      } catch (_) {}
     }
 
     function cancelAnimationFrameMaybe() {
@@ -727,6 +747,10 @@ export function startTour(stepsSorted, scriptKey, apiBase, customization, sessio
 
       updateFooterUi(currentIdx)
     }
+
+    try {
+      window.__TOURKIT_DESTROY__ = destroyTour
+    } catch (_) {}
 
     showStep(currentIdx, false)
   } catch (_) {
