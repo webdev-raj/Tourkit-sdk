@@ -311,9 +311,35 @@ function updateTooltipContent(ttl, msg, dotsRoot, step, logicalIndexZero, steps)
   }
 }
 
-export function startTour(stepsSorted, scriptKey, apiBase, customization, sessionId, isDemo, startIndex) {
+export function startTour(stepsSorted, scriptKey, apiBase, customization, sessionId, isDemo, startIndex, sessionKey) {
   try {
     if (!scriptKey || !apiBase) return
+
+    var storageKey = ''
+    try {
+      storageKey = sessionKey != null && String(sessionKey).trim() ? String(sessionKey).trim() : ''
+    } catch (_) {
+      storageKey = ''
+    }
+    if (!storageKey) {
+      try {
+        var cp = ''
+        try {
+          cp = String(window.location.pathname || '')
+        } catch (_) {
+          cp = ''
+        }
+        var pp = ''
+        try {
+          pp = cp.replace(/\//g, '_').replace(/[^a-zA-Z0-9_-]/g, '')
+        } catch (_) {
+          pp = ''
+        }
+        storageKey = 'tourkit_seen_' + scriptKey + '_' + pp
+      } catch (_) {
+        storageKey = 'tourkit_seen_' + scriptKey + '_'
+      }
+    }
 
     injectStylesOnce()
     applyCustomization(customization)
@@ -432,8 +458,22 @@ export function startTour(stepsSorted, scriptKey, apiBase, customization, sessio
       teardownListeners()
       cancelAnimationFrameMaybe()
       try {
-        if (markSeen) window.localStorage.setItem('tourkit_seen_' + scriptKey, '1')
-      } catch (_) {}
+        if (
+          markSeen &&
+          !isDemo &&
+          typeof window !== 'undefined' &&
+          window.__TOURKIT_DEMO__ !== true &&
+          storageKey
+        ) {
+          try {
+            window.localStorage.setItem(storageKey, '1')
+          } catch (e) {
+            /* silent */
+          }
+        }
+      } catch (_) {
+        /* silent */
+      }
       removeNodes()
     }
 

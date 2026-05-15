@@ -204,10 +204,25 @@ import { startTour } from './renderer.js'
         try {
           if (typeof window !== 'undefined' && window.__TOURKIT_DEMO__ === true) isDemo = true
         } catch (_) {}
+
+        var currentPath = ''
+        try {
+          currentPath = String(window.location.pathname || '')
+        } catch (_) {
+          currentPath = ''
+        }
+        var pathPart = ''
+        try {
+          pathPart = currentPath.replace(/\//g, '_').replace(/[^a-zA-Z0-9_-]/g, '')
+        } catch (_) {
+          pathPart = ''
+        }
+        var SESSION_KEY = 'tourkit_seen_' + key + '_' + pathPart
+
         var sessionId = getSessionId()
 
         try {
-          if (window.localStorage.getItem('tourkit_seen_' + key) === '1') return
+          if (!isDemo && window.localStorage.getItem(SESSION_KEY) === '1') return
         } catch (_) {
           /* silent */
         }
@@ -244,7 +259,7 @@ import { startTour } from './renderer.js'
             }
 
             var apiBase = scriptConfig.apiBase || data.api_base || TK_API_ORIGIN
-            startTour(merged, key, apiBase, data.customization || null, sessionId, isDemo, startIndex)
+            startTour(merged, key, apiBase, data.customization || null, sessionId, isDemo, startIndex, SESSION_KEY)
           })
           .catch(function () {})
       } catch (_) {
