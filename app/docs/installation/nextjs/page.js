@@ -9,7 +9,7 @@ export default function Layout({ children }) {
     <>
       {children}
       <Script
-        src="https://cdn.jsdelivr.net/gh/webdev-raj/Tourkit@main/sdk/dist/tourkit.min.js?v=3"
+        src="https://cdn.jsdelivr.net/gh/webdev-raj/Tourkit@main/sdk/dist/tourkit.min.js?v=4"
         data-key="YOUR_SCRIPT_KEY"
         data-api="https://tourkit-phi.vercel.app"
         strategy="afterInteractive"

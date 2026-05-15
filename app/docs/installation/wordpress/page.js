@@ -6,7 +6,7 @@ import { TOURKIT_SCRIPT_SNIPPET } from '@/app/docs/_constants'
 const WP_FUNCTIONS_PHP = `function add_tourkit_script() {
   wp_enqueue_script(
     'tourkit',
-    'https://cdn.jsdelivr.net/gh/webdev-raj/Tourkit@main/sdk/dist/tourkit.min.js?v=3',
+    'https://cdn.jsdelivr.net/gh/webdev-raj/Tourkit@main/sdk/dist/tourkit.min.js?v=4',
     array(),
     null,
     true
