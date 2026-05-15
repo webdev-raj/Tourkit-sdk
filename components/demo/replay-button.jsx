@@ -5,9 +5,23 @@ import { RotateCcw } from 'lucide-react'
 export default function ReplayButton({ scriptKey }) {
   function handleReplay() {
     try {
-      Object.keys(localStorage).forEach(function (key) {
-        if (key.startsWith('tourkit_seen_' + scriptKey)) {
-          localStorage.removeItem(key)
+      var keysToRemove = []
+      var i = 0
+      try {
+        for (i = 0; i < localStorage.length; i++) {
+          var key = localStorage.key(i)
+          if (key && key.startsWith('tourkit_seen_' + scriptKey)) {
+            keysToRemove.push(key)
+          }
+        }
+      } catch (_) {
+        keysToRemove = []
+      }
+      keysToRemove.forEach(function (k) {
+        try {
+          localStorage.removeItem(k)
+        } catch (e) {
+          /* silent */
         }
       })
     } catch (e) {

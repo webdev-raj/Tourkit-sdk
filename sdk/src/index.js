@@ -36,6 +36,20 @@ import { startTour } from './renderer.js'
       return { key: SCRIPT_KEY, apiBase: API_BASE, isDemo: IS_DEMO }
     }
 
+    function buildSessionKey(scriptKey) {
+      try {
+        const path = window.location.pathname
+        const safePath =
+          path
+            .replace(/^\//, '')
+            .replace(/\//g, '-')
+            .replace(/[^a-zA-Z0-9-_]/g, '') || 'root'
+        return 'tourkit_seen_' + scriptKey + '_' + safePath
+      } catch (e) {
+        return 'tourkit_seen_' + scriptKey
+      }
+    }
+
     /**
      * API steps win; detectElements() fills missing selectors by index.
      * @param {Array<{ id?: string, selector?: string, title?: string|null, message: string, position?: string, step_order?: number, url_pattern?: string|null }>} apiSteps
@@ -195,6 +209,163 @@ import { startTour } from './renderer.js'
       }
     }
 
+    var cachedRawSteps = []
+    var cachedCustomization = null
+    var cachedApiBase = ''
+    var cachedSessionId = ''
+    var cachedScriptKey = ''
+    var cachedIsDemo = false
+    var navigationHooksBound = false
+    var lastNavPathSeen = null
+    var pollPath = ''
+
+    function runTourForCurrentPage() {
+      try {
+        var currentPath = ''
+        try {
+          currentPath = String(window.location.pathname || '')
+        } catch (_) {
+          return
+        }
+
+        if (lastNavPathSeen !== null && currentPath === lastNavPathSeen) return
+
+        if (!cachedScriptKey) return
+        if (!Array.isArray(cachedRawSteps) || cachedRawSteps.length === 0) return
+
+        try {
+          if (typeof window.__TOURKIT_DESTROY__ === 'function') {
+            window.__TOURKIT_DESTROY__()
+          }
+        } catch (_) {}
+
+        var isDemoNav = Boolean(cachedIsDemo)
+        try {
+          if (typeof window !== 'undefined' && window.__TOURKIT_DEMO__ === true) isDemoNav = true
+        } catch (_) {}
+
+        var newSessionKey = buildSessionKey(cachedScriptKey)
+
+        try {
+          if (!isDemoNav && window.localStorage.getItem(newSessionKey) === '1') {
+            lastNavPathSeen = currentPath
+            return
+          }
+        } catch (_) {
+          /* silent */
+        }
+
+        var merged = mergeDetected(cachedRawSteps)
+        if (!merged.length) {
+          lastNavPathSeen = currentPath
+          return
+        }
+
+        var startIndex = 0
+        try {
+          startIndex = findStartingStep(merged)
+        } catch (_) {
+          startIndex = 0
+        }
+
+        try {
+          startTour(
+            merged,
+            cachedScriptKey,
+            cachedApiBase,
+            cachedCustomization,
+            cachedSessionId,
+            isDemoNav,
+            startIndex,
+            newSessionKey,
+          )
+        } catch (_) {
+          /* silent */
+        }
+
+        lastNavPathSeen = currentPath
+      } catch (e) {
+        /* silent */
+      }
+    }
+
+    function bindNavigationHooks() {
+      if (navigationHooksBound) return
+      navigationHooksBound = true
+
+      try {
+        pollPath = String(window.location.pathname || '')
+      } catch (_) {
+        pollPath = ''
+      }
+
+      try {
+        window.addEventListener('popstate', function () {
+          setTimeout(runTourForCurrentPage, 100)
+        })
+      } catch (_) {
+        /* silent */
+      }
+
+      try {
+        if (typeof history !== 'undefined' && history.pushState && !window.__tourkitPushStateWrapped) {
+          window.__tourkitPushStateWrapped = true
+          var originalPushState = history.pushState.bind(history)
+          history.pushState = function () {
+            try {
+              originalPushState.apply(history, arguments)
+            } catch (e) {
+              try {
+                originalPushState(arguments[0], arguments[1], arguments[2])
+              } catch (e2) {
+                /* silent */
+              }
+            }
+            setTimeout(runTourForCurrentPage, 100)
+          }
+        }
+      } catch (_) {
+        /* silent */
+      }
+
+      try {
+        if (typeof history !== 'undefined' && history.replaceState && !window.__tourkitReplaceStateWrapped) {
+          window.__tourkitReplaceStateWrapped = true
+          var originalReplaceState = history.replaceState.bind(history)
+          history.replaceState = function () {
+            try {
+              originalReplaceState.apply(history, arguments)
+            } catch (e) {
+              try {
+                originalReplaceState(arguments[0], arguments[1], arguments[2])
+              } catch (e2) {
+                /* silent */
+              }
+            }
+            setTimeout(runTourForCurrentPage, 100)
+          }
+        }
+      } catch (_) {
+        /* silent */
+      }
+
+      try {
+        setInterval(function () {
+          try {
+            var cur = String(window.location.pathname || '')
+            if (cur !== pollPath) {
+              pollPath = cur
+              setTimeout(runTourForCurrentPage, 100)
+            }
+          } catch (_) {
+            /* silent */
+          }
+        }, 500)
+      } catch (_) {
+        /* silent */
+      }
+    }
+
     function main() {
       try {
         var scriptConfig = getScriptConfig()
@@ -205,19 +376,7 @@ import { startTour } from './renderer.js'
           if (typeof window !== 'undefined' && window.__TOURKIT_DEMO__ === true) isDemo = true
         } catch (_) {}
 
-        var currentPath = ''
-        try {
-          currentPath = String(window.location.pathname || '')
-        } catch (_) {
-          currentPath = ''
-        }
-        var pathPart = ''
-        try {
-          pathPart = currentPath.replace(/\//g, '_').replace(/[^a-zA-Z0-9_-]/g, '')
-        } catch (_) {
-          pathPart = ''
-        }
-        var SESSION_KEY = 'tourkit_seen_' + key + '_' + pathPart
+        var SESSION_KEY = buildSessionKey(key)
 
         var sessionId = getSessionId()
 
@@ -251,6 +410,17 @@ import { startTour } from './renderer.js'
 
             if (!merged.length) return
 
+            try {
+              cachedRawSteps = data.steps.slice()
+            } catch (_) {
+              cachedRawSteps = []
+            }
+            cachedCustomization = data.customization || null
+            cachedApiBase = scriptConfig.apiBase || data.api_base || TK_API_ORIGIN
+            cachedSessionId = sessionId
+            cachedScriptKey = key
+            cachedIsDemo = isDemo
+
             var startIndex = 0
             try {
               startIndex = findStartingStep(merged)
@@ -258,8 +428,21 @@ import { startTour } from './renderer.js'
               startIndex = 0
             }
 
-            var apiBase = scriptConfig.apiBase || data.api_base || TK_API_ORIGIN
-            startTour(merged, key, apiBase, data.customization || null, sessionId, isDemo, startIndex, SESSION_KEY)
+            startTour(merged, key, cachedApiBase, cachedCustomization, sessionId, isDemo, startIndex, SESSION_KEY)
+
+            try {
+              lastNavPathSeen = String(window.location.pathname || '')
+            } catch (_) {
+              lastNavPathSeen = ''
+            }
+
+            try {
+              pollPath = lastNavPathSeen
+            } catch (_) {
+              pollPath = ''
+            }
+
+            bindNavigationHooks()
           })
           .catch(function () {})
       } catch (_) {

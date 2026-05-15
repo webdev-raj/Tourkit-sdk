@@ -2,7 +2,6 @@ import Link from 'next/link'
 import Script from 'next/script'
 import { Poppins } from 'next/font/google'
 
-import DemoSubnav from '@/components/demo/demo-subnav'
 import ReplayButton from '@/components/demo/replay-button'
 
 import './demo.css'
@@ -11,6 +10,22 @@ const poppins = Poppins({
   subsets: ['latin'],
   weight: ['400', '500', '600', '700'],
 })
+
+const DEMO_SUBNAV_STYLE = {
+  background: '#0d0d0d',
+  borderBottom: '1px solid #1a1a1a',
+  height: 44,
+  padding: '0 24px',
+}
+
+const demoNavLinkBase = {
+  fontSize: 14,
+  color: '#666',
+  textDecoration: 'none',
+  paddingBottom: 10,
+  borderBottom: '2px solid transparent',
+  marginBottom: -1,
+}
 
 export async function generateMetadata({ params }) {
   const { scriptKey } = await params
@@ -23,6 +38,8 @@ export async function generateMetadata({ params }) {
 export default async function DemoLayout({ children, params }) {
   const { scriptKey } = await params
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || ''
+  const sk = encodeURIComponent(scriptKey)
+  const base = `/demo/${sk}`
 
   return (
     <div className={`${poppins.className} demo-root antialiased`}>
@@ -47,7 +64,26 @@ export default async function DemoLayout({ children, params }) {
         </div>
       </div>
 
-      <DemoSubnav scriptKey={scriptKey} />
+      <nav
+        className="fixed inset-x-0 top-12 z-[998] flex items-center justify-center"
+        style={{ ...DEMO_SUBNAV_STYLE, gap: 24 }}
+        aria-label="Demo site pages">
+        <Link href={base} prefetch style={demoNavLinkBase}>
+          Home
+        </Link>
+        <Link href={`${base}/dashboard`} prefetch style={demoNavLinkBase}>
+          Dashboard
+        </Link>
+        <Link href={`${base}/projects`} prefetch style={demoNavLinkBase}>
+          Projects
+        </Link>
+        <Link href={`${base}/settings`} prefetch style={demoNavLinkBase}>
+          Settings
+        </Link>
+        <Link href={`${base}/pricing`} prefetch style={demoNavLinkBase}>
+          Pricing
+        </Link>
+      </nav>
 
       <div className="demo-content-shell">{children}</div>
 
