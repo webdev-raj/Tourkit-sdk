@@ -1,9 +1,21 @@
-export const metadata = {
-  title: 'Demo — Dashboard',
-}
+'use client'
 
-export default async function DemoDashboardPage({ params }) {
-  const { scriptKey } = await params
+import { use, useEffect } from 'react'
+import { usePathname } from 'next/navigation'
+
+export default function DemoDashboardPage({ params }) {
+  const { scriptKey } = use(params)
+  const pathname = usePathname()
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      try {
+        window.TourKit?.startFor?.(pathname)
+      } catch (_) {}
+    }, 600)
+    return () => clearTimeout(timer)
+  }, [pathname])
+
   const fullPath = `/demo/${scriptKey}/dashboard`
 
   const selectors = [

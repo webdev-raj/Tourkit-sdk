@@ -18,6 +18,26 @@ export default function Layout({ children }) {
   )
 }`
 
+const NEXTJS_APP_ROUTER_TOURKIT_PROVIDER = `'use client'
+import { useEffect } from 'react'
+import { usePathname } from 'next/navigation'
+
+export default function TourKitProvider() {
+  const pathname = usePathname()
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      window.TourKit?.startFor(pathname)
+    }, 500)
+    return () => clearTimeout(timer)
+  }, [pathname])
+
+  return null
+}
+
+// Add to your layout.js:
+// <TourKitProvider />`
+
 export const metadata = {
   title: 'Next.js',
 }
@@ -42,6 +62,15 @@ export default function Page() {
       <DocSection>
         <DocH2>Example with next/script</DocH2>
         <CodeBlock code={NEXT_SCRIPT_BLOCK} language="javascript" />
+      </DocSection>
+
+      <DocSection>
+        <DocH2>Client-side navigation</DocH2>
+        <DocP>
+          After the script loads, the SDK exposes <code className="text-primary">window.TourKit</code>. On App Router navigations the URL can change
+          without a reload — mount a small client provider that calls <code className="text-primary">startFor</code> whenever the pathname updates.
+        </DocP>
+        <CodeBlock code={NEXTJS_APP_ROUTER_TOURKIT_PROVIDER} language="javascript" />
       </DocSection>
 
       <DocCallout title="Demo route" variant="tip">

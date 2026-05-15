@@ -1,9 +1,21 @@
-export const metadata = {
-  title: 'Demo — Projects',
-}
+'use client'
 
-export default async function DemoProjectsPage({ params }) {
-  const { scriptKey } = await params
+import { use, useEffect } from 'react'
+import { usePathname } from 'next/navigation'
+
+export default function DemoProjectsPage({ params }) {
+  const { scriptKey } = use(params)
+  const pathname = usePathname()
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      try {
+        window.TourKit?.startFor?.(pathname)
+      } catch (_) {}
+    }, 600)
+    return () => clearTimeout(timer)
+  }, [pathname])
+
   const fullPath = `/demo/${scriptKey}/projects`
 
   const selectors = [

@@ -1,5 +1,21 @@
-export default async function DemoHomePage({ params }) {
-  const { scriptKey } = await params
+'use client'
+
+import { use, useEffect } from 'react'
+import { usePathname } from 'next/navigation'
+
+export default function DemoHomePage({ params }) {
+  const { scriptKey } = use(params)
+  const pathname = usePathname()
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      try {
+        window.TourKit?.startFor?.(pathname)
+      } catch (_) {}
+    }, 600)
+    return () => clearTimeout(timer)
+  }, [pathname])
+
   const homePath = `/demo/${scriptKey}`
 
   const selectors = ['nav', '#hero', '.cta-primary', '#features', '.feature-card', '#pricing-cta', 'footer']

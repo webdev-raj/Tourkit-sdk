@@ -4,6 +4,21 @@ import CodeBlock from '@/components/docs/code-block'
 
 const SELECTOR_EXAMPLE = `document.querySelector('[data-tour="billing"]')`
 
+const TOURKIT_GLOBAL_API = `// Start tour for a specific path (matches Trigger URL / url_pattern logic)
+window.TourKit.startFor('/dashboard')
+
+// Start on the current path from step 1 (ignores url_pattern start resolution)
+window.TourKit.start()
+
+// Tear down the active tour UI
+window.TourKit.destroy()
+
+// Clear the "seen" flag for one path so the tour can run again
+window.TourKit.reset('/dashboard')
+
+// Clear every seen flag stored for this script key
+window.TourKit.resetAll()`
+
 export const metadata = {
   title: 'CSS selectors guide',
 }
@@ -76,6 +91,12 @@ export default function Page() {
       <DocSection>
         <DocH2>Fragile patterns</DocH2>
         <DocP>Deep descendant chains, nth-child indices, and auto-generated CSS-module class names break easily.</DocP>
+      </DocSection>
+
+      <DocSection>
+        <DocH2>TourKit global API</DocH2>
+        <DocP>After installing the script tag, these helpers are available on <code className="text-primary">window.TourKit</code>:</DocP>
+        <CodeBlock code={TOURKIT_GLOBAL_API} language="javascript" />
       </DocSection>
 
       <DocSection>
