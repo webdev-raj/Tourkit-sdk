@@ -470,9 +470,6 @@ export function startTour(stepsSorted, scriptKey, apiBase, customization, sessio
           }
           if (seenKey) {
             try {
-              console.log('Storing seen flag:', seenKey)
-              console.log('isDemo:', isDemo)
-              console.log('__TOURKIT_DEMO__:', typeof window !== 'undefined' ? window.__TOURKIT_DEMO__ : undefined)
               window.localStorage.setItem(seenKey, '1')
             } catch (e) {
               /* silent */
@@ -493,10 +490,6 @@ export function startTour(stepsSorted, scriptKey, apiBase, customization, sessio
         window.__TOURKIT_DESTROY__ = null
       } catch (_) {}
       try {
-        console.log('destroyTour called (markSeen=false, no localStorage write)')
-        console.log('storageKey:', storageKey)
-        console.log('isDemo:', isDemo)
-        console.log('__TOURKIT_DEMO__:', typeof window !== 'undefined' ? window.__TOURKIT_DEMO__ : undefined)
         destroyQuiet(false)
       } catch (_) {}
     }
