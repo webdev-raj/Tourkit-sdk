@@ -202,11 +202,44 @@ import { buildSessionKey, tourkitSeenPrefix } from './session-key.js'
     }
 
     var cachedConfig = null
+    var cachedSteps = []
+    var cachedCustomization = null
     var isLoading = false
     var loadCallbacks = []
 
+    function populateCacheFromConfig(config) {
+      try {
+        if (!config || config.error) {
+          cachedSteps = []
+          return false
+        }
+        cachedConfig = config
+        try {
+          cachedCustomization = config.customization || null
+        } catch (_) {
+          cachedCustomization = null
+        }
+        try {
+          if (Array.isArray(config.steps) && config.steps.length) {
+            cachedSteps = mergeDetected(config.steps)
+          } else {
+            cachedSteps = []
+          }
+        } catch (_) {
+          cachedSteps = []
+        }
+        try {
+          console.log('TourKit: cached steps:', cachedSteps.length)
+        } catch (_) {}
+        return cachedSteps.length > 0
+      } catch (_) {
+        cachedSteps = []
+        return false
+      }
+    }
+
     function getConfig() {
-      if (cachedConfig) return Promise.resolve(cachedConfig)
+      if (cachedConfig && cachedSteps.length) return Promise.resolve(cachedConfig)
       if (isLoading) {
         return new Promise(function (resolve) {
           loadCallbacks.push(resolve)
@@ -224,9 +257,11 @@ import { buildSessionKey, tourkitSeenPrefix } from './session-key.js'
         })
         .then(function (config) {
           isLoading = false
-          if (config && !config.error) {
-            cachedConfig = config
-          }
+          try {
+            if (config && !config.error && Array.isArray(config.steps) && config.steps.length) {
+              populateCacheFromConfig(config)
+            }
+          } catch (_) {}
           var cbs = loadCallbacks.slice()
           loadCallbacks = []
           cbs.forEach(function (cb) {
@@ -249,17 +284,16 @@ import { buildSessionKey, tourkitSeenPrefix } from './session-key.js'
         })
     }
 
-    function startForPath(path, options) {
+    function runTourForPath(currentPath) {
       try {
-        var currentPath = path
+        var config = cachedConfig
+        if (!config || config.error) return
+        if (config.is_active === false) return
+        if (!cachedSteps.length) return
         try {
-          if (currentPath == null || currentPath === '') {
-            currentPath = String(window.location.pathname || '/') || '/'
-          } else {
-            currentPath = String(currentPath)
-          }
+          if (config.tour && typeof config.tour === 'object' && config.tour.is_active === false) return
         } catch (_) {
-          currentPath = '/'
+          /* silent */
         }
 
         var sessionKey = buildSessionKey(SCRIPT_KEY, currentPath)
@@ -275,63 +309,128 @@ import { buildSessionKey, tourkitSeenPrefix } from './session-key.js'
           /* silent */
         }
 
-        getConfig()
-          .then(function (config) {
-            try {
-              if (!config || config.error) return
-              if (config.is_active === false) return
-              if (!Array.isArray(config.steps) || !config.steps.length) return
-              try {
-                if (config.tour && typeof config.tour === 'object' && config.tour.is_active === false) return
-              } catch (_) {
-                /* silent */
-              }
+        try {
+          if (typeof window.__TOURKIT_DESTROY__ === 'function') {
+            window.__TOURKIT_DESTROY__()
+          }
+        } catch (_) {}
 
-              try {
-                if (typeof window.__TOURKIT_DESTROY__ === 'function') {
-                  window.__TOURKIT_DESTROY__()
-                }
-              } catch (_) {}
+        var filteredSteps = []
+        try {
+          filteredSteps = filterStepsForPath(cachedSteps, currentPath)
+        } catch (_) {
+          filteredSteps = []
+        }
 
-              var merged = mergeDetected(config.steps)
-              if (!merged.length) return
+        try {
+          console.log('filteredSteps:', filteredSteps.length)
+        } catch (_) {}
 
-              var filteredSteps = []
-              try {
-                filteredSteps = filterStepsForPath(merged, currentPath)
-              } catch (_) {
-                filteredSteps = []
-              }
-              if (!filteredSteps.length) return
+        if (!filteredSteps.length) {
+          try {
+            console.log('No steps for path:', currentPath)
+          } catch (_) {}
+          return
+        }
 
-              var apiBaseResolved = API_BASE || config.api_base || TK_API_ORIGIN
+        var apiBaseResolved = API_BASE || config.api_base || TK_API_ORIGIN
 
-              startTour(
-                filteredSteps,
-                SCRIPT_KEY,
-                apiBaseResolved,
-                config.customization || null,
-                sessionIdForAnalytics,
-                isDemo,
-                startIndex,
-                sessionKey,
-              )
-            } catch (e) {
-              /* silent */
-            }
-          })
-          .catch(function () {})
+        startTour(
+          filteredSteps,
+          SCRIPT_KEY,
+          apiBaseResolved,
+          cachedCustomization || null,
+          sessionIdForAnalytics,
+          isDemo,
+          0,
+          sessionKey,
+        )
       } catch (e) {
-        /* silent */
+        try {
+          console.log('runTourForPath error:', e)
+        } catch (_) {}
+      }
+    }
+
+    function startForPath(path) {
+      try {
+        var currentPath = path
+        try {
+          if (currentPath == null || currentPath === '') {
+            currentPath = String(window.location.pathname || '/') || '/'
+          } else {
+            currentPath = String(currentPath)
+          }
+        } catch (_) {
+          currentPath = '/'
+        }
+
+        try {
+          console.log('startForPath called:', currentPath)
+        } catch (_) {}
+
+        try {
+          console.log('cachedSteps:', cachedSteps.length)
+        } catch (_) {}
+
+        if (!cachedSteps.length) {
+          try {
+            console.log('No cached steps yet — fetching config')
+          } catch (_) {}
+          return getConfig()
+            .then(function () {
+              try {
+                console.log('cachedSteps after fetch:', cachedSteps.length)
+              } catch (_) {}
+              if (!cachedSteps.length) {
+                try {
+                  console.log('No cached steps yet')
+                } catch (_) {}
+                return
+              }
+              runTourForPath(currentPath)
+            })
+            .catch(function (e) {
+              try {
+                console.log('startForPath error:', e)
+              } catch (_) {}
+            })
+        }
+
+        runTourForPath(currentPath)
+      } catch (e) {
+        try {
+          console.log('startForPath error:', e)
+        } catch (_) {}
       }
     }
 
     window.TourKit = {
       startFor: function (path) {
         try {
-          startForPath(path, null)
+          var targetPath = path
+          try {
+            if (targetPath == null || targetPath === '') {
+              targetPath = String(window.location.pathname || '/') || '/'
+            } else {
+              targetPath = String(targetPath)
+            }
+          } catch (_) {
+            targetPath = '/'
+          }
+
+          try {
+            console.log('TourKit.startFor called:', targetPath)
+          } catch (_) {}
+          try {
+            console.log('cachedSteps available:', cachedSteps.length)
+          } catch (_) {}
+
+          startForPath(targetPath)
         } catch (e) {
-          /* silent */
+          try {
+            console.log('startFor error:', e)
+          } catch (_) {}
         }
       },
 
@@ -343,7 +442,7 @@ import { buildSessionKey, tourkitSeenPrefix } from './session-key.js'
           } catch (_) {
             p = '/'
           }
-          startForPath(p, { forceFromFirst: true })
+          startForPath(p)
         } catch (e) {
           /* silent */
         }
@@ -403,19 +502,22 @@ import { buildSessionKey, tourkitSeenPrefix } from './session-key.js'
       },
     }
 
-    try {
-      if (!isDemoGlobal) {
-        setTimeout(function () {
-          try {
-            if (window.TourKit && typeof window.TourKit.startFor === 'function') {
-              window.TourKit.startFor(window.location.pathname)
+    getConfig()
+      .then(function (config) {
+        try {
+          if (!config || !Array.isArray(config.steps) || !config.steps.length) return
+          if (!isDemoGlobal) {
+            var autoPath = ''
+            try {
+              autoPath = String(window.location.pathname || '/') || '/'
+            } catch (_) {
+              autoPath = '/'
             }
-          } catch (_) {}
-        }, 500)
-      }
-    } catch (_) {
-      /* silent */
-    }
+            startForPath(autoPath)
+          }
+        } catch (_) {}
+      })
+      .catch(function () {})
   } catch (_) {
     /* silent */
   }
