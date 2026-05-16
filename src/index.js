@@ -60,31 +60,9 @@ import { buildSessionKey, tourkitSeenPrefix } from './session-key.js'
       }
     })()
 
-    function stepHasUrlPattern(step) {
-      try {
-        return Boolean(step && step.url_pattern && String(step.url_pattern).trim())
-      } catch (_) {
-        return false
-      }
-    }
-
-    function urlPatternMatchesPath(pattern, currentPath) {
-      try {
-        var p = String(pattern || '').trim()
-        if (!p) return false
-        var pathStr = String(currentPath || '')
-        if (pathStr === p) return true
-        if (p.length > 0 && p.charAt(p.length - 1) === '*') {
-          return pathStr.indexOf(p.slice(0, -1)) === 0
-        }
-        return pathStr.indexOf(p) !== -1
-      } catch (_) {
-        return false
-      }
-    }
-
     /**
-     * Option B: path-specific steps only on matching pages; otherwise generic (no url_pattern) steps.
+     * Context-aware: steps without url_pattern = root (/) only.
+     * Steps with url_pattern = matching path only. No match = empty (no tour).
      * @param {Array<{ url_pattern?: string|null }>} steps
      * @param {string} currentPath
      */
@@ -94,80 +72,49 @@ import { buildSessionKey, tourkitSeenPrefix } from './session-key.js'
         var hasUrlTriggers = false
         try {
           hasUrlTriggers = steps.some(function (s) {
-            return stepHasUrlPattern(s)
+            try {
+              return Boolean(s && s.url_pattern && String(s.url_pattern).trim())
+            } catch (_) {
+              return false
+            }
           })
         } catch (_) {
           hasUrlTriggers = false
         }
+
         if (!hasUrlTriggers) return steps
 
-        var pathSpecificSteps = []
+        var matchingSteps = []
         try {
-          pathSpecificSteps = steps.filter(function (step) {
+          matchingSteps = steps.filter(function (step) {
             try {
-              if (!stepHasUrlPattern(step)) return false
-              return urlPatternMatchesPath(step.url_pattern, pathStr)
+              if (step && step.url_pattern && String(step.url_pattern).trim()) {
+                var pattern = String(step.url_pattern).trim()
+
+                if (pathStr === pattern) return true
+
+                if (pattern.length > 0 && pattern.charAt(pattern.length - 1) === '*') {
+                  return pathStr.indexOf(pattern.slice(0, -1)) === 0
+                }
+
+                if (pathStr.indexOf(pattern) === 0) return true
+
+                return false
+              }
+
+              var isRoot = pathStr === '/' || pathStr === '' || pathStr === '/index'
+              return isRoot
             } catch (_) {
               return false
             }
           })
         } catch (_) {
-          pathSpecificSteps = []
+          matchingSteps = []
         }
 
-        if (pathSpecificSteps.length > 0) {
-          return pathSpecificSteps
-        }
-
-        try {
-          return steps.filter(function (s) {
-            try {
-              return !stepHasUrlPattern(s)
-            } catch (_) {
-              return true
-            }
-          })
-        } catch (_) {
-          return steps
-        }
+        return matchingSteps
       } catch (e) {
         return steps
-      }
-    }
-
-    /**
-     * @param {Array<{ url_pattern?: string|null }>} steps
-     * @param {string} path
-     */
-    function findStartIndex(steps, path) {
-      try {
-        var p = String(path || '')
-        var hasUrlTriggers = false
-        try {
-          hasUrlTriggers = steps.some(function (s) {
-            return stepHasUrlPattern(s)
-          })
-        } catch (_) {
-          hasUrlTriggers = false
-        }
-        if (!hasUrlTriggers) return 0
-
-        var matchIndex = -1
-        try {
-          matchIndex = steps.findIndex(function (step) {
-            try {
-              if (!stepHasUrlPattern(step)) return false
-              return urlPatternMatchesPath(step.url_pattern, p)
-            } catch (_) {
-              return false
-            }
-          })
-        } catch (_) {
-          matchIndex = -1
-        }
-        return matchIndex !== -1 ? matchIndex : 0
-      } catch (e) {
-        return 0
       }
     }
 
@@ -315,8 +262,6 @@ import { buildSessionKey, tourkitSeenPrefix } from './session-key.js'
           currentPath = '/'
         }
 
-        var forceFromFirst = Boolean(options && options.forceFromFirst)
-
         var sessionKey = buildSessionKey(SCRIPT_KEY, currentPath)
 
         var isDemo = isDemoGlobal
@@ -351,27 +296,18 @@ import { buildSessionKey, tourkitSeenPrefix } from './session-key.js'
               var merged = mergeDetected(config.steps)
               if (!merged.length) return
 
-              var filtered = []
+              var filteredSteps = []
               try {
-                filtered = filterStepsForPath(merged, currentPath)
+                filteredSteps = filterStepsForPath(merged, currentPath)
               } catch (_) {
-                filtered = merged
+                filteredSteps = []
               }
-              if (!filtered.length) return
-
-              var startIndex = 0
-              if (!forceFromFirst) {
-                try {
-                  startIndex = findStartIndex(filtered, currentPath)
-                } catch (_) {
-                  startIndex = 0
-                }
-              }
+              if (!filteredSteps.length) return
 
               var apiBaseResolved = API_BASE || config.api_base || TK_API_ORIGIN
 
               startTour(
-                filtered,
+                filteredSteps,
                 SCRIPT_KEY,
                 apiBaseResolved,
                 config.customization || null,
