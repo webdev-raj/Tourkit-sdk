@@ -75,7 +75,7 @@ function CopySnippetButton({ snippet }) {
 }
 
 function buildInstallSnippet(scriptKey, appUrl) {
-  var src = "https://cdn.tourkit.io/tourkit.min.js"
+  var src = "https://cdn.jsdelivr.net/gh/webdev-raj/Tourkit@sdk-v8/sdk/dist/tourkit.min.js"
   var safeKey = String(scriptKey || "")
   var safeApi = String(appUrl || "")
 

@@ -93,7 +93,7 @@ const RADIUS_OPTIONS = [
 
 function buildInstallSnippet(scriptKey) {
   return `<script 
-  src="https://cdn.tourkit.io/tourkit.min.js" 
+  src="https://cdn.jsdelivr.net/gh/webdev-raj/Tourkit@sdk-v8/sdk/dist/tourkit.min.js" 
   data-key="${scriptKey}"
   async>
 </script>`

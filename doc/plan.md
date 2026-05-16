@@ -188,7 +188,7 @@ This is the most critical piece. It must be:
 
 **Integration snippet users add to their site:**
 ```html
-<script src="https://cdn.tourkit.io/tourkit.min.js"
+<script src="https://cdn.jsdelivr.net/gh/webdev-raj/Tourkit@sdk-v8/sdk/dist/tourkit.min.js"
         data-key="YOUR_SCRIPT_KEY"
         async>
 </script>
