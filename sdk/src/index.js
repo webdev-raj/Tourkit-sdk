@@ -228,9 +228,6 @@ import { buildSessionKey, tourkitSeenPrefix } from './session-key.js'
         } catch (_) {
           cachedSteps = []
         }
-        try {
-          console.log('TourKit: cached steps:', cachedSteps.length)
-        } catch (_) {}
         return cachedSteps.length > 0
       } catch (_) {
         cachedSteps = []
@@ -322,14 +319,7 @@ import { buildSessionKey, tourkitSeenPrefix } from './session-key.js'
           filteredSteps = []
         }
 
-        try {
-          console.log('filteredSteps:', filteredSteps.length)
-        } catch (_) {}
-
         if (!filteredSteps.length) {
-          try {
-            console.log('No steps for path:', currentPath)
-          } catch (_) {}
           return
         }
 
@@ -346,9 +336,7 @@ import { buildSessionKey, tourkitSeenPrefix } from './session-key.js'
           sessionKey,
         )
       } catch (e) {
-        try {
-          console.log('runTourForPath error:', e)
-        } catch (_) {}
+        /* silent */
       }
     }
 
@@ -365,43 +353,20 @@ import { buildSessionKey, tourkitSeenPrefix } from './session-key.js'
           currentPath = '/'
         }
 
-        try {
-          console.log('startForPath called:', currentPath)
-        } catch (_) {}
-
-        try {
-          console.log('cachedSteps:', cachedSteps.length)
-        } catch (_) {}
-
         if (!cachedSteps.length) {
-          try {
-            console.log('No cached steps yet — fetching config')
-          } catch (_) {}
           return getConfig()
             .then(function () {
-              try {
-                console.log('cachedSteps after fetch:', cachedSteps.length)
-              } catch (_) {}
               if (!cachedSteps.length) {
-                try {
-                  console.log('No cached steps yet')
-                } catch (_) {}
                 return
               }
               runTourForPath(currentPath)
             })
-            .catch(function (e) {
-              try {
-                console.log('startForPath error:', e)
-              } catch (_) {}
-            })
+            .catch(function () {})
         }
 
         runTourForPath(currentPath)
       } catch (e) {
-        try {
-          console.log('startForPath error:', e)
-        } catch (_) {}
+        /* silent */
       }
     }
 
@@ -419,18 +384,9 @@ import { buildSessionKey, tourkitSeenPrefix } from './session-key.js'
             targetPath = '/'
           }
 
-          try {
-            console.log('TourKit.startFor called:', targetPath)
-          } catch (_) {}
-          try {
-            console.log('cachedSteps available:', cachedSteps.length)
-          } catch (_) {}
-
           startForPath(targetPath)
         } catch (e) {
-          try {
-            console.log('startFor error:', e)
-          } catch (_) {}
+          /* silent */
         }
       },
 
