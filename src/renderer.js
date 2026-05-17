@@ -1,5 +1,4 @@
 import { pingEvent } from './tracker.js'
-import { buildSessionKey } from './session-key.js'
 
 /** @typedef {{ id?: string, selector: string, title?: string|null, message: string, position?: string, step_order?: number, url_pattern?: string|null }} TourStep */
 
@@ -322,19 +321,6 @@ export function startTour(stepsSorted, scriptKey, apiBase, customization, sessio
     } catch (_) {
       storageKey = ''
     }
-    if (!storageKey) {
-      try {
-        var pathnameForKey = '/'
-        try {
-          pathnameForKey = String(window.location.pathname || '/') || '/'
-        } catch (_) {
-          pathnameForKey = '/'
-        }
-        storageKey = buildSessionKey(scriptKey, pathnameForKey)
-      } catch (_) {
-        storageKey = ''
-      }
-    }
 
     injectStylesOnce()
     applyCustomization(customization)
@@ -454,26 +440,12 @@ export function startTour(stepsSorted, scriptKey, apiBase, customization, sessio
       cancelAnimationFrameMaybe()
       try {
         if (markSeen && !isDemo && typeof window !== 'undefined' && window.__TOURKIT_DEMO__ !== true) {
-          var seenKey = storageKey
-          if (!seenKey) {
-            try {
-              var pathnameForSeen = '/'
-              try {
-                pathnameForSeen = String(window.location.pathname || '/') || '/'
-              } catch (_) {
-                pathnameForSeen = '/'
-              }
-              seenKey = buildSessionKey(scriptKey, pathnameForSeen)
-            } catch (_) {
-              seenKey = ''
+          try {
+            if (storageKey) {
+              window.localStorage.setItem(storageKey, '1')
             }
-          }
-          if (seenKey) {
-            try {
-              window.localStorage.setItem(seenKey, '1')
-            } catch (e) {
-              /* silent */
-            }
+          } catch (e) {
+            /* silent */
           }
         }
       } catch (_) {
