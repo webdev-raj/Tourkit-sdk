@@ -60,6 +60,20 @@ import { buildSessionKey, tourkitSeenPrefix } from './session-key.js'
       }
     })()
 
+    function isContextAwareMode(steps) {
+      try {
+        return steps.some(function (s) {
+          try {
+            return Boolean(s && s.url_pattern && String(s.url_pattern).trim().length > 0)
+          } catch (_) {
+            return false
+          }
+        })
+      } catch (e) {
+        return false
+      }
+    }
+
     /**
      * Context-aware: steps without url_pattern = root (/) only.
      * Steps with url_pattern = matching path only. No match = empty (no tour).
@@ -68,21 +82,9 @@ import { buildSessionKey, tourkitSeenPrefix } from './session-key.js'
      */
     function filterStepsForPath(steps, currentPath) {
       try {
-        var pathStr = String(currentPath || '')
-        var hasUrlTriggers = false
-        try {
-          hasUrlTriggers = steps.some(function (s) {
-            try {
-              return Boolean(s && s.url_pattern && String(s.url_pattern).trim())
-            } catch (_) {
-              return false
-            }
-          })
-        } catch (_) {
-          hasUrlTriggers = false
-        }
+        if (!isContextAwareMode(steps)) return steps
 
-        if (!hasUrlTriggers) return steps
+        var pathStr = String(currentPath || '')
 
         var matchingSteps = []
         try {
@@ -293,7 +295,9 @@ import { buildSessionKey, tourkitSeenPrefix } from './session-key.js'
           /* silent */
         }
 
-        var sessionKey = buildSessionKey(SCRIPT_KEY, currentPath)
+        var sessionKey = isContextAwareMode(cachedSteps)
+          ? buildSessionKey(SCRIPT_KEY, currentPath)
+          : 'tourkit_seen_' + SCRIPT_KEY
 
         var isDemo = isDemoGlobal
         try {
@@ -424,7 +428,9 @@ import { buildSessionKey, tourkitSeenPrefix } from './session-key.js'
           } catch (_) {
             p = '/'
           }
-          var sessionKey = buildSessionKey(SCRIPT_KEY, p)
+          var sessionKey = isContextAwareMode(cachedSteps)
+            ? buildSessionKey(SCRIPT_KEY, p)
+            : 'tourkit_seen_' + SCRIPT_KEY
           try {
             window.localStorage.removeItem(sessionKey)
           } catch (e) {
