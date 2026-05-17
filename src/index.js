@@ -1,3 +1,4 @@
+// TourKit SDK v10
 import { TK_API_ORIGIN } from './config.js'
 import { detectElements } from './scanner.js'
 import { startTour } from './renderer.js'
