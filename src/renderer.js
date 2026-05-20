@@ -24,6 +24,12 @@ var CSS_SNIPPET = [
   '.tk-prev:hover{background:rgba(255,255,255,0.1);}',
   '.tk-next{padding:7px 14px;border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;border:none;background:var(--tk-primary);color:#fff;font-family:inherit;transition:all 0.15s ease;}',
   '.tk-next:hover{filter:brightness(1.1);}',
+  '.tk-branding{display:flex;justify-content:center;align-items:center;padding-top:12px;margin-top:4px;border-top:1px solid rgba(255,255,255,0.04);}',
+  '.tk-branding-link{font-size:10px;color:rgba(255,255,255,0.25);text-decoration:none;font-family:inherit;letter-spacing:0.03em;transition:color 0.15s ease;}',
+  '.tk-branding-link:hover{color:rgba(255,255,255,0.5);}',
+  'html.tk-theme-light .tk-branding{border-top:1px solid rgba(0,0,0,0.06);}',
+  'html.tk-theme-light .tk-branding-link{color:rgba(0,0,0,0.25);}',
+  'html.tk-theme-light .tk-branding-link:hover{color:rgba(0,0,0,0.5);}',
 ].join('')
 
 function injectStylesOnce() {
@@ -81,6 +87,11 @@ function applyCustomization(customization) {
     root.style.setProperty('--tk-buttonGhost', buttonGhost)
     root.style.setProperty('--tk-buttonGhostBorder', buttonGhostBorder)
     root.style.setProperty('--tk-buttonGhostText', buttonGhostText)
+
+    try {
+      if (theme === 'light') root.classList.add('tk-theme-light')
+      else root.classList.remove('tk-theme-light')
+    } catch (_) {}
   } catch (_) {
     /* silent */
   }
@@ -311,7 +322,17 @@ function updateTooltipContent(ttl, msg, dotsRoot, step, logicalIndexZero, steps)
   }
 }
 
-export function startTour(stepsSorted, scriptKey, apiBase, customization, sessionId, isDemo, startIndex, sessionKey) {
+export function startTour(
+  stepsSorted,
+  scriptKey,
+  apiBase,
+  customization,
+  sessionId,
+  isDemo,
+  startIndex,
+  sessionKey,
+  showBranding,
+) {
   try {
     if (!scriptKey || !apiBase) return
 
@@ -391,6 +412,31 @@ export function startTour(stepsSorted, scriptKey, apiBase, customization, sessio
     tooltip.appendChild(dotsRoot)
     tooltip.appendChild(content)
     tooltip.appendChild(footer)
+
+    var shouldShowBranding = false
+    try {
+      shouldShowBranding = showBranding === true && !isDemo
+      if (shouldShowBranding && typeof window !== 'undefined' && window.__TOURKIT_DEMO__ === true) {
+        shouldShowBranding = false
+      }
+    } catch (_) {
+      shouldShowBranding = false
+    }
+
+    if (shouldShowBranding) {
+      var brandingEl = document.createElement('div')
+      brandingEl.className = 'tk-branding'
+
+      var brandingLink = document.createElement('a')
+      brandingLink.href = 'https://tourkit-phi.vercel.app'
+      brandingLink.target = '_blank'
+      brandingLink.rel = 'noopener noreferrer'
+      brandingLink.className = 'tk-branding-link'
+      brandingLink.textContent = 'Powered by TourKit'
+
+      brandingEl.appendChild(brandingLink)
+      tooltip.appendChild(brandingEl)
+    }
 
     document.body.appendChild(tooltip)
 
