@@ -1,3 +1,5 @@
+import Link from 'next/link'
+
 import {
   DocCallout,
   DocH2,
@@ -23,6 +25,17 @@ export default function Page() {
         title="Quick start (5 minutes)"
         description="Create a project, drop in the script tag, and run your first tour end-to-end."
       />
+
+      <DocCallout variant="tip" title="New to TourKit?">
+        Use our free{' '}
+        <Link href="/tools/generate" className="font-medium text-primary underline-offset-4 hover:underline">
+          AI Tour Generator
+        </Link>{' '}
+        to create your first tour steps automatically. No signup required.{' '}
+        <Link href="/tools/generate" className="font-medium text-primary underline-offset-4 hover:underline">
+          Try it free →
+        </Link>
+      </DocCallout>
 
       <DocSection>
         <DocH2>Prerequisites</DocH2>

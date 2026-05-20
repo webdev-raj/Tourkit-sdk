@@ -40,8 +40,17 @@ export async function middleware(request) {
   }
 
   if ((pathname === '/login' || pathname === '/signup' || pathname === '/auth') && user) {
+    const rawRedirect = request.nextUrl.searchParams.get('redirect')
+    if (
+      typeof rawRedirect === 'string' &&
+      rawRedirect.startsWith('/') &&
+      !rawRedirect.startsWith('//')
+    ) {
+      return NextResponse.redirect(new URL(rawRedirect, request.url))
+    }
     const url = request.nextUrl.clone()
     url.pathname = '/dashboard'
+    url.search = ''
     return NextResponse.redirect(url)
   }
 

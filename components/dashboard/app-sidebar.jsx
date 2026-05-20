@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { BookOpen, LayoutGridIcon, LogOutIcon, Settings } from "lucide-react"
+import { BookOpen, LayoutGridIcon, LogOutIcon, Settings, Sparkles } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -23,6 +23,7 @@ import {
 const navItems = [
   { href: "/dashboard", label: "Projects", icon: LayoutGridIcon },
   { href: "/docs", label: "Docs", icon: BookOpen },
+  { href: "/tools/generate", label: "AI Generator", icon: Sparkles },
   { href: "/dashboard/settings", label: "Settings", icon: Settings },
 ]
 
@@ -53,14 +54,32 @@ export function AppSidebar({ userEmail, onSignOut }) {
                 const isActive =
                   pathname === item.href ||
                   (item.href === '/dashboard' && pathname?.startsWith('/dashboard/projects')) ||
-                  (item.href === '/docs' && pathname?.startsWith('/docs'))
+                  (item.href === '/docs' && pathname?.startsWith('/docs')) ||
+                  (item.href === '/tools/generate' && pathname?.startsWith('/tools'))
                 const Icon = item.icon
                 return (
                   <SidebarMenuItem key={item.href}>
                     <SidebarMenuButton asChild isActive={isActive} tooltip={item.label}>
                       <Link href={item.href}>
                         <Icon />
-                        <span>{item.label}</span>
+                        <span>
+                          {item.label}
+                          {item.href === '/tools/generate' ? (
+                            <span
+                              style={{
+                                fontSize: '9px',
+                                background: '#F15025',
+                                color: '#fff',
+                                padding: '1px 5px',
+                                borderRadius: '4px',
+                                marginLeft: '6px',
+                                fontWeight: '600',
+                                letterSpacing: '0.05em',
+                              }}>
+                              PRO
+                            </span>
+                          ) : null}
+                        </span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>

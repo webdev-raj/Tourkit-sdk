@@ -83,7 +83,7 @@ export async function createProject(prevState, formData) {
   if (tourError) return { error: formatProjectError(tourError) }
 
   revalidatePath('/dashboard')
-  return { ok: true }
+  return { ok: true, projectId: project.id }
 }
 
 export async function deleteProject(projectId) {

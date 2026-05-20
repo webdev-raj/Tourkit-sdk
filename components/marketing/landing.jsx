@@ -141,6 +141,20 @@ export function LandingPage() {
           </div>
         </section>
 
+        <section className="border-t border-border/60 bg-muted/20">
+          <div className="mx-auto max-w-6xl px-4 py-14 text-center md:px-6 md:py-16">
+            <h2 className="text-xl font-semibold tracking-tight text-foreground md:text-2xl">
+              Not sure where to start?
+            </h2>
+            <p className="mx-auto mt-2 max-w-lg text-sm text-muted-foreground md:text-base">
+              Use our free AI generator to create your tour steps in seconds.
+            </p>
+            <Button variant="outline" size="lg" className="mt-6 w-full border-white/15 sm:w-auto" asChild>
+              <Link href="/tools/generate">Try the free tour generator →</Link>
+            </Button>
+          </div>
+        </section>
+
         <section className="border-t border-border/60 bg-muted/25">
           <div className="mx-auto flex max-w-6xl flex-col items-start gap-6 px-4 py-14 md:flex-row md:items-center md:justify-between md:px-6 md:py-16">
             <div className="flex flex-col gap-2">
