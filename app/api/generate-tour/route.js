@@ -4,6 +4,24 @@ import { getUserPlan } from '@/app/actions/billing'
 
 const POSITIONS = new Set(['top', 'bottom', 'left', 'right'])
 
+const OPENROUTER_MODELS = [
+  'openai/gpt-oss-20b:free',
+  'meta-llama/llama-3.3-70b-instruct:free',
+  'meta-llama/llama-3.2-3b-instruct:free',
+]
+
+const MAX_ATTEMPTS_PER_MODEL = 3
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+function isRateLimited(response, apiError) {
+  if (response.status === 429) return true
+  const msg = String(apiError || '').toLowerCase()
+  return msg.includes('rate') || msg.includes('too many') || msg.includes('provider returned error')
+}
+
 function getOpenRouterError(data, response) {
   if (data?.error) {
     const err = data.error
@@ -79,6 +97,92 @@ function normalizeStep(raw, tourType) {
   return { title, message, selector, position, url_pattern }
 }
 
+async function callOpenRouter({ apiKey, model, systemPrompt, userPrompt }) {
+  const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+      'HTTP-Referer': 'https://tourkit-phi.vercel.app',
+      'X-Title': 'TourKit',
+    },
+    body: JSON.stringify({
+      model,
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt },
+      ],
+      max_tokens: 1500,
+    }),
+  })
+
+  let data
+  try {
+    data = await response.json()
+  } catch {
+    return { response, data: null, parseFailed: true }
+  }
+
+  return { response, data, parseFailed: false }
+}
+
+async function generateWithOpenRouter({ apiKey, systemPrompt, userPrompt }) {
+  let lastError = 'AI service is busy. Please try again in a moment.'
+  let lastStatus = 502
+
+  for (const model of OPENROUTER_MODELS) {
+    for (let attempt = 0; attempt < MAX_ATTEMPTS_PER_MODEL; attempt++) {
+      const { response, data, parseFailed } = await callOpenRouter({
+        apiKey,
+        model,
+        systemPrompt,
+        userPrompt,
+      })
+
+      if (parseFailed) {
+        lastError = 'Invalid response from AI service.'
+        lastStatus = 502
+        continue
+      }
+
+      const apiError = getOpenRouterError(data, response)
+      const content = getAssistantContent(data)
+
+      if (!apiError && content.trim()) {
+        return { content }
+      }
+
+      if (apiError) {
+        lastError = apiError
+        lastStatus =
+          response.status === 429 ? 429 : response.status >= 400 && response.status < 600 ? response.status : 502
+      } else if (!content.trim()) {
+        lastError = 'The AI model returned an empty response. Please try again.'
+        lastStatus = 502
+      }
+
+      const canRetry = isRateLimited(response, apiError) && attempt < MAX_ATTEMPTS_PER_MODEL - 1
+      if (canRetry) {
+        await sleep(1000 * (attempt + 1))
+        continue
+      }
+
+      if (isRateLimited(response, apiError)) {
+        break
+      }
+
+      return { error: lastError, status: lastStatus }
+    }
+  }
+
+  return {
+    error: isRateLimited({ status: lastStatus }, lastError)
+      ? 'AI is busy right now. Please wait a few seconds and try again.'
+      : lastError,
+    status: lastStatus,
+  }
+}
+
 export async function POST(request) {
   try {
     const { plan } = await getUserPlan()
@@ -147,55 +251,18 @@ ${
 
 Return only the JSON array.`
 
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
-        'Content-Type': 'application/json',
-        'HTTP-Referer': 'https://tourkit-phi.vercel.app',
-        'X-Title': 'TourKit',
-      },
-      body: JSON.stringify({
-        model: 'openai/gpt-oss-20b:free',
-        messages: [
-          {
-            role: 'system',
-            content: systemPrompt,
-          },
-          {
-            role: 'user',
-            content: userPrompt,
-          },
-        ],
-        max_tokens: 1500,
-      }),
+    const result = await generateWithOpenRouter({
+      apiKey: process.env.OPENROUTER_API_KEY,
+      systemPrompt,
+      userPrompt,
     })
 
-    let data
-    try {
-      data = await response.json()
-    } catch {
-      return NextResponse.json({ error: 'Invalid response from AI service.' }, { status: 502 })
+    if (result.error) {
+      console.error('generate-tour: OpenRouter', result.error)
+      return NextResponse.json({ error: result.error }, { status: result.status })
     }
 
-    const apiError = getOpenRouterError(data, response)
-    if (apiError) {
-      console.error('generate-tour: OpenRouter', apiError)
-      const status =
-        response.status === 429 ? 429 : response.status >= 400 && response.status < 600 ? response.status : 502
-      return NextResponse.json({ error: apiError }, { status })
-    }
-
-    const content = getAssistantContent(data)
-    if (!content.trim()) {
-      console.error('generate-tour: empty output', JSON.stringify(data).slice(0, 500))
-      return NextResponse.json(
-        { error: 'The AI model returned an empty response. Please try again.' },
-        { status: 502 },
-      )
-    }
-
-    const parsed = extractJsonArray(content)
+    const parsed = extractJsonArray(result.content)
 
     const steps = parsed
       .map((step) => normalizeStep(step, tourType))

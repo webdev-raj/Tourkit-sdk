@@ -56,7 +56,26 @@ export default function AIGenerateModal({ tourId, onStepsGenerated, onClose, isP
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
+  async function requestGeneration(retryLabel) {
+    if (retryLabel) setError(retryLabel)
+
+    const res = await fetch('/api/generate-tour', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        description,
+        numSteps: parseInt(numSteps, 10),
+        tourType,
+      }),
+    })
+
+    const data = await res.json()
+    return { res, data }
+  }
+
   async function handleGenerate() {
+    if (loading) return
+
     if (!description.trim()) {
       setError('Please describe your product')
       return
@@ -66,20 +85,20 @@ export default function AIGenerateModal({ tourId, onStepsGenerated, onClose, isP
     setError('')
 
     try {
-      const res = await fetch('/api/generate-tour', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          description,
-          numSteps: parseInt(numSteps, 10),
-          tourType,
-        }),
-      })
+      let { res, data } = await requestGeneration()
 
-      const data = await res.json()
+      if (res.status === 429) {
+        setError('AI is busy — retrying automatically...')
+        await new Promise((resolve) => setTimeout(resolve, 2000))
+        ;({ res, data } = await requestGeneration())
+      }
 
       if (!res.ok) {
-        setError(data.error || 'Generation failed')
+        setError(
+          res.status === 429
+            ? 'AI is busy right now. Please wait a few seconds and try again.'
+            : data.error || 'Generation failed',
+        )
         return
       }
 
