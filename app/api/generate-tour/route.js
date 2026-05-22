@@ -1,9 +1,41 @@
 import { NextResponse } from 'next/server'
-import Anthropic from '@anthropic-ai/sdk'
 
 import { getUserPlan } from '@/app/actions/billing'
 
 const POSITIONS = new Set(['top', 'bottom', 'left', 'right'])
+
+function getOpenRouterError(data, response) {
+  if (data?.error) {
+    const err = data.error
+    return typeof err === 'string' ? err : err.message || 'AI service error'
+  }
+
+  const choice = data?.choices?.[0]
+  if (choice?.error?.message) return choice.error.message
+  if (choice?.finish_reason === 'error') {
+    return choice.error?.message || 'AI model failed to complete the request.'
+  }
+
+  if (!response.ok) {
+    return `AI service request failed (${response.status}).`
+  }
+
+  return null
+}
+
+function getAssistantContent(data) {
+  const choice = data?.choices?.[0]
+  if (!choice) return ''
+
+  const content = choice.message?.content
+  if (typeof content === 'string') return content
+  if (Array.isArray(content)) {
+    return content.map((part) => (typeof part === 'string' ? part : part?.text || '')).join('')
+  }
+  if (typeof choice.text === 'string') return choice.text
+
+  return ''
+}
 
 function extractJsonArray(text) {
   const trimmed = String(text || '').trim()
@@ -54,9 +86,9 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Pro plan required to use AI generator' }, { status: 403 })
     }
 
-    if (!process.env.ANTHROPIC_API_KEY) {
+    if (!process.env.OPENROUTER_API_KEY) {
       return NextResponse.json(
-        { error: 'AI generation is not configured. Add ANTHROPIC_API_KEY to your environment.' },
+        { error: 'AI generation is not configured. Add OPENROUTER_API_KEY to your environment.' },
         { status: 503 },
       )
     }
@@ -77,10 +109,6 @@ export async function POST(request) {
     if (!Number.isFinite(numSteps) || numSteps < 3 || numSteps > 10) {
       return NextResponse.json({ error: 'Number of steps must be between 3 and 10.' }, { status: 400 })
     }
-
-    const client = new Anthropic({
-      apiKey: process.env.ANTHROPIC_API_KEY,
-    })
 
     const systemPrompt = `You are an expert UX designer specializing in product onboarding tours.
 Generate tour steps for a web application.
@@ -119,16 +147,55 @@ ${
 
 Return only the JSON array.`
 
-    const message = await client.messages.create({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 1000,
-      system: systemPrompt,
-      messages: [{ role: 'user', content: userPrompt }],
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
+        'Content-Type': 'application/json',
+        'HTTP-Referer': 'https://tourkit-phi.vercel.app',
+        'X-Title': 'TourKit',
+      },
+      body: JSON.stringify({
+        model: 'openai/gpt-oss-20b:free',
+        messages: [
+          {
+            role: 'system',
+            content: systemPrompt,
+          },
+          {
+            role: 'user',
+            content: userPrompt,
+          },
+        ],
+        max_tokens: 1500,
+      }),
     })
 
-    const textBlock = message.content.find((block) => block.type === 'text')
-    const rawText = textBlock?.type === 'text' ? textBlock.text : ''
-    const parsed = extractJsonArray(rawText)
+    let data
+    try {
+      data = await response.json()
+    } catch {
+      return NextResponse.json({ error: 'Invalid response from AI service.' }, { status: 502 })
+    }
+
+    const apiError = getOpenRouterError(data, response)
+    if (apiError) {
+      console.error('generate-tour: OpenRouter', apiError)
+      const status =
+        response.status === 429 ? 429 : response.status >= 400 && response.status < 600 ? response.status : 502
+      return NextResponse.json({ error: apiError }, { status })
+    }
+
+    const content = getAssistantContent(data)
+    if (!content.trim()) {
+      console.error('generate-tour: empty output', JSON.stringify(data).slice(0, 500))
+      return NextResponse.json(
+        { error: 'The AI model returned an empty response. Please try again.' },
+        { status: 502 },
+      )
+    }
+
+    const parsed = extractJsonArray(content)
 
     const steps = parsed
       .map((step) => normalizeStep(step, tourType))
