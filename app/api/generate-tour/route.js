@@ -74,8 +74,8 @@ export async function POST(request) {
       )
     }
 
-    if (!Number.isFinite(numSteps) || numSteps < 3 || numSteps > 7) {
-      return NextResponse.json({ error: 'Number of steps must be between 3 and 7.' }, { status: 400 })
+    if (!Number.isFinite(numSteps) || numSteps < 3 || numSteps > 10) {
+      return NextResponse.json({ error: 'Number of steps must be between 3 and 10.' }, { status: 400 })
     }
 
     const client = new Anthropic({

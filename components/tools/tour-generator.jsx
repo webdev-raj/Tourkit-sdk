@@ -136,10 +136,7 @@ export function TourGenerator() {
           </div>
           <nav className="flex items-center gap-2">
             <Button variant="ghost" size="sm" asChild className="text-muted-foreground hover:text-foreground">
-              <Link href="/auth">Sign in</Link>
-            </Button>
-            <Button size="sm" asChild className="bg-[#F15025] hover:bg-[#F15025]/90">
-              <Link href="/auth?mode=signup">Try TourKit free</Link>
+              <Link href="/dashboard">Go to dashboard →</Link>
             </Button>
           </nav>
         </div>
@@ -150,14 +147,14 @@ export function TourGenerator() {
           <div className="flex flex-col gap-8">
             <div className="text-center">
               <p className="mb-3 text-xs font-semibold uppercase tracking-[0.22em] text-[#F15025]">
-                FREE TOOL ✦ NO SIGNUP REQUIRED
+                PRO FEATURE ✦ POWERED BY CLAUDE AI
               </p>
               <h1 className="text-balance text-3xl font-bold tracking-tight text-white md:text-4xl">
                 Generate your onboarding tour in seconds
               </h1>
               <p className="mx-auto mt-4 max-w-lg text-pretty text-sm leading-relaxed text-[#999999] md:text-base">
-                Describe your product or paste your website URL. AI will generate ready-to-use tour steps you can import
-                directly into TourKit.
+                Describe your product and AI will generate ready-to-use tour steps you can import directly into any of
+                your projects.
               </p>
             </div>
 
@@ -258,8 +255,6 @@ export function TourGenerator() {
                   </span>
                 )}
               </Button>
-
-              <p className="text-center text-xs text-[#555555]">Powered by Claude AI</p>
             </form>
           </div>
         ) : (

@@ -17,6 +17,7 @@ import {
   SunIcon,
   BarChart2Icon,
   Link as LucideLink,
+  Sparkles,
 } from 'lucide-react'
 
 import {
@@ -63,6 +64,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
+import AIGenerateModal from '@/components/dashboard/ai-generate-modal'
 import { TourPreview } from '@/components/dashboard/tour-preview'
 
 const POSITION_OPTIONS = [
@@ -336,9 +338,58 @@ export function TourEditor({ project, tour, initialSteps, analyticsHref }) {
   const previewTotalSteps = panelMode === 'edit' && selected ? steps.length : steps.length + 1
 
   const [dndReady, setDndReady] = useState(false)
+  const [showAIModal, setShowAIModal] = useState(false)
+  const [isPro, setIsPro] = useState(false)
+
   useEffect(() => {
     setDndReady(true)
   }, [])
+
+  useEffect(() => {
+    fetch('/api/user-plan')
+      .then((r) => r.json())
+      .then((data) => setIsPro(data.plan === 'pro'))
+      .catch(() => {})
+  }, [])
+
+  function handleStepsGenerated(generatedSteps) {
+    setShowAIModal(false)
+    setActionError(null)
+    startTransition(async () => {
+      const added = []
+      for (const step of generatedSteps) {
+        const result = await createStep(tour.id, {
+          title: step.title,
+          message: step.message,
+          selector: step.selector,
+          position: step.position || 'bottom',
+          url_pattern: step.url_pattern || null,
+        })
+        if (result?.error) {
+          setActionError(result.error)
+          return
+        }
+        added.push({
+          id: result.id,
+          tour_id: tour.id,
+          selector: step.selector,
+          title: step.title ?? '',
+          message: step.message,
+          position: step.position || 'bottom',
+          url_pattern: step.url_pattern ?? null,
+        })
+      }
+      setSteps((prev) => {
+        let order = prev.length ? Math.max(...prev.map((s) => Number(s.step_order) || 0)) : 0
+        const rows = added.map((row, i) => ({
+          ...row,
+          step_order: order + i + 1,
+        }))
+        return [...prev, ...rows]
+      })
+      router.refresh()
+    })
+  }
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-10">
@@ -620,6 +671,45 @@ export function TourEditor({ project, tour, initialSteps, analyticsHref }) {
               </div>
             )}
 
+            <button
+              type="button"
+              onClick={() => setShowAIModal(true)}
+              disabled={isPending}
+              className="tk-ai-generate-btn"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                width: '100%',
+                padding: '10px',
+                background: 'rgba(241,80,37,0.08)',
+                border: '1px dashed rgba(241,80,37,0.4)',
+                borderRadius: '8px',
+                color: '#F15025',
+                fontSize: '13px',
+                fontWeight: '500',
+                cursor: isPending ? 'not-allowed' : 'pointer',
+                marginBottom: '8px',
+                transition: 'all 0.15s ease',
+                opacity: isPending ? 0.6 : 1,
+              }}>
+              <Sparkles size={14} aria-hidden />
+              AI Generate steps
+              <span
+                style={{
+                  fontSize: '9px',
+                  background: '#F15025',
+                  color: '#fff',
+                  padding: '1px 5px',
+                  borderRadius: '4px',
+                  fontWeight: '600',
+                  letterSpacing: '0.05em',
+                }}>
+                PRO
+              </span>
+            </button>
+
             <Button
               type="button"
               variant="outline"
@@ -760,6 +850,15 @@ export function TourEditor({ project, tour, initialSteps, analyticsHref }) {
           </CardContent>
         </Card>
       </div>
+
+      {showAIModal ? (
+        <AIGenerateModal
+          tourId={tour.id}
+          isPro={isPro}
+          onClose={() => setShowAIModal(false)}
+          onStepsGenerated={handleStepsGenerated}
+        />
+      ) : null}
     </div>
   )
 }
