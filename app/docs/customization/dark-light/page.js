@@ -1,5 +1,6 @@
 import { DocCallout, DocH2, DocLi, DocP, DocSection, DocUl } from '@/components/docs/doc-article'
 import { DocHeader } from '@/components/docs/doc-header'
+import DocImage from '@/components/docs/doc-image'
 
 export const metadata = {
   title: 'Dark vs Light mode',
@@ -12,6 +13,12 @@ export default function Page() {
         breadcrumb={[{ label: 'Customization' }, { label: 'Dark vs Light mode' }]}
         title="Dark vs Light mode"
         description="Tune tooltip chrome for the surface your users actually see."
+      />
+
+      <DocImage
+        src={null}
+        placeholder="Dark vs Light tooltip — Both themes side by side"
+        caption="Dark theme (left) and Light theme (right)"
       />
 
       <DocSection>

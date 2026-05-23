@@ -1,6 +1,7 @@
 import { DocCallout, DocH2, DocH3, DocLi, DocP, DocSection, DocUl } from '@/components/docs/doc-article'
 import { DocHeader } from '@/components/docs/doc-header'
 import CodeBlock from '@/components/docs/code-block'
+import DocImage from '@/components/docs/doc-image'
 
 const SELECTOR_EXAMPLE = `document.querySelector('[data-tour="billing"]')`
 
@@ -30,6 +31,11 @@ export default function Page() {
       <DocSection>
         <DocH2>Practical reference</DocH2>
         <SelectorReferenceTable />
+        <DocImage
+          src={null}
+          placeholder="Browser DevTools — Inspect element to find CSS selector"
+          caption="Use DevTools to find the right CSS selector"
+        />
       </DocSection>
 
       <DocSection>
@@ -89,6 +95,11 @@ export default function Page() {
           Use <code className="text-primary">TourKit.startFor()</code> in React and Next.js apps that use client-side routing.
           Without it, the SDK only runs on initial page load and misses route changes.
         </DocP>
+        <DocImage
+          src={null}
+          placeholder="Browser console — window.TourKit API methods"
+          caption="TourKit API available in browser console"
+        />
       </DocSection>
     </article>
   )

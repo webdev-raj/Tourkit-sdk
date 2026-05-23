@@ -1,5 +1,6 @@
 import { DocCallout, DocH2, DocLi, DocOl, DocP, DocSection } from '@/components/docs/doc-article'
 import { DocHeader } from '@/components/docs/doc-header'
+import DocImage from '@/components/docs/doc-image'
 
 export const metadata = {
   title: 'Creating your first tour',
@@ -22,6 +23,16 @@ export default function Page() {
           <DocLi>Add steps with selectors that exist on your live pages.</DocLi>
           <DocLi>Preview positioning, then activate the tour.</DocLi>
         </DocOl>
+        <DocImage
+          src={null}
+          placeholder="New project form — Project name and domain fields"
+          caption="Creating a new project in the dashboard"
+        />
+        <DocImage
+          src={null}
+          placeholder="Tour editor — Empty state with Add step button"
+          caption="Tour editor ready for your first step"
+        />
       </DocSection>
 
       <DocCallout title="Naming" variant="tip">

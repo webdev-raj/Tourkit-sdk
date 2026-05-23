@@ -1,5 +1,6 @@
 import { DocH2, DocLi, DocP, DocSection, DocUl } from '@/components/docs/doc-article'
 import { DocHeader } from '@/components/docs/doc-header'
+import DocImage from '@/components/docs/doc-image'
 
 export const metadata = {
   title: 'Understanding your data',
@@ -27,6 +28,11 @@ export default function Page() {
             <strong className="text-foreground">Completed / skipped</strong> — visitor finished or exited early.
           </DocLi>
         </DocUl>
+        <DocImage
+          src={null}
+          placeholder="Analytics dashboard — Tour started, completed, skipped stats"
+          caption="Analytics dashboard showing tour performance metrics"
+        />
       </DocSection>
 
       <DocSection>

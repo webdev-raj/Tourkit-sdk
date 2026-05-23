@@ -1,5 +1,6 @@
 import { DocH2, DocLi, DocP, DocSection, DocUl } from '@/components/docs/doc-article'
 import { DocHeader } from '@/components/docs/doc-header'
+import DocImage from '@/components/docs/doc-image'
 
 export const metadata = {
   title: 'Step positioning',
@@ -27,6 +28,11 @@ export default function Page() {
             <strong className="text-foreground">Left / Right</strong> — sidebars and wide canvases.
           </DocLi>
         </DocUl>
+        <DocImage
+          src={null}
+          placeholder="Position diagram — Top, Bottom, Left, Right tooltip positions"
+          caption="Four tooltip positions relative to the highlighted element"
+        />
       </DocSection>
 
       <DocSection>

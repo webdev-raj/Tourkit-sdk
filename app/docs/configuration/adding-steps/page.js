@@ -1,6 +1,7 @@
 import { DocH2, DocH3, DocLi, DocP, DocSection, DocUl } from '@/components/docs/doc-article'
 import { DocHeader } from '@/components/docs/doc-header'
 import CodeBlock from '@/components/docs/code-block'
+import DocImage from '@/components/docs/doc-image'
 
 const TRIGGER_EXAMPLE = `Step 1: no url → shows on / (welcome)
 Step 2: no url → shows on / (feature overview)
@@ -46,6 +47,11 @@ export default function Page() {
             <strong className="text-foreground">Position</strong> — top, bottom, left, or right relative to the element box.
           </DocLi>
         </DocUl>
+        <DocImage
+          src={null}
+          placeholder="Step editor — Title, message, CSS selector and position fields"
+          caption="Step editor with all configuration fields"
+        />
       </DocSection>
 
       <DocSection>
@@ -97,6 +103,11 @@ export default function Page() {
           Use <code className="text-primary">*</code> at the end for prefix matching:
         </DocP>
         <CodeBlock code={WILDCARD_EXAMPLE} language="text" />
+        <DocImage
+          src={null}
+          placeholder="Trigger URL field — Optional URL path input in step editor"
+          caption="Setting a Trigger URL for context-aware tours"
+        />
       </DocSection>
     </article>
   )

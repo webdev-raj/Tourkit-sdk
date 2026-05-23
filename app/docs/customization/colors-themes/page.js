@@ -1,5 +1,6 @@
 import { DocH2, DocLi, DocP, DocSection, DocUl } from '@/components/docs/doc-article'
 import { DocHeader } from '@/components/docs/doc-header'
+import DocImage from '@/components/docs/doc-image'
 
 export const metadata = {
   title: 'Colors and themes',
@@ -20,6 +21,11 @@ export default function Page() {
           Sets accent elements — progress dots, primary buttons, and highlights. Default TourKit orange is{' '}
           <code className="rounded bg-[#0c0c0c] px-1.5 py-0.5 font-mono text-[13px] text-primary">#F15025</code>.
         </DocP>
+        <DocImage
+          src={null}
+          placeholder="Appearance panel — Color swatches in tour editor"
+          caption="Color customization in the tour editor"
+        />
       </DocSection>
 
       <DocSection>
@@ -32,6 +38,11 @@ export default function Page() {
             <strong className="text-foreground">Light</strong> — bright tooltip surfaces for marketing sites.
           </DocLi>
         </DocUl>
+        <DocImage
+          src={null}
+          placeholder="Custom colored tooltip — Orange vs Blue vs Green theme"
+          caption="Tooltip with different primary colors applied"
+        />
       </DocSection>
     </article>
   )

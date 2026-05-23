@@ -1,5 +1,6 @@
 import { DocCallout, DocH2, DocLi, DocP, DocSection, DocUl } from '@/components/docs/doc-article'
 import { DocHeader } from '@/components/docs/doc-header'
+import DocImage from '@/components/docs/doc-image'
 
 export const metadata = {
   title: 'How it works',
@@ -12,6 +13,12 @@ export default function Page() {
         breadcrumb={[{ label: 'Getting Started' }, { label: 'How it works' }]}
         title="How it works"
         description="A thin client on your site, a hosted config API, and the dashboard as your control plane."
+      />
+
+      <DocImage
+        src={null}
+        placeholder="Architecture diagram — SDK fetches config from API and renders tooltip"
+        caption="How TourKit works: one script tag connects your site to the dashboard"
       />
 
       <DocSection>

@@ -1,6 +1,7 @@
 import { DocH2, DocH3, DocLi, DocOl, DocP, DocSection, DocUl } from '@/components/docs/doc-article'
 import { DocHeader } from '@/components/docs/doc-header'
 import CodeBlock from '@/components/docs/code-block'
+import DocImage from '@/components/docs/doc-image'
 
 const TRIGGER_EXAMPLE = `Step 1: no url → shows on / (welcome)
 Step 2: no url → shows on / (feature overview)
@@ -56,6 +57,11 @@ export default function Page() {
           and its own seen flag.
         </DocP>
         <ContextAwareTable />
+        <DocImage
+          src={null}
+          placeholder="Context-aware diagram — Different steps showing on different pages"
+          caption="Context-aware mode: each page gets its own tour"
+        />
         <DocH3>Real world example</DocH3>
         <CodeBlock code={TRIGGER_EXAMPLE} language="text" />
         <DocH3>Wildcard matching</DocH3>
@@ -80,6 +86,11 @@ export default function Page() {
             add TourKitProvider so route changes trigger the correct tour. See the React or Next.js installation guides.
           </DocLi>
         </DocOl>
+        <DocImage
+          src={null}
+          placeholder="Multi-page demo — Dashboard, Projects, Settings pages in demo"
+          caption="Use the Live Demo to test URL triggers"
+        />
       </DocSection>
 
       <DocSection>

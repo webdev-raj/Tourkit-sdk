@@ -1,5 +1,6 @@
 import { DocH2, DocP, DocSection } from '@/components/docs/doc-article'
 import { DocHeader } from '@/components/docs/doc-header'
+import DocImage from '@/components/docs/doc-image'
 
 export const metadata = {
   title: 'Tour not showing',
@@ -66,6 +67,11 @@ export default function Page() {
             <span>Ad blocker is blocking the script</span>
           </li>
         </ul>
+        <DocImage
+          src={null}
+          placeholder="Network tab — Request to /api/tour/scriptKey"
+          caption="Check Network tab to verify SDK is fetching tour config"
+        />
       </DocSection>
 
       <DocSection>

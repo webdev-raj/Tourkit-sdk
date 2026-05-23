@@ -1,5 +1,6 @@
 import { DocH2, DocLi, DocP, DocSection, DocUl } from '@/components/docs/doc-article'
 import { DocHeader } from '@/components/docs/doc-header'
+import DocImage from '@/components/docs/doc-image'
 
 export const metadata = {
   title: 'Step dropoff',
@@ -17,6 +18,11 @@ export default function Page() {
       <DocSection>
         <DocH2>Reading the funnel</DocH2>
         <DocP>Step-view counts show where attention concentrates; compare consecutive steps to spot cliffs.</DocP>
+        <DocImage
+          src={null}
+          placeholder="Step dropoff chart — Bar chart showing views per step"
+          caption="Step dropoff chart showing where users stop"
+        />
       </DocSection>
 
       <DocSection>
