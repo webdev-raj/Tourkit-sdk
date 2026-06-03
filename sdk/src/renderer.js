@@ -30,6 +30,14 @@ var CSS_SNIPPET = [
   'html.tk-theme-light .tk-branding{border-top:1px solid rgba(0,0,0,0.06);}',
   'html.tk-theme-light .tk-branding-link{color:rgba(0,0,0,0.25);}',
   'html.tk-theme-light .tk-branding-link:hover{color:rgba(0,0,0,0.5);}',
+  '.tk-tooltip-mobile{position:fixed!important;top:auto!important;left:0!important;right:0!important;bottom:0!important;width:100%!important;max-width:100%!important;border-radius:20px 20px 0 0!important;padding:8px 20px 32px 20px!important;transform:translateY(100%)!important;transition:transform 0.3s cubic-bezier(0.4,0,0.2,1)!important;box-sizing:border-box!important;}',
+  '.tk-tooltip-mobile.tk-mobile-open{transform:translateY(0)!important;}',
+  '.tk-drag-handle{width:36px;height:4px;background:rgba(255,255,255,0.2);border-radius:2px;margin:0 auto 16px auto;display:block;}',
+  '.tk-tooltip-mobile .tk-footer{padding-bottom:4px;}',
+  '.tk-tooltip-mobile .tk-next{padding:12px 20px!important;font-size:14px!important;}',
+  '.tk-tooltip-mobile .tk-prev{padding:12px 20px!important;font-size:14px!important;}',
+  '.tk-tooltip-mobile .tk-skip{font-size:13px!important;padding:8px!important;}',
+  '.tk-mobile-overlay-top{position:fixed;top:0;left:0;right:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);z-index:99998;transition:height 0.3s ease;pointer-events:auto;}',
 ].join('')
 
 function injectStylesOnce() {
@@ -113,6 +121,59 @@ function sleep(ms) {
   })
 }
 
+function isMobile() {
+  try {
+    return window.innerWidth < 768
+  } catch (e) {
+    return false
+  }
+}
+
+function getMobileSheetHeight() {
+  try {
+    return Math.round(window.innerHeight * 0.42)
+  } catch (e) {
+    return 320
+  }
+}
+
+function ensureDragHandle(tooltipEl, enabled) {
+  try {
+    if (!tooltipEl) return
+    var existing = tooltipEl.querySelector('.tk-drag-handle')
+    if (enabled) {
+      if (!existing) {
+        var dragHandle = document.createElement('div')
+        dragHandle.className = 'tk-drag-handle'
+        if (tooltipEl.firstChild) {
+          tooltipEl.insertBefore(dragHandle, tooltipEl.firstChild)
+        } else {
+          tooltipEl.appendChild(dragHandle)
+        }
+      }
+    } else if (existing && existing.parentNode) {
+      existing.parentNode.removeChild(existing)
+    }
+  } catch (e) {
+    /* silent */
+  }
+}
+
+function clearMobileTooltipInlineStyles(tooltipEl) {
+  try {
+    if (!tooltipEl) return
+    tooltipEl.style.top = ''
+    tooltipEl.style.left = ''
+    tooltipEl.style.right = ''
+    tooltipEl.style.bottom = ''
+    tooltipEl.style.width = ''
+    tooltipEl.style.maxWidth = ''
+    tooltipEl.style.borderRadius = ''
+  } catch (e) {
+    /* silent */
+  }
+}
+
 function getCssVar(name, fallback) {
   try {
     var v = String(getComputedStyle(document.documentElement).getPropertyValue(name) || '').trim()
@@ -159,11 +220,16 @@ function createSpotlightOverlay(rect, overlayPieces) {
       height: Math.max(0, t) + 'px',
     })
 
+    var bottomInset = '0'
+    if (isMobile()) {
+      bottomInset = getMobileSheetHeight() + 'px'
+    }
+
     mk({
       top: b + 'px',
       left: '0',
       right: '0',
-      bottom: '0',
+      bottom: bottomInset,
     })
 
     mk({
@@ -246,6 +312,33 @@ function applyHighlight(el) {
 function positionTooltip(tooltipEl, element, position) {
   try {
     if (!tooltipEl || !element) return
+
+    if (isMobile()) {
+      tooltipEl.classList.add('tk-tooltip-mobile')
+      tooltipEl.style.position = 'fixed'
+      tooltipEl.style.top = 'auto'
+      tooltipEl.style.left = '0'
+      tooltipEl.style.right = '0'
+      tooltipEl.style.bottom = '0'
+      tooltipEl.style.width = '100%'
+      tooltipEl.style.maxWidth = '100%'
+      tooltipEl.style.borderRadius = '20px 20px 0 0'
+      ensureDragHandle(tooltipEl, true)
+
+      setTimeout(function () {
+        try {
+          tooltipEl.classList.add('tk-mobile-open')
+        } catch (e) {
+          /* silent */
+        }
+      }, 50)
+      return
+    }
+
+    tooltipEl.classList.remove('tk-tooltip-mobile')
+    tooltipEl.classList.remove('tk-mobile-open')
+    ensureDragHandle(tooltipEl, false)
+    clearMobileTooltipInlineStyles(tooltipEl)
 
     var rect = element.getBoundingClientRect()
     var tooltipWidth = 280
@@ -448,10 +541,19 @@ export function startTour(
     var currentElement = null
     var stepGen = 0
 
+    function onWindowResize() {
+      try {
+        handleResize()
+      } catch (e) {
+        /* silent */
+      }
+      scheduleReflow()
+    }
+
     function teardownListeners() {
       try {
         window.removeEventListener('scroll', scheduleReflow, true)
-        window.removeEventListener('resize', scheduleReflow)
+        window.removeEventListener('resize', onWindowResize)
       } catch (_) {}
     }
 
@@ -562,6 +664,36 @@ export function startTour(
       } catch (_) {}
     }
 
+    function handleResize() {
+      try {
+        if (destroyed || !tooltip || !currentElement) return
+        var st = steps[currentIdx]
+        if (isMobile()) {
+          tooltip.classList.add('tk-tooltip-mobile')
+          ensureDragHandle(tooltip, true)
+          tooltip.classList.add('tk-mobile-open')
+          positionTooltip(tooltip, currentElement, normalizePosition(st && st.position))
+        } else {
+          tooltip.classList.remove('tk-tooltip-mobile')
+          tooltip.classList.remove('tk-mobile-open')
+          ensureDragHandle(tooltip, false)
+          clearMobileTooltipInlineStyles(tooltip)
+          positionTooltip(tooltip, currentElement, normalizePosition(st && st.position))
+          try {
+            var r = currentElement.getBoundingClientRect()
+            if (r && r.width > 0 && r.height > 0) {
+              createSpotlightOverlay(r, overlayPieces)
+              wireSpotlightClicks(overlayPieces, onSpotlightClick)
+            }
+          } catch (e) {
+            /* silent */
+          }
+        }
+      } catch (e) {
+        /* silent */
+      }
+    }
+
     function scheduleReflow() {
       if (destroyed) return
       cancelAnimationFrameMaybe()
@@ -575,7 +707,7 @@ export function startTour(
     }
 
     window.addEventListener('scroll', scheduleReflow, true)
-    window.addEventListener('resize', scheduleReflow)
+    window.addEventListener('resize', onWindowResize)
 
     function orderFor(step) {
       try {
@@ -694,11 +826,17 @@ export function startTour(
 
       try {
         if (!sil && tooltip.parentNode && previousElement !== null && previousElement !== el) {
-          tooltip.style.transition = 'opacity 0.25s ease, transform 0.25s ease'
-          tooltip.style.opacity = '0'
-          tooltip.style.transform = 'translateY(4px)'
-          await sleep(150)
-          if (destroyed || myGen !== stepGen) return
+          if (isMobile()) {
+            tooltip.classList.remove('tk-mobile-open')
+            await sleep(200)
+            if (destroyed || myGen !== stepGen) return
+          } else {
+            tooltip.style.transition = 'opacity 0.25s ease, transform 0.25s ease'
+            tooltip.style.opacity = '0'
+            tooltip.style.transform = 'translateY(4px)'
+            await sleep(150)
+            if (destroyed || myGen !== stepGen) return
+          }
         }
       } catch (_) {}
 
@@ -707,7 +845,11 @@ export function startTour(
       } catch (_) {}
 
       try {
-        el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' })
+        if (isMobile()) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' })
+        } else {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' })
+        }
       } catch (_) {
         try {
           el.scrollIntoView()
@@ -737,17 +879,22 @@ export function startTour(
       positionTooltip(tooltip, el, step.position)
 
       try {
-        tooltip.style.transition = 'none'
-        tooltip.style.opacity = '0'
-        tooltip.style.transform = 'translateY(8px)'
-        requestAnimationFrame(function () {
-          try {
-            if (destroyed || myGen !== stepGen) return
-            tooltip.style.transition = 'opacity 0.25s ease, transform 0.25s ease'
-            tooltip.style.opacity = '1'
-            tooltip.style.transform = 'translateY(0)'
-          } catch (_) {}
-        })
+        if (isMobile()) {
+          tooltip.style.transition = 'none'
+          tooltip.style.opacity = '1'
+        } else {
+          tooltip.style.transition = 'none'
+          tooltip.style.opacity = '0'
+          tooltip.style.transform = 'translateY(8px)'
+          requestAnimationFrame(function () {
+            try {
+              if (destroyed || myGen !== stepGen) return
+              tooltip.style.transition = 'opacity 0.25s ease, transform 0.25s ease'
+              tooltip.style.opacity = '1'
+              tooltip.style.transform = 'translateY(0)'
+            } catch (_) {}
+          })
+        }
       } catch (_) {}
 
       if (!sil && !tourStartedSent) {
