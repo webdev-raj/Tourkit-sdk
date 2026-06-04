@@ -225,22 +225,12 @@ function createSpotlightOverlay(rect, overlayPieces) {
       height: topH + 'px',
     })
 
-    if (isMobile()) {
-      var sheetHeight = getMobileSheetHeight()
-      mk({
-        top: b + 'px',
-        left: '0',
-        right: '0',
-        bottom: sheetHeight + 'px',
-      })
-    } else {
-      mk({
-        top: b + 'px',
-        left: '0',
-        right: '0',
-        bottom: '0',
-      })
-    }
+    mk({
+      top: b + 'px',
+      left: '0',
+      right: '0',
+      bottom: '0',
+    })
 
     mk({
       top: sideTop + 'px',
