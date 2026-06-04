@@ -131,7 +131,7 @@ function isMobile() {
 
 function getMobileSheetHeight() {
   try {
-    return Math.round(window.innerHeight * 0.42)
+    return Math.min(Math.round(window.innerHeight * 0.45), 320)
   } catch (e) {
     return 320
   }
@@ -205,6 +205,7 @@ function createSpotlightOverlay(rect, overlayPieces) {
       var d = document.createElement('div')
       d.className = 'tk-spot'
       try {
+        d.style.zIndex = '99998'
         for (var key in stylesObj) {
           if (Object.prototype.hasOwnProperty.call(stylesObj, key)) d.style[key] = stylesObj[key]
         }
@@ -213,37 +214,46 @@ function createSpotlightOverlay(rect, overlayPieces) {
       overlayPieces.push(d)
     }
 
+    var topH = Math.max(0, t)
+    var sideTop = Math.max(0, t)
+    var sideH = Math.max(0, h)
+
     mk({
       top: '0',
       left: '0',
       right: '0',
-      height: Math.max(0, t) + 'px',
+      height: topH + 'px',
     })
 
-    var bottomInset = '0'
     if (isMobile()) {
-      bottomInset = getMobileSheetHeight() + 'px'
+      var sheetHeight = getMobileSheetHeight()
+      mk({
+        top: b + 'px',
+        left: '0',
+        right: '0',
+        bottom: sheetHeight + 'px',
+      })
+    } else {
+      mk({
+        top: b + 'px',
+        left: '0',
+        right: '0',
+        bottom: '0',
+      })
     }
 
     mk({
-      top: b + 'px',
-      left: '0',
-      right: '0',
-      bottom: bottomInset,
-    })
-
-    mk({
-      top: Math.max(0, t) + 'px',
+      top: sideTop + 'px',
       left: '0',
       width: Math.max(0, l) + 'px',
-      height: Math.max(0, h) + 'px',
+      height: sideH + 'px',
     })
 
     mk({
-      top: Math.max(0, t) + 'px',
+      top: sideTop + 'px',
       left: r + 'px',
       right: '0',
-      height: Math.max(0, h) + 'px',
+      height: sideH + 'px',
     })
   } catch (_) {
     /* silent */
@@ -323,6 +333,7 @@ function positionTooltip(tooltipEl, element, position) {
       tooltipEl.style.width = '100%'
       tooltipEl.style.maxWidth = '100%'
       tooltipEl.style.borderRadius = '20px 20px 0 0'
+      tooltipEl.style.zIndex = '100000'
       ensureDragHandle(tooltipEl, true)
 
       setTimeout(function () {
@@ -856,7 +867,11 @@ export function startTour(
         } catch (_) {}
       }
 
-      await sleep(sil ? 0 : 300)
+      if (isMobile()) {
+        await sleep(sil ? 0 : 400)
+      } else {
+        await sleep(sil ? 0 : 300)
+      }
       if (destroyed || myGen !== stepGen) return
 
       try {
