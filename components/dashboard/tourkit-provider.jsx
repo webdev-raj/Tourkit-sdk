@@ -7,15 +7,33 @@ export function TourKitProvider() {
   const pathname = usePathname()
 
   useEffect(() => {
-    const timer = setTimeout(() => {
+    var cancelled = false
+    var attempts = 0
+
+    function tryStart() {
+      if (cancelled) return
+
       try {
-        window.TourKit?.startFor?.(pathname)
+        if (window.TourKit && typeof window.TourKit.startFor === 'function') {
+          window.TourKit.startFor(pathname)
+          return
+        }
       } catch (_) {
         /* silent */
       }
-    }, 500)
 
-    return () => clearTimeout(timer)
+      if (attempts < 24) {
+        attempts += 1
+        setTimeout(tryStart, 250)
+      }
+    }
+
+    var timer = setTimeout(tryStart, 400)
+
+    return function () {
+      cancelled = true
+      clearTimeout(timer)
+    }
   }, [pathname])
 
   return null

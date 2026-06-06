@@ -34,7 +34,7 @@ export default async function DashboardLayout({ children }) {
           <TourKitProvider />
           <Script
             id="tourkit-onboarding-sdk"
-            src="https://cdn.jsdelivr.net/gh/webdev-raj/Tourkit@sdk-v12/sdk/dist/tourkit.min.js"
+            src="/tourkit.min.js"
             data-key={onboardingScriptKey}
             data-api={appUrl}
             strategy="afterInteractive"

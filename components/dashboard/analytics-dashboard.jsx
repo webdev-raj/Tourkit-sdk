@@ -25,7 +25,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
-const CDN_URL = 'https://cdn.jsdelivr.net/gh/webdev-raj/Tourkit@sdk-v12/sdk/dist/tourkit.min.js'
+const CDN_URL = 'https://cdn.jsdelivr.net/gh/webdev-raj/Tourkit@sdk-v13/sdk/dist/tourkit.min.js'
 
 function StatCard({ icon: Icon, iconColor, iconBg, value, label, subText }) {
   return (

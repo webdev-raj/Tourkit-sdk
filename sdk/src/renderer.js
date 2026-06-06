@@ -745,6 +745,8 @@ export function startTour(
     }
 
     var guardLoops = 0
+    var domWaitRetries = 0
+    var maxDomWaitRetries = 12
 
     function showStep(initialIndex, silent) {
       if (destroyed) return
@@ -822,7 +824,17 @@ export function startTour(
         break
       }
 
-      if (i >= steps.length || !step || !el || !rect) return destroyQuiet(false)
+      if (i >= steps.length || !step || !el || !rect) {
+        if (!destroyed && myGen === stepGen && domWaitRetries < maxDomWaitRetries) {
+          domWaitRetries += 1
+          await sleep(250)
+          if (destroyed || myGen !== stepGen) return
+          return runAttempt(initialIndex, sil)
+        }
+        return destroyQuiet(false)
+      }
+
+      domWaitRetries = 0
       if (destroyed || myGen !== stepGen) return
 
       try {
