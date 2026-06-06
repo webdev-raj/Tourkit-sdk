@@ -75,6 +75,65 @@ import { buildSessionKey, tourkitSeenPrefix } from './session-key.js'
       }
     }
 
+    function matchesPattern(pattern, path) {
+      try {
+        if (!pattern || !path) return false
+
+        var patternStr = String(pattern).trim()
+        var pathStr = String(path).trim()
+
+        if (patternStr.endsWith('/*')) {
+          var base = patternStr.slice(0, -2)
+          return pathStr.startsWith(base + '/')
+        }
+
+        var segments = patternStr.split('/')
+        var pathSegments = pathStr.split('/')
+
+        if (segments.length !== pathSegments.length) {
+          return false
+        }
+
+        return segments.every(function (seg, i) {
+          if (seg.startsWith('[') && seg.endsWith(']')) {
+            return pathSegments[i] && pathSegments[i].length > 0
+          }
+          return seg === pathSegments[i]
+        })
+      } catch (e) {
+        return false
+      }
+    }
+
+    function getMatchedPattern(steps, currentPath) {
+      try {
+        if (!isContextAwareMode(steps)) return null
+
+        var bestPattern = null
+        var bestDepth = -1
+
+        steps.forEach(function (step) {
+          try {
+            if (!step || !step.url_pattern) return
+            var pattern = String(step.url_pattern).trim()
+            if (!matchesPattern(pattern, currentPath)) return
+
+            var depth = pattern.split('/').length
+            if (depth > bestDepth) {
+              bestDepth = depth
+              bestPattern = pattern
+            }
+          } catch (_) {
+            /* silent */
+          }
+        })
+
+        return bestPattern
+      } catch (e) {
+        return null
+      }
+    }
+
     /**
      * Context-aware: steps without url_pattern = root (/) only.
      * Steps with url_pattern = matching path only. No match = empty (no tour).
@@ -92,17 +151,7 @@ import { buildSessionKey, tourkitSeenPrefix } from './session-key.js'
           matchingSteps = steps.filter(function (step) {
             try {
               if (step && step.url_pattern && String(step.url_pattern).trim()) {
-                var pattern = String(step.url_pattern).trim()
-
-                if (pathStr === pattern) return true
-
-                if (pattern.length > 0 && pattern.charAt(pattern.length - 1) === '*') {
-                  return pathStr.indexOf(pattern.slice(0, -1)) === 0
-                }
-
-                if (pathStr.indexOf(pattern) === 0) return true
-
-                return false
+                return matchesPattern(String(step.url_pattern).trim(), pathStr)
               }
 
               var isRoot = pathStr === '/' || pathStr === '' || pathStr === '/index'
@@ -302,8 +351,10 @@ import { buildSessionKey, tourkitSeenPrefix } from './session-key.js'
           /* silent */
         }
 
+        var matchedPattern = getMatchedPattern(cachedSteps, currentPath)
+
         var sessionKey = isContextAwareMode(cachedSteps)
-          ? buildSessionKey(SCRIPT_KEY, currentPath)
+          ? buildSessionKey(SCRIPT_KEY, matchedPattern || currentPath)
           : 'tourkit_seen_' + SCRIPT_KEY
 
         var isDemo = isDemoGlobal
@@ -436,8 +487,10 @@ import { buildSessionKey, tourkitSeenPrefix } from './session-key.js'
           } catch (_) {
             p = '/'
           }
+          var matchedPattern = getMatchedPattern(cachedSteps, p)
+
           var sessionKey = isContextAwareMode(cachedSteps)
-            ? buildSessionKey(SCRIPT_KEY, p)
+            ? buildSessionKey(SCRIPT_KEY, matchedPattern || p)
             : 'tourkit_seen_' + SCRIPT_KEY
           try {
             window.localStorage.removeItem(sessionKey)
