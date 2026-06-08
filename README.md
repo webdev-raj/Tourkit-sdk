@@ -35,7 +35,7 @@ that points to any element on your page.
 
 ```html
 <script
-  src="https://cdn.jsdelivr.net/gh/webdev-raj/Tourkit@sdk-v13/sdk/dist/tourkit.min.js"
+  src="https://cdn.jsdelivr.net/gh/webdev-raj/Tourkit@sdk-v14/sdk/dist/tourkit.min.js"
   data-key="YOUR_SCRIPT_KEY"
   data-api="https://tourkit-phi.vercel.app"
   async>

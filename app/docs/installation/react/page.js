@@ -8,7 +8,7 @@ const OPTION_A_HTML = `<!-- In public/index.html, paste before </body> -->
 ${TOURKIT_SCRIPT_SNIPPET}`
 
 const OPTION_B_USEEFFECT = `const TOURKIT_SCRIPT_ID = 'tourkit-sdk'
-const TOURKIT_SRC = 'https://cdn.jsdelivr.net/gh/webdev-raj/Tourkit@sdk-v13/sdk/dist/tourkit.min.js'
+const TOURKIT_SRC = 'https://cdn.jsdelivr.net/gh/webdev-raj/Tourkit@sdk-v14/sdk/dist/tourkit.min.js'
 
 useEffect(() => {
   if (document.getElementById(TOURKIT_SCRIPT_ID)) return
