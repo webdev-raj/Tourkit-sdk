@@ -6,38 +6,51 @@ var SPOT_PADDING = 6
 
 var CSS_SNIPPET = [
   ':root{--tk-primary:#F15025;--tk-bg:#111111;--tk-border:#2a2a2a;--tk-text:#ffffff;--tk-subtext:#999999;--tk-radius:10px;--tk-font:Inter;--tk-buttonGhost:#1e1e1e;--tk-buttonGhostBorder:#333333;--tk-buttonGhostText:#cccccc;}',
-  '.tk-spot{position:fixed;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);z-index:99998;pointer-events:auto;transition:all 0.4s cubic-bezier(0.4,0,0.2,1);}',
-  '.tk-tooltip{position:fixed;width:280px;background:var(--tk-bg);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:20px;z-index:100000;font-family:var(--tk-font),system-ui,sans-serif;box-sizing:border-box;box-shadow:0 0 0 1px rgba(255,255,255,0.05),0 4px 6px rgba(0,0,0,0.1),0 20px 40px rgba(0,0,0,0.5);opacity:0;transform:translateY(8px);}',
-  '.tk-dots{display:flex;gap:6px;margin-bottom:16px;align-items:center;}',
-  '.tk-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.2);transition:all 0.3s ease;flex-shrink:0;}',
-  '.tk-dot.active{width:20px;border-radius:3px;background:var(--tk-primary);}',
-  '.tk-dot.done{background:var(--tk-primary);opacity:0.4;}',
-  '.tk-content{}',
-  '.tk-title{font-size:15px;font-weight:600;color:var(--tk-text);margin:0 0 8px 0;line-height:1.4;text-transform:capitalize;}',
-  '.tk-message{font-size:13px;color:var(--tk-subtext);margin:0 0 20px 0;line-height:1.7;}',
-  '.tk-footer{display:flex;justify-content:space-between;align-items:center;gap:12px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.06);}',
+  '.tk-tooltip{position:fixed;width:300px;background:rgba(10,10,10,0.92);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:20px;z-index:100000;font-family:var(--tk-font),system-ui,sans-serif;box-sizing:border-box;box-shadow:0 0 0 1px rgba(255,255,255,0.04),0 4px 8px rgba(0,0,0,0.3),0 16px 32px rgba(0,0,0,0.4),0 32px 64px rgba(0,0,0,0.5),0 0 80px rgba(0,0,0,0.2);opacity:0;transform:translateY(8px) scale(0.98);transition:opacity 0.2s ease,transform 0.2s cubic-bezier(0.4,0,0.2,1);}',
+  '.tk-dots{display:flex;gap:5px;margin-bottom:14px;align-items:center;}',
+  '.tk-dot{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,0.15);transition:all 0.3s cubic-bezier(0.4,0,0.2,1);flex-shrink:0;}',
+  '.tk-dot.active{width:18px;height:5px;border-radius:3px;background:var(--tk-primary);box-shadow:0 0 8px var(--tk-primary);}',
+  '.tk-dot.done{background:var(--tk-primary);opacity:0.35;}',
+  '.tk-content{margin-bottom:16px;}',
+  '.tk-title{font-size:14px;font-weight:600;color:rgba(255,255,255,0.95);margin:0 0 6px 0;line-height:1.4;letter-spacing:-0.01em;text-transform:capitalize;}',
+  '.tk-message{font-size:12.5px;color:rgba(255,255,255,0.45);margin:0;line-height:1.65;font-weight:400;}',
+  '.tk-footer{display:flex;justify-content:space-between;align-items:center;gap:8px;padding-top:14px;border-top:1px solid rgba(255,255,255,0.05);margin-top:4px;}',
   '.tk-footer-left{flex:1;min-width:0;display:flex;align-items:center;}',
-  '.tk-skip{background:transparent;border:none;color:var(--tk-subtext);font-size:11px;font-weight:500;cursor:pointer;padding:6px 8px;margin:0;border-radius:6px;font-family:inherit;opacity:0.75;transition:opacity 0.15s ease,background 0.15s ease;-webkit-tap-highlight-color:transparent;}',
-  '.tk-skip:hover{opacity:1;background:rgba(255,255,255,0.06);}',
-  '.tk-nav{display:flex;gap:8px;}',
-  '.tk-prev{padding:7px 14px;border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:var(--tk-text);font-family:inherit;transition:all 0.15s ease;}',
-  '.tk-prev:hover{background:rgba(255,255,255,0.1);}',
-  '.tk-next{padding:7px 14px;border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;border:none;background:var(--tk-primary);color:#fff;font-family:inherit;transition:all 0.15s ease;}',
-  '.tk-next:hover{filter:brightness(1.1);}',
-  '.tk-branding{display:flex;justify-content:center;align-items:center;padding-top:12px;margin-top:4px;border-top:1px solid rgba(255,255,255,0.04);}',
-  '.tk-branding-link{font-size:10px;color:rgba(255,255,255,0.25);text-decoration:none;font-family:inherit;letter-spacing:0.03em;transition:color 0.15s ease;}',
-  '.tk-branding-link:hover{color:rgba(255,255,255,0.5);}',
-  'html.tk-theme-light .tk-branding{border-top:1px solid rgba(0,0,0,0.06);}',
-  'html.tk-theme-light .tk-branding-link{color:rgba(0,0,0,0.25);}',
-  'html.tk-theme-light .tk-branding-link:hover{color:rgba(0,0,0,0.5);}',
-  '.tk-tooltip-mobile{position:fixed!important;top:auto!important;left:0!important;right:0!important;bottom:0!important;width:100%!important;max-width:100%!important;border-radius:20px 20px 0 0!important;padding:8px 20px 32px 20px!important;transform:translateY(100%)!important;transition:transform 0.3s cubic-bezier(0.4,0,0.2,1)!important;box-sizing:border-box!important;}',
+  '.tk-skip{background:transparent;border:none;color:rgba(255,255,255,0.25);font-size:11px;font-weight:500;cursor:pointer;padding:4px 6px;margin:0;border-radius:5px;font-family:inherit;letter-spacing:0.01em;transition:color 0.15s ease,background 0.15s ease;-webkit-tap-highlight-color:transparent;}',
+  '.tk-skip:hover{color:rgba(255,255,255,0.5);background:rgba(255,255,255,0.04);}',
+  '.tk-nav{display:flex;gap:6px;align-items:center;}',
+  '.tk-prev{padding:6px 12px;border-radius:8px;font-size:11.5px;font-weight:500;cursor:pointer;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.6);font-family:inherit;letter-spacing:0.01em;transition:all 0.15s ease;-webkit-tap-highlight-color:transparent;}',
+  '.tk-prev:hover{background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.9);border-color:rgba(255,255,255,0.15);}',
+  '.tk-next{padding:6px 14px;border-radius:8px;font-size:11.5px;font-weight:600;cursor:pointer;border:none;background:var(--tk-primary);color:#ffffff;font-family:inherit;letter-spacing:0.01em;transition:all 0.15s ease;box-shadow:0 2px 8px rgba(0,0,0,0.3),0 0 0 0 var(--tk-primary);-webkit-tap-highlight-color:transparent;}',
+  '.tk-next:hover{filter:brightness(1.12);box-shadow:0 4px 12px rgba(0,0,0,0.4),0 0 20px rgba(241,80,37,0.2);transform:translateY(-0.5px);}',
+  '.tk-next:active{transform:translateY(0);filter:brightness(0.95);}',
+  '.tk-spot{position:fixed;background:rgba(0,0,0,0.55);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);z-index:99998;pointer-events:auto;transition:all 0.35s cubic-bezier(0.4,0,0.2,1);}',
+  '@keyframes tkFadeUp{from{opacity:0;transform:translateY(10px) scale(0.97)}to{opacity:1;transform:translateY(0) scale(1)}}',
+  '@keyframes tkFadeIn{from{opacity:0}to{opacity:1}}',
+  '.tk-drag-handle{width:32px;height:3px;background:rgba(255,255,255,0.12);border-radius:2px;margin:0 auto 14px auto;display:block;}',
+  '.tk-tooltip-mobile{position:fixed!important;top:auto!important;left:0!important;right:0!important;bottom:0!important;width:100%!important;max-width:100%!important;border-radius:20px 20px 0 0!important;padding:8px 20px 36px 20px!important;transform:translateY(100%)!important;transition:transform 0.32s cubic-bezier(0.4,0,0.2,1)!important;box-sizing:border-box!important;backdrop-filter:blur(24px) saturate(180%)!important;-webkit-backdrop-filter:blur(24px) saturate(180%)!important;}',
   '.tk-tooltip-mobile.tk-mobile-open{transform:translateY(0)!important;}',
-  '.tk-drag-handle{width:36px;height:4px;background:rgba(255,255,255,0.2);border-radius:2px;margin:0 auto 16px auto;display:block;}',
   '.tk-tooltip-mobile .tk-footer{padding-bottom:4px;}',
   '.tk-tooltip-mobile .tk-next{padding:12px 20px!important;font-size:14px!important;}',
   '.tk-tooltip-mobile .tk-prev{padding:12px 20px!important;font-size:14px!important;}',
   '.tk-tooltip-mobile .tk-skip{font-size:13px!important;padding:8px!important;}',
-  '.tk-mobile-overlay-top{position:fixed;top:0;left:0;right:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);z-index:99998;transition:height 0.3s ease;pointer-events:auto;}',
+  '.tk-mobile-overlay-top{position:fixed;top:0;left:0;right:0;background:rgba(0,0,0,0.55);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);z-index:99998;transition:height 0.3s ease;pointer-events:auto;}',
+  '.tk-tooltip-light{background:rgba(255,255,255,0.92)!important;border:1px solid rgba(0,0,0,0.06)!important;box-shadow:0 0 0 1px rgba(0,0,0,0.04),0 4px 8px rgba(0,0,0,0.08),0 16px 32px rgba(0,0,0,0.12),0 32px 64px rgba(0,0,0,0.08)!important;}',
+  '.tk-tooltip-light .tk-title{color:rgba(0,0,0,0.9)!important;}',
+  '.tk-tooltip-light .tk-message{color:rgba(0,0,0,0.45)!important;}',
+  '.tk-tooltip-light .tk-footer{border-top:1px solid rgba(0,0,0,0.06)!important;}',
+  '.tk-tooltip-light .tk-skip{color:rgba(0,0,0,0.3)!important;}',
+  '.tk-tooltip-light .tk-skip:hover{color:rgba(0,0,0,0.6)!important;background:rgba(0,0,0,0.04)!important;}',
+  '.tk-tooltip-light .tk-prev{border:1px solid rgba(0,0,0,0.1)!important;background:rgba(0,0,0,0.03)!important;color:rgba(0,0,0,0.6)!important;}',
+  '.tk-tooltip-light .tk-prev:hover{background:rgba(0,0,0,0.06)!important;color:rgba(0,0,0,0.9)!important;}',
+  '.tk-tooltip-light .tk-dot{background:rgba(0,0,0,0.12)!important;}',
+  '.tk-tooltip-light .tk-drag-handle{background:rgba(0,0,0,0.1)!important;}',
+  '.tk-tooltip-light .tk-branding{border-top:1px solid rgba(0,0,0,0.06)!important;}',
+  '.tk-tooltip-light .tk-branding-link{color:rgba(0,0,0,0.18)!important;}',
+  '.tk-tooltip-light .tk-branding-link:hover{color:rgba(0,0,0,0.4)!important;}',
+  '.tk-branding{display:flex;justify-content:center;align-items:center;padding-top:10px;margin-top:2px;border-top:1px solid rgba(255,255,255,0.04);}',
+  '.tk-branding-link{font-size:9.5px;color:rgba(255,255,255,0.18);text-decoration:none;font-family:inherit;letter-spacing:0.04em;transition:color 0.15s ease;}',
+  '.tk-branding-link:hover{color:rgba(255,255,255,0.4);}',
 ].join('')
 
 function injectStylesOnce() {
@@ -99,6 +112,14 @@ function applyCustomization(customization) {
     try {
       if (theme === 'light') root.classList.add('tk-theme-light')
       else root.classList.remove('tk-theme-light')
+    } catch (_) {}
+
+    try {
+      var tooltipThemeEl = document.querySelector('.tk-tooltip')
+      if (tooltipThemeEl) {
+        if (theme === 'light') tooltipThemeEl.classList.add('tk-tooltip-light')
+        else tooltipThemeEl.classList.remove('tk-tooltip-light')
+      }
     } catch (_) {}
   } catch (_) {
     /* silent */
@@ -293,19 +314,10 @@ function applyHighlight(el) {
     var primary = getCssVar('--tk-primary', '#F15025')
     var radius = getCssVar('--tk-radius', '10px')
     el.style.outline = '2px solid ' + primary
-    el.style.outlineOffset = '4px'
+    el.style.outlineOffset = '3px'
     el.style.zIndex = '99999'
     el.style.position = 'relative'
     el.style.borderRadius = radius
-    var hex = String(primary).replace('#', '')
-    var glow = '0 0 0 4px rgba(241,80,37,0.2)'
-    if (hex.length === 6) {
-      var r = parseInt(hex.slice(0, 2), 16)
-      var g = parseInt(hex.slice(2, 4), 16)
-      var b = parseInt(hex.slice(4, 6), 16)
-      if (!isNaN(r) && !isNaN(g) && !isNaN(b)) glow = '0 0 0 4px rgba(' + r + ',' + g + ',' + b + ',0.2)'
-    }
-    el.style.boxShadow = glow
   } catch (_) {}
 }
 
@@ -457,6 +469,11 @@ export function startTour(
     var overlayPieces = []
     var tooltip = document.createElement('div')
     tooltip.className = 'tk-tooltip'
+
+    try {
+      var tourTheme = customization?.theme || 'dark'
+      if (tourTheme === 'light') tooltip.classList.add('tk-tooltip-light')
+    } catch (_) {}
 
     var dotsRoot = document.createElement('div')
     dotsRoot.className = 'tk-dots'
@@ -844,9 +861,9 @@ export function startTour(
             await sleep(200)
             if (destroyed || myGen !== stepGen) return
           } else {
-            tooltip.style.transition = 'opacity 0.25s ease, transform 0.25s ease'
+            tooltip.style.transition = 'opacity 0.2s ease, transform 0.2s cubic-bezier(0.4,0,0.2,1)'
             tooltip.style.opacity = '0'
-            tooltip.style.transform = 'translateY(4px)'
+            tooltip.style.transform = 'translateY(8px) scale(0.98)'
             await sleep(150)
             if (destroyed || myGen !== stepGen) return
           }
@@ -902,13 +919,13 @@ export function startTour(
         } else {
           tooltip.style.transition = 'none'
           tooltip.style.opacity = '0'
-          tooltip.style.transform = 'translateY(8px)'
+          tooltip.style.transform = 'translateY(8px) scale(0.98)'
           requestAnimationFrame(function () {
             try {
               if (destroyed || myGen !== stepGen) return
-              tooltip.style.transition = 'opacity 0.25s ease, transform 0.25s ease'
+              tooltip.style.transition = 'opacity 0.2s ease, transform 0.2s cubic-bezier(0.4,0,0.2,1)'
               tooltip.style.opacity = '1'
-              tooltip.style.transform = 'translateY(0)'
+              tooltip.style.transform = 'translateY(0) scale(1)'
             } catch (_) {}
           })
         }
