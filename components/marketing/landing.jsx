@@ -178,10 +178,10 @@ function HeroVisual() {
               </div>
             </div>
           </div>
-
+          <div className="h-full top-0 left-0 w-full bg-black/40 z-[4] absolute"></div>
           <div
-            className="pointer-events-none absolute z-[5] rounded-lg border-2 border-primary"
-            style={{ top: "52%", left: "28%", width: "7.5rem", height: "2.25rem", boxShadow: "0 0 0 9999px rgba(0,0,0,0.55)" }}
+            className="pointer-events-none absolute z-[5] rounded-lg border-2 border-primary max-md:hidden"
+            style={{ top: "32%", left: "21%", width: "5rem", height: "2.25rem"}}
             aria-hidden
           />
         </div>

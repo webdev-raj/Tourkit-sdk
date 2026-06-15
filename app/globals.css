@@ -114,6 +114,15 @@
   .tk-landing-pulse-glow {
     animation: tk-landing-pulse-glow 4s ease-in-out infinite;
   }
+
+  .tk-scrollbar-hidden {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .tk-scrollbar-hidden::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 @layer components {

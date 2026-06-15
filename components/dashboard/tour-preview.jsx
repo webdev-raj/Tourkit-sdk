@@ -30,6 +30,7 @@ export function TourPreview({
   totalSteps,
   onPositionChange,
   appearance = {},
+  hideHeader = false,
 }) {
   const primaryColor = appearance.primary_color || ACCENT
   const theme = appearance.theme || "dark"
@@ -144,16 +145,18 @@ export function TourPreview({
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <div className="text-sm font-semibold text-foreground">Preview</div>
-          <div className="mt-1 text-xs text-muted-foreground">Updates as you type</div>
+      {!hideHeader ? (
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <div className="text-sm font-semibold text-foreground">Preview</div>
+            <div className="mt-1 text-xs text-muted-foreground">Updates as you type</div>
+          </div>
+          <div className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-background/20 px-2.5 py-1 text-[0.7rem] font-medium text-foreground">
+            <span className="size-1.5 rounded-full bg-emerald-400" aria-hidden />
+            Live
+          </div>
         </div>
-        <div className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-background/20 px-2.5 py-1 text-[0.7rem] font-medium text-foreground">
-          <span className="size-1.5 rounded-full bg-emerald-400" aria-hidden />
-          Live
-        </div>
-      </div>
+      ) : null}
 
       <div className="flex flex-col gap-3">
         <div className="text-xs font-medium text-muted-foreground">Element highlight</div>
