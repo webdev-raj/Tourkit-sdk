@@ -1,20 +1,40 @@
 'use client'
 
 import { use, useEffect } from 'react'
-import { usePathname } from 'next/navigation'
 
 export default function DemoSettingsPage({ params }) {
   const { scriptKey } = use(params)
-  const pathname = usePathname()
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      try {
-        window.TourKit?.startFor?.(pathname)
-      } catch (_) {}
-    }, 600)
-    return () => clearTimeout(timer)
-  }, [pathname])
+    let attempts = 0
+    const maxAttempts = 20
+    let timeoutId = null
+
+    const interval = setInterval(() => {
+      attempts++
+
+      if (window.TourKit) {
+        clearInterval(interval)
+        timeoutId = setTimeout(() => {
+          try {
+            window.TourKit.startFor(
+              window.location.pathname.replace(/\/demo\/[^/]+/, '') || '/',
+            )
+          } catch (_) {}
+        }, 300)
+        return
+      }
+
+      if (attempts >= maxAttempts) {
+        clearInterval(interval)
+      }
+    }, 200)
+
+    return () => {
+      clearInterval(interval)
+      if (timeoutId) clearTimeout(timeoutId)
+    }
+  }, [])
 
   const fullPath = `/demo/${scriptKey}/settings`
 
