@@ -19,6 +19,8 @@ import {
   Link as LucideLink,
   MousePointer2Icon,
   Sparkles,
+  Bot,
+  X,
 } from 'lucide-react'
 
 import {
@@ -348,6 +350,7 @@ export function TourEditor({ project, tour, initialSteps, analyticsHref }) {
 
   const [dndReady, setDndReady] = useState(false)
   const [showAIModal, setShowAIModal] = useState(false)
+  const [showAutoGenerate, setShowAutoGenerate] = useState(false)
   const [isPro, setIsPro] = useState(false)
 
   useEffect(() => {
@@ -726,32 +729,28 @@ export function TourEditor({ project, tour, initialSteps, analyticsHref }) {
           </div>
 
           <div className="mt-4 flex shrink-0 flex-col gap-2">
-            <div
+            <button
+              type="button"
+              onClick={() => setShowAutoGenerate(true)}
               style={{
-                borderTop: '1px solid rgba(255,255,255,0.06)',
-                paddingTop: '16px',
-                marginTop: '8px',
+                width: '100%',
+                background: 'transparent',
+                border: '1px solid rgba(255,255,255,0.08)',
+                borderRadius: '8px',
+                padding: '8px',
+                color: '#666',
+                fontSize: '12px',
+                fontWeight: '500',
+                cursor: 'pointer',
                 display: 'flex',
-                flexDirection: 'column',
-                gap: '10px',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px',
+                fontFamily: 'inherit',
               }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <span
-                  style={{
-                    color: '#444',
-                    fontSize: '10px',
-                    fontWeight: '600',
-                    letterSpacing: '0.08em',
-                    textTransform: 'uppercase',
-                  }}>
-                  Auto-generate
-                </span>
-              </div>
-
-              <AgentPrompt isPro={isPro} />
-
-              <JsonImport isPro={isPro} onImport={handleJsonImport} />
-            </div>
+              <Bot size={13} aria-hidden />
+              Auto-generate with AI agent
+            </button>
 
             <button
               type="button"
@@ -978,6 +977,84 @@ export function TourEditor({ project, tour, initialSteps, analyticsHref }) {
           </div>
         </div>
       </div>
+
+      {showAutoGenerate ? (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="auto-generate-title"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setShowAutoGenerate(false)
+          }}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0,0,0,0.7)',
+            backdropFilter: 'blur(4px)',
+            WebkitBackdropFilter: 'blur(4px)',
+            zIndex: 1000,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '20px',
+          }}>
+          <div
+            style={{
+              background: '#111',
+              border: '1px solid rgba(255,255,255,0.08)',
+              borderRadius: '16px',
+              padding: '24px',
+              width: '100%',
+              maxWidth: '480px',
+              maxHeight: '85vh',
+              overflowY: 'auto',
+            }}>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                marginBottom: '20px',
+              }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Bot size={16} color="#F15025" aria-hidden />
+                <span id="auto-generate-title" style={{ color: '#fff', fontSize: '15px', fontWeight: '600' }}>
+                  Auto-generate tour
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowAutoGenerate(false)}
+                aria-label="Close"
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#666',
+                  cursor: 'pointer',
+                  padding: '4px',
+                }}>
+                <X size={16} />
+              </button>
+            </div>
+
+            <p style={{ color: '#666', fontSize: '13px', margin: '0 0 20px 0', lineHeight: '1.6' }}>
+              Use your AI coding agent to analyze your codebase and generate a complete tour automatically.
+            </p>
+
+            <div style={{ marginBottom: '16px' }}>
+              <AgentPrompt isPro={isPro} />
+            </div>
+
+            <JsonImport
+              isPro={isPro}
+              onImport={async (steps) => {
+                await handleJsonImport(steps)
+                setShowAutoGenerate(false)
+              }}
+            />
+          </div>
+        </div>
+      ) : null}
 
       {showAIModal ? (
         <AIGenerateModal
