@@ -65,6 +65,8 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import AIGenerateModal from '@/components/dashboard/ai-generate-modal'
+import AgentPrompt from '@/components/dashboard/agent-prompt'
+import JsonImport from '@/components/dashboard/json-import'
 import { TourPreview } from '@/components/dashboard/tour-preview'
 
 const POSITION_OPTIONS = [
@@ -398,6 +400,46 @@ export function TourEditor({ project, tour, initialSteps, analyticsHref }) {
     })
   }
 
+  async function handleJsonImport(importedSteps) {
+    setActionError(null)
+    const added = []
+
+    for (const step of importedSteps) {
+      const result = await createStep(tour.id, {
+        title: step.title || '',
+        message: step.description || step.message || step.title || '',
+        selector: step.selector || '',
+        position: step.position || 'bottom',
+        url_pattern: step.url_pattern || null,
+      })
+
+      if (result?.error) {
+        setActionError(result.error)
+        throw new Error(result.error)
+      }
+
+      added.push({
+        id: result.id,
+        tour_id: tour.id,
+        selector: step.selector,
+        title: step.title ?? '',
+        message: step.description || step.message || step.title || '',
+        position: step.position || 'bottom',
+        url_pattern: step.url_pattern ?? null,
+      })
+    }
+
+    setSteps((prev) => {
+      let order = prev.length ? Math.max(...prev.map((s) => Number(s.step_order) || 0)) : 0
+      const rows = added.map((row, i) => ({
+        ...row,
+        step_order: order + i + 1,
+      }))
+      return [...prev, ...rows]
+    })
+    router.refresh()
+  }
+
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-10">
       <nav>
@@ -684,6 +726,33 @@ export function TourEditor({ project, tour, initialSteps, analyticsHref }) {
           </div>
 
           <div className="mt-4 flex shrink-0 flex-col gap-2">
+            <div
+              style={{
+                borderTop: '1px solid rgba(255,255,255,0.06)',
+                paddingTop: '16px',
+                marginTop: '8px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '10px',
+              }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span
+                  style={{
+                    color: '#444',
+                    fontSize: '10px',
+                    fontWeight: '600',
+                    letterSpacing: '0.08em',
+                    textTransform: 'uppercase',
+                  }}>
+                  Auto-generate
+                </span>
+              </div>
+
+              <AgentPrompt isPro={isPro} />
+
+              <JsonImport isPro={isPro} onImport={handleJsonImport} />
+            </div>
+
             <button
               type="button"
               onClick={() => setShowAIModal(true)}
