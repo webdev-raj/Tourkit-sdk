@@ -23,7 +23,7 @@ export function ProjectCreateForm({ action }) {
   const [state, formAction] = useActionState(action, { error: null, ok: false })
 
   return (
-    <Card className="border border-white/10 bg-card/20 backdrop-blur-sm" data-tour="create-project">
+    <Card className="border border-white/10 bg-card/20 backdrop-blur-sm" data-tour="create-project" data-tourkit="create-project-form">
       <CardHeader className="flex flex-col gap-2">
         <CardTitle className="flex items-center gap-2">
           <PlusIcon className="size-4 text-primary" aria-hidden />

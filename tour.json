@@ -1,0 +1,149 @@
+[
+  {
+    "title": "Main Navigation",
+    "description": "Navigate easily between your projects, documentation, and workspace settings.",
+    "selector": "[data-tourkit='main-navigation']",
+    "position": "right",
+    "url_pattern": null
+  },
+  {
+    "title": "Projects Overview",
+    "description": "Here you can see an overview of all your projects and active tours.",
+    "selector": "[data-tourkit='projects-header']",
+    "position": "bottom",
+    "url_pattern": "/dashboard"
+  },
+  {
+    "title": "Create a Project",
+    "description": "Start by creating a new project with its name and domain.",
+    "selector": "[data-tourkit='create-project-form']",
+    "position": "left",
+    "url_pattern": "/dashboard"
+  },
+  {
+    "title": "Your Projects List",
+    "description": "Manage your existing projects, get installation snippets, and launch live demos.",
+    "selector": "[data-tourkit='projects-list']",
+    "position": "top",
+    "url_pattern": "/dashboard"
+  },
+  {
+    "title": "Install Snippet",
+    "description": "Copy this script tag and paste it before the </body> tag of your website.",
+    "selector": "[data-tourkit='install-snippet']",
+    "position": "bottom",
+    "url_pattern": "/dashboard/projects/*"
+  },
+  {
+    "title": "Tour Toggle",
+    "description": "Enable or disable your tour from appearing on your live website.",
+    "selector": "[data-tourkit='tour-toggle']",
+    "position": "bottom",
+    "url_pattern": "/dashboard/projects/*"
+  },
+  {
+    "title": "Tour Appearance",
+    "description": "Customize the theme, primary color, font, and corner styles of your tooltips.",
+    "selector": "[data-tourkit='tour-appearance']",
+    "position": "bottom",
+    "url_pattern": "/dashboard/projects/*"
+  },
+  {
+    "title": "Tour Steps",
+    "description": "Manage all your tour steps here. Drag them to reorder.",
+    "selector": "[data-tourkit='tour-steps']",
+    "position": "right",
+    "url_pattern": "/dashboard/projects/*"
+  },
+  {
+    "title": "AI Generate",
+    "description": "Let our AI agent automatically generate tour steps for your website.",
+    "selector": "[data-tourkit='ai-generate']",
+    "position": "top",
+    "url_pattern": "/dashboard/projects/*"
+  },
+  {
+    "title": "Add a Step",
+    "description": "Manually create a new tooltip step for your tour.",
+    "selector": "[data-tourkit='add-step']",
+    "position": "top",
+    "url_pattern": "/dashboard/projects/*"
+  },
+  {
+    "title": "Settings Hub",
+    "description": "Manage your account, preferences, and billing from the settings hub.",
+    "selector": "[data-tourkit='settings-header']",
+    "position": "bottom",
+    "url_pattern": "/dashboard/settings"
+  },
+  {
+    "title": "Account Info",
+    "description": "View your email and request password resets here.",
+    "selector": "[data-tourkit='settings-account']",
+    "position": "right",
+    "url_pattern": "/dashboard/settings"
+  },
+  {
+    "title": "Profile Details",
+    "description": "Update your display name.",
+    "selector": "[data-tourkit='settings-profile']",
+    "position": "right",
+    "url_pattern": "/dashboard/settings"
+  },
+  {
+    "title": "Integration Settings",
+    "description": "Grab the CDN URL and review how to install the script on your site.",
+    "selector": "[data-tourkit='settings-integration']",
+    "position": "right",
+    "url_pattern": "/dashboard/settings"
+  },
+  {
+    "title": "Billing & Plan",
+    "description": "Manage your subscription, check your usage limits, and upgrade your plan.",
+    "selector": "[data-tourkit='settings-billing']",
+    "position": "left",
+    "url_pattern": "/dashboard/settings"
+  },
+  {
+    "title": "Danger Zone",
+    "description": "You can permanently delete your account and all data here.",
+    "selector": "[data-tourkit='settings-danger-zone']",
+    "position": "left",
+    "url_pattern": "/dashboard/settings"
+  },
+  {
+    "title": "User Profile Menu",
+    "description": "Access your profile and sign out from here at any time.",
+    "selector": "[data-tourkit='user-profile-menu']",
+    "position": "left",
+    "url_pattern": null
+  },
+  {
+    "title": "Analytics Overview",
+    "description": "View performance and analytics data for your tour.",
+    "selector": "[data-tourkit='analytics-overview']",
+    "position": "bottom",
+    "url_pattern": "/dashboard/projects/*/analytics"
+  },
+  {
+    "title": "Key Statistics",
+    "description": "Quickly check total sessions, completions, and skip rates.",
+    "selector": "[data-tourkit='analytics-stats']",
+    "position": "bottom",
+    "url_pattern": "/dashboard/projects/*/analytics"
+  },
+  {
+    "title": "Tours Over Time",
+    "description": "Monitor daily tour starts over the last 14 days.",
+    "selector": "[data-tourkit='analytics-timeline']",
+    "position": "left",
+    "url_pattern": "/dashboard/projects/*/analytics"
+  },
+  {
+    "title": "Step Dropoff",
+    "description": "Analyze which steps users are skipping to optimize your tour.",
+    "selector": "[data-tourkit='analytics-dropoff']",
+    "position": "left",
+    "url_pattern": "/dashboard/projects/*/analytics"
+  }
+]

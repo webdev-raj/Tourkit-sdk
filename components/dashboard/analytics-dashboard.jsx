@@ -89,7 +89,7 @@ export function AnalyticsDashboard({ project, summary, stepData, overTime, isTou
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-8" data-tour="analytics-overview">
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-8" data-tour="analytics-overview" data-tourkit="analytics-overview">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex flex-col gap-2">
           <Link
@@ -125,7 +125,7 @@ export function AnalyticsDashboard({ project, summary, stepData, overTime, isTou
         </Card>
       ) : (
         <>
-          <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4" data-tourkit="analytics-stats">
             <StatCard
               icon={Users}
               iconColor="#F15025"
@@ -158,7 +158,7 @@ export function AnalyticsDashboard({ project, summary, stepData, overTime, isTou
             />
           </section>
 
-          <Card className="rounded-xl border border-white/10 bg-[#111111]">
+          <Card className="rounded-xl border border-white/10 bg-[#111111]" data-tourkit="analytics-timeline">
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-white">
                 <TrendingUp className="size-5 text-primary" />
@@ -207,7 +207,7 @@ export function AnalyticsDashboard({ project, summary, stepData, overTime, isTou
             </CardContent>
           </Card>
 
-          <Card className="rounded-xl border border-white/10 bg-[#111111]">
+          <Card className="rounded-xl border border-white/10 bg-[#111111]" data-tourkit="analytics-dropoff">
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-white">
                 <ArrowDown className="size-5 text-primary" />

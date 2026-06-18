@@ -120,7 +120,7 @@ function InstallSnippetBlock({ scriptKey }) {
   }
 
   return (
-    <div className="flex flex-col gap-2" data-tour="install-snippet">
+    <div className="flex flex-col gap-2" data-tour="install-snippet" data-tourkit="install-snippet">
       <div className="flex items-center justify-between gap-2">
         <Label className="text-xs font-medium text-muted-foreground">Install snippet</Label>
         <Button
@@ -476,7 +476,7 @@ export function TourEditor({ project, tour, initialSteps, analyticsHref }) {
                 <Link href={analyticsHref}><BarChart2Icon className="mr-2 size-4" /> View Analytics</Link>
               </Button>
             ) : null}
-            <div className="flex shrink-0 items-center gap-3 rounded-lg border border-border/50 bg-muted/40 px-3 py-2.5" data-tour="tour-toggle">
+            <div className="flex shrink-0 items-center gap-3 rounded-lg border border-border/50 bg-muted/40 px-3 py-2.5" data-tour="tour-toggle" data-tourkit="tour-toggle">
             <div className="flex flex-col gap-0.5">
               <span className="text-xs font-medium text-muted-foreground">Tour visible on site</span>
               <span className="text-[0.68rem] text-muted-foreground/90">
@@ -495,7 +495,7 @@ export function TourEditor({ project, tour, initialSteps, analyticsHref }) {
 
         <Separator className="bg-border/60" />
 
-        <div className="rounded-lg border border-border/60 bg-muted/20" data-tour="appearance">
+        <div className="rounded-lg border border-border/60 bg-muted/20" data-tour="appearance" data-tourkit="tour-appearance">
           <button
             type="button"
             className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left"
@@ -645,7 +645,7 @@ export function TourEditor({ project, tour, initialSteps, analyticsHref }) {
         {/* Left — steps list */}
         <div
           className="flex h-[670px] min-h-[670px] flex-col rounded-xl border border-white/[0.08] bg-[#0d0d0d] p-5"
-          data-tour="tour-steps">
+          data-tour="tour-steps" data-tourkit="tour-steps">
           <div className="mb-4 shrink-0">
             <h2 className="text-base font-semibold text-foreground">Steps ({steps.length})</h2>
             <p className="mt-0.5 text-xs text-muted-foreground">Drag to reorder</p>
@@ -676,7 +676,7 @@ export function TourEditor({ project, tour, initialSteps, analyticsHref }) {
 
           <div className="tk-scrollbar-hidden min-h-0 flex-1 overflow-y-auto pr-1">
             {steps.length === 0 ? (
-              <div className="flex flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-border/70 bg-muted/20 px-6 py-12 text-center">
+              <div className="flex h-full flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-border/70 bg-muted/20 px-6 py-12 text-center">
                 <div
                   className="flex size-12 items-center justify-center rounded-full border border-border/60 bg-card"
                   style={{ color: ACCENT }}>
@@ -757,7 +757,7 @@ export function TourEditor({ project, tour, initialSteps, analyticsHref }) {
               onClick={() => setShowAIModal(true)}
               disabled={isPending}
               className="tk-ai-generate-btn"
-              data-tour="ai-generate"
+              data-tour="ai-generate" data-tourkit="ai-generate"
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -796,7 +796,7 @@ export function TourEditor({ project, tour, initialSteps, analyticsHref }) {
               variant="outline"
               className="w-full border-dashed border-[#F15025]/50 text-[#F15025] hover:bg-[#F15025]/10"
               disabled={isPending}
-              data-tour="add-step"
+              data-tour="add-step" data-tourkit="add-step"
               onClick={openAddPanel}>
               Add step
             </Button>

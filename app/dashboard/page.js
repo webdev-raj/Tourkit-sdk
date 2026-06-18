@@ -106,7 +106,7 @@ export default async function DashboardProjectsPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="rounded-xl border border-white/10 bg-card/20 px-4 py-5 sm:px-6" data-tour="projects-header">
+      <div className="rounded-xl border border-white/10 bg-card/20 px-4 py-5 sm:px-6" data-tour="projects-header" data-tourkit="projects-header">
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div className="space-y-2">
             <div className="flex items-center gap-3">

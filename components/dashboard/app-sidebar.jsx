@@ -44,7 +44,7 @@ export function AppSidebar({ userEmail, onSignOut }) {
 
       <SidebarSeparator />
 
-      <SidebarContent>
+      <SidebarContent data-tourkit="main-navigation">
         <SidebarGroup>
           <SidebarGroupLabel>Workspace</SidebarGroupLabel>
           <SidebarGroupContent>

@@ -217,7 +217,7 @@ export function ProjectsCards({ projects, appUrl }) {
   const cards = useMemo(() => projects || [], [projects])
 
   return (
-    <div className="flex flex-col gap-4" data-tour="projects-list">
+    <div className="flex flex-col gap-4" data-tour="projects-list" data-tourkit="projects-list">
       {cards.map((p) => (
         <ProjectCard
           key={p.id}

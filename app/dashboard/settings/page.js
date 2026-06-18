@@ -158,14 +158,14 @@ export default function SettingsPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="space-y-2" data-tour="settings-header">
+      <div className="space-y-2" data-tour="settings-header" data-tourkit="settings-header">
         <h1 className="text-3xl font-semibold tracking-tight text-foreground">Settings</h1>
         <p className="text-sm text-muted-foreground">Manage your account and preferences</p>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,22rem)] lg:items-start">
         <div className="flex min-w-0 flex-col gap-6">
-          <Card className="rounded-xl border border-white/10 bg-card/20" data-tour="settings-account">
+          <Card className="rounded-xl border border-white/10 bg-card/20" data-tour="settings-account" data-tourkit="settings-account">
             <CardHeader className="px-6">
               <CardTitle className="flex items-center gap-2">
                 <UserIcon className="size-4 text-primary" aria-hidden />
@@ -206,7 +206,7 @@ export default function SettingsPage() {
             </CardContent>
           </Card>
 
-          <Card className="rounded-xl border border-white/10 bg-card/20" data-tour="settings-profile">
+          <Card className="rounded-xl border border-white/10 bg-card/20" data-tour="settings-profile" data-tourkit="settings-profile">
             <CardHeader className="px-6">
               <CardTitle className="flex items-center gap-2">
                 <PencilIcon className="size-4 text-primary" aria-hidden />
@@ -252,7 +252,7 @@ export default function SettingsPage() {
             </CardContent>
           </Card>
 
-          <Card className="rounded-xl border border-white/10 bg-card/20" data-tour="settings-integration">
+          <Card className="rounded-xl border border-white/10 bg-card/20" data-tour="settings-integration" data-tourkit="settings-integration">
             <CardHeader className="px-6">
               <CardTitle className="flex items-center gap-2">
                 <CodeIcon className="size-4 text-primary" aria-hidden />
@@ -291,7 +291,7 @@ export default function SettingsPage() {
         </div>
 
         <div className="flex min-w-0 flex-col gap-6">
-          <Card className="rounded-xl border border-white/10 bg-[#111111] p-6" data-tour="settings-billing">
+          <Card className="rounded-xl border border-white/10 bg-[#111111] p-6" data-tour="settings-billing" data-tourkit="settings-billing">
             <div className="mb-6 flex items-center gap-2 border-b border-white/10 pb-4">
               <CreditCardIcon className="size-5 text-primary" aria-hidden />
               <h2 className="text-lg font-semibold tracking-tight text-foreground">Billing &amp; Plan</h2>
@@ -306,7 +306,7 @@ export default function SettingsPage() {
             )}
           </Card>
 
-          <Card className="rounded-xl border border-red-900/70 bg-card/20" data-tour="settings-danger-zone">
+          <Card className="rounded-xl border border-red-900/70 bg-card/20" data-tour="settings-danger-zone" data-tourkit="settings-danger-zone">
             <CardHeader className="px-6">
               <CardTitle className="flex items-center gap-2 text-red-300">
                 <AlertTriangleIcon className="size-4 text-red-300" aria-hidden />

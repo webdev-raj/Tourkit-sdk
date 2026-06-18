@@ -25,7 +25,7 @@ export function UserMenu({ email, onSignOut }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" className="gap-2">
+        <Button variant="outline" className="gap-2" data-tourkit="user-profile-menu">
           <Avatar className="size-6">
             <AvatarFallback>{initials(email)}</AvatarFallback>
           </Avatar>
