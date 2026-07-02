@@ -1,6 +1,7 @@
 import localFont from "next/font/local";
 import "./globals.css";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { Analytics } from "@vercel/analytics/next"
 
 const generalSans = localFont({
   src: "./fonts/GeneralSans-Regular.otf",
@@ -27,6 +28,7 @@ export default function RootLayout({ children }) {
           Skip to main content
         </a>
         <TooltipProvider>{children}</TooltipProvider>
+        <Analytics />
       </body>
     </html>
   );
