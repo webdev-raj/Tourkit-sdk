@@ -10,6 +10,11 @@
 - Free: basic templates
 - Pro: full library + custom
 
+Known bugs (fix later):
+- Modal/popup steps get skipped
+- Prev button requires double click 
+  when a step is skipped
+
 📝 Future feature: Announcement Feature
 # V5 — Announcements Feature
 
