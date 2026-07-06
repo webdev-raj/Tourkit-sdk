@@ -7,7 +7,8 @@ import { Button } from '@/components/ui/button'
 import { createClient } from '@/lib/supabase/server'
 
 export const metadata = {
-  title: 'Pricing — TourKit',
+  title: 'Pricing',
+  description: 'TourKit pricing plans. Free plan available. Pro plan at $19/month with unlimited projects and AI tour generator.',
 }
 
 const plans = [

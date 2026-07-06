@@ -5,6 +5,7 @@ import { DOCS_NAV } from '@/components/docs/docs-nav-data'
 
 export const metadata = {
   title: 'Documentation',
+  description: 'Learn how to install and configure TourKit on any website. Guides for React, Next.js, Vue, and plain HTML.',
 }
 
 const highlights = [
