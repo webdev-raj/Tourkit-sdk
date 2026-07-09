@@ -70,6 +70,7 @@ import AIGenerateModal from '@/components/dashboard/ai-generate-modal'
 import AgentPrompt from '@/components/dashboard/agent-prompt'
 import JsonImport from '@/components/dashboard/json-import'
 import { TourPreview } from '@/components/dashboard/tour-preview'
+import { TEMPLATES } from '@/lib/templates'
 
 const POSITION_OPTIONS = [
   { value: 'top', label: 'Top' },
@@ -175,6 +176,7 @@ export function TourEditor({ project, tour, initialSteps, analyticsHref }) {
     font_family: tour.font_family || 'Inter',
     border_radius: tour.border_radius || '10px',
     theme: tour.theme || 'dark',
+    template_id: tour.template_id || 'default',
   })
   const [appearanceFeedback, setAppearanceFeedback] = useState({ ok: false, error: null })
 
@@ -187,8 +189,9 @@ export function TourEditor({ project, tour, initialSteps, analyticsHref }) {
       font_family: tour.font_family || 'Inter',
       border_radius: tour.border_radius || '10px',
       theme: tour.theme || 'dark',
+      template_id: tour.template_id || 'default',
     })
-  }, [tour.primary_color, tour.font_family, tour.border_radius, tour.theme])
+  }, [tour.primary_color, tour.font_family, tour.border_radius, tour.theme, tour.template_id])
 
   useEffect(() => {
     setSteps(initialSorted)
@@ -512,6 +515,188 @@ export function TourEditor({ project, tour, initialSteps, analyticsHref }) {
           {appearanceOpen ? (
             <div className="border-t border-border/60 px-4 py-4">
               <div className="flex flex-col gap-5">
+                <div style={{ marginBottom: '20px' }}>
+                  <label
+                    style={{
+                      color: '#ccc',
+                      fontSize: '13px',
+                      fontWeight: '500',
+                      display: 'block',
+                      marginBottom: '10px',
+                    }}>
+                    Templates
+                  </label>
+
+                  <div
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(4, 1fr)',
+                      gap: '8px',
+                    }}>
+                    {TEMPLATES.map((template) => {
+                      const isLocked = !template.free && !isPro
+                      const isActive = appearanceState.template_id === template.id
+
+                      return (
+                        <button
+                          key={template.id}
+                          type="button"
+                          onClick={() => {
+                            if (isLocked) return
+                            setAppearanceState((prev) => ({
+                              ...prev,
+                              ...template.preview,
+                              template_id: template.id,
+                            }))
+                          }}
+                          title={template.name}
+                          style={{
+                            position: 'relative',
+                            padding: '0',
+                            border: isActive ? '2px solid #F15025' : '2px solid rgba(255,255,255,0.08)',
+                            borderRadius: '10px',
+                            background: '#0a0a0a',
+                            cursor: isLocked ? 'not-allowed' : 'pointer',
+                            overflow: 'hidden',
+                            aspectRatio: '1',
+                            transition: 'all 0.15s ease',
+                            opacity: isLocked ? 0.5 : 1,
+                          }}>
+                          <div
+                            style={{
+                              width: '100%',
+                              height: '100%',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              padding: '6px',
+                              background: '#111',
+                            }}>
+                            <div
+                              style={{
+                                width: '100%',
+                                background: 'rgba(10,10,10,0.95)',
+                                borderRadius:
+                                  template.preview.border_radius === '4px'
+                                    ? '2px'
+                                    : template.preview.border_radius === '24px'
+                                      ? '8px'
+                                      : '4px',
+                                padding: '4px',
+                                border: `1px solid ${template.preview.primary_color}33`,
+                              }}>
+                              <div
+                                style={{
+                                  width: '12px',
+                                  height: '3px',
+                                  borderRadius: '2px',
+                                  background: template.preview.primary_color,
+                                  marginBottom: '3px',
+                                }}
+                              />
+                              <div
+                                style={{
+                                  width: '80%',
+                                  height: '2px',
+                                  background: 'rgba(255,255,255,0.4)',
+                                  borderRadius: '1px',
+                                  marginBottom: '2px',
+                                }}
+                              />
+                              <div
+                                style={{
+                                  width: '60%',
+                                  height: '2px',
+                                  background: 'rgba(255,255,255,0.15)',
+                                  borderRadius: '1px',
+                                  marginBottom: '4px',
+                                }}
+                              />
+                              <div
+                                style={{
+                                  width: '40%',
+                                  height: '4px',
+                                  background: template.preview.primary_color,
+                                  borderRadius: '1px',
+                                  marginLeft: 'auto',
+                                }}
+                              />
+                            </div>
+                          </div>
+
+                          <div
+                            style={{
+                              position: 'absolute',
+                              bottom: '0',
+                              left: '0',
+                              right: '0',
+                              background: 'rgba(0,0,0,0.8)',
+                              padding: '2px 4px',
+                              fontSize: '9px',
+                              color: '#fff',
+                              textAlign: 'center',
+                              fontWeight: '500',
+                            }}>
+                            {template.name}
+                          </div>
+
+                          {isLocked ? (
+                            <div
+                              style={{
+                                position: 'absolute',
+                                top: '4px',
+                                right: '4px',
+                                background: '#F15025',
+                                color: '#fff',
+                                fontSize: '7px',
+                                fontWeight: '700',
+                                padding: '1px 4px',
+                                borderRadius: '3px',
+                              }}>
+                              PRO
+                            </div>
+                          ) : null}
+
+                          {isActive ? (
+                            <div
+                              style={{
+                                position: 'absolute',
+                                top: '4px',
+                                left: '4px',
+                                background: '#F15025',
+                                borderRadius: '50%',
+                                width: '14px',
+                                height: '14px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                fontSize: '8px',
+                                color: '#fff',
+                              }}>
+                              ✓
+                            </div>
+                          ) : null}
+                        </button>
+                      )
+                    })}
+                  </div>
+
+                  {!isPro ? (
+                    <p
+                      style={{
+                        color: '#444',
+                        fontSize: '11px',
+                        marginTop: '8px',
+                        textAlign: 'center',
+                      }}>
+                      <a href="/pricing" style={{ color: '#F15025' }}>
+                        Upgrade to Pro
+                      </a>{' '}
+                      to unlock all templates
+                    </p>
+                  ) : null}
+                </div>
+
                 <div className="flex flex-col gap-2">
                   <Label>Theme</Label>
                   <div className="grid grid-cols-2 gap-2">

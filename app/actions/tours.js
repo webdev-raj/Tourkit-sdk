@@ -7,7 +7,7 @@ import { createClient } from '@/lib/supabase/server'
 const POSITIONS = new Set(['top', 'bottom', 'left', 'right'])
 const TOUR_THEMES = new Set(['dark', 'light'])
 const TOUR_FONTS = new Set(['Inter', 'Geist', 'System', 'Roboto', 'Poppins'])
-const TOUR_RADII = new Set(['4px', '8px', '10px', '16px', '24px'])
+const TOUR_RADII = new Set(['4px', '8px', '10px', '12px', '14px', '16px', '20px', '24px'])
 
 function formatDbError(error) {
   const msg = String(error?.message ?? '')
@@ -75,7 +75,7 @@ export async function getTourByProjectId(projectId) {
 
   let { data: existing, error: fetchError } = await supabase
     .from('tours')
-    .select('id, project_id, name, is_active, primary_color, font_family, border_radius, theme, created_at')
+    .select('id, project_id, name, is_active, primary_color, font_family, border_radius, theme, template_id, created_at')
     .eq('project_id', projectId)
     .order('created_at', { ascending: true })
     .limit(1)
@@ -88,7 +88,8 @@ export async function getTourByProjectId(projectId) {
       String(fetchError.message || '').toLowerCase().includes('primary_color') ||
       String(fetchError.message || '').toLowerCase().includes('font_family') ||
       String(fetchError.message || '').toLowerCase().includes('border_radius') ||
-      String(fetchError.message || '').toLowerCase().includes('theme')
+      String(fetchError.message || '').toLowerCase().includes('theme') ||
+      String(fetchError.message || '').toLowerCase().includes('template_id')
     )
 
   if (missingCustomizationColumns) {
@@ -116,6 +117,7 @@ export async function getTourByProjectId(projectId) {
         font_family: existing.font_family || 'Inter',
         border_radius: existing.border_radius || '10px',
         theme: existing.theme || 'dark',
+        template_id: existing.template_id || 'default',
       },
       error: null,
     }
@@ -139,6 +141,7 @@ export async function getTourByProjectId(projectId) {
       font_family: 'Inter',
       border_radius: '10px',
       theme: 'dark',
+      template_id: 'default',
     },
     error: null,
   }
@@ -392,6 +395,7 @@ export async function updateTourCustomization(tourId, data) {
   const fontFamily = String(data?.font_family ?? '').trim()
   const borderRadius = String(data?.border_radius ?? '').trim()
   const theme = String(data?.theme ?? '').trim().toLowerCase()
+  const templateId = String(data?.template_id ?? 'default').trim() || 'default'
 
   if (!isValidHexColor(primaryColor)) {
     return { ok: false, error: 'Primary color must be a valid hex color like #F15025.' }
@@ -413,6 +417,7 @@ export async function updateTourCustomization(tourId, data) {
       font_family: fontFamily,
       border_radius: borderRadius,
       theme,
+      template_id: templateId,
     })
     .eq('id', tourId)
 
@@ -425,7 +430,8 @@ export async function updateTourCustomization(tourId, data) {
         lower.includes('primary_color') ||
         lower.includes('font_family') ||
         lower.includes('border_radius') ||
-        lower.includes('theme')
+        lower.includes('theme') ||
+        lower.includes('template_id')
       )
 
     if (missingCustomizationColumns) {
@@ -436,7 +442,8 @@ export async function updateTourCustomization(tourId, data) {
           "alter table tours add column if not exists primary_color text default '#F15025', " +
           "add column if not exists font_family text default 'Inter', " +
           "add column if not exists border_radius text default '10px', " +
-          "add column if not exists theme text default 'dark';",
+          "add column if not exists theme text default 'dark', " +
+          "add column if not exists template_id text default 'default';",
       }
     }
 
