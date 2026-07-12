@@ -1,37 +1,25 @@
 # TourKit
 
-> Onboarding tours for any website — one script tag, zero config.
+> Product tours for any website.
+> One script tag. No npm install. 
+> Works on React, Next.js, Vue, 
+> WordPress, and plain HTML.
 
 ![TourKit Dashboard](doc/images/dashboard.png)
 
-TourKit lets you create guided onboarding tours for any website 
-from a simple dashboard. Add steps, configure messages, and your 
-visitors get a smooth walkthrough automatically.
-
----
-
-## ✨ See it in action
-
 ![Tour Preview](doc/images/tour-preview.png)
 
+<!-- Badges row -->
+[![License: MIT](https://img.shields.io/badge/License-MIT-orange.svg)](LICENSE)
+[![CDN](https://img.shields.io/badge/CDN-jsDelivr-orange)](https://cdn.jsdelivr.gh/webdev-raj/Tourkit@sdk-v14/sdk/dist/tourkit.min.js)
+[![Live Demo](https://img.shields.io/badge/Live-Demo-orange)](https://tourkit-phi.vercel.app/demo)
+[![Dashboard](https://img.shields.io/badge/Dashboard-Live-orange)](https://tourkit-phi.vercel.app)
+
 ---
 
-## 🚀 How it works
+## ⚡ Quick Start
 
-**1. Create a project in the dashboard**
-
-Sign up, create a project, and get your unique script key.
-
-**2. Add tour steps**
-
-![Step Editor](doc/images/editor.png)
-
-Configure each step with a title, message, and CSS selector 
-that points to any element on your page.
-
-**3. Paste the script tag**
-
-![Install Snippet](doc/images/install.png)
+Paste this before </body> on any website:
 
 ```html
 <script
@@ -42,24 +30,201 @@ that points to any element on your page.
 </script>
 ```
 
-Paste this before `</body>` on your website. That's it.
+![Install Snippet](doc/images/install.png)
 
-**4. Visitors get an automatic guided tour**
-
-First time visitors see a smooth step-by-step walkthrough 
-with highlighted elements and tooltips.
+That's it. Go to the dashboard, 
+create your tour steps, and they 
+appear on your site automatically.
+No redeployment needed.
 
 ---
 
-## 🧩 Features
+## 🆚 Why TourKit
 
-- **Zero config** — paste one script tag and it works
-- **Visual step editor** — no code needed to configure tours
-- **CSS selector targeting** — highlight any element on your page
-- **Smart positioning** — tooltips auto-position to stay in viewport
-- **First visit only** — tour shows once per visitor automatically
-- **Analytics tracking** — see starts, completions, and skip rates
-- **Works everywhere** — any website, any framework, any stack
+| | TourKit | Intercom | Shepherd.js |
+|--|---------|----------|-------------|
+| Price | $19/mo | $500+/mo | Free |
+| Setup | 1 script tag | Full SDK | npm install |
+| Mobile support | ✅ Bottom sheet | ❌ None | ⚠️ Broken |
+| Framework lock-in | ❌ None | ✅ Required | ✅ Required |
+| Dashboard control | ✅ Yes | ✅ Yes | ❌ No |
+| URL-based triggers | ✅ Yes | ✅ Yes | ❌ No |
+| Analytics | ✅ Built-in | ✅ Yes | ❌ No |
+
+---
+
+## ✨ Features
+
+**Context-aware tours**
+Trigger steps by URL — exact paths, 
+dynamic segments (/projects/[id]), 
+or wildcards (/dashboard/*).
+Right step, right page, automatically.
+
+**Mobile bottom sheet**
+The only tour SDK with native mobile support.
+Element stays highlighted at top.
+Tooltip slides up from bottom.
+Feels intentional, not broken.
+
+**One script embed**
+Vanilla JS SDK via CDN.
+Zero framework lock-in.
+Works on React, Next.js, Vue, 
+WordPress, and plain HTML.
+
+**Dashboard controlled**
+Publish step changes without redeploying.
+Your site fetches config dynamically.
+Update tours in seconds.
+
+![Step Editor](doc/images/editor.png)
+
+**Step analytics**
+Completion rates, drop-off per step,
+and session tracking built into 
+every project automatically.
+
+**AI tour generator (Pro)**
+Describe your product → AI generates
+ready-to-use tour steps instantly.
+
+**Agent-ready JSON import (Pro)**
+Paste our prompt into Cursor or Claude.
+Agent analyzes your codebase, adds 
+data-tourkit attributes, generates tour.json.
+Drag and drop to import. Done in 2 minutes.
+
+**Prebuilt templates**
+One click → your tour matches a 
+professional design system instantly.
+Obsidian, Chalk, Matrix, Sakura and more.
+
+---
+
+## 🌐 Framework Support
+
+### React / Next.js
+
+Add TourKitProvider for client-side 
+navigation support:
+
+```jsx
+'use client'
+import { useEffect } from 'react'
+import { usePathname } from 'next/navigation'
+
+export default function TourKitProvider() {
+  const pathname = usePathname()
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      window.TourKit?.startFor(pathname)
+    }, 500)
+    return () => clearTimeout(timer)
+  }, [pathname])
+
+  return null
+}
+
+// Add to your root layout:
+// <TourKitProvider />
+```
+
+### Vue
+
+```js
+// In your router
+router.afterEach((to) => {
+  setTimeout(() => {
+    window.TourKit?.startFor(to.path)
+  }, 500)
+})
+```
+
+### Plain HTML
+
+```html
+<!-- Just paste before </body> -->
+<script
+  src="https://cdn.jsdelivr.net/gh/webdev-raj/Tourkit@sdk-v14/sdk/dist/tourkit.min.js"
+  data-key="YOUR_SCRIPT_KEY"
+  data-api="https://tourkit-phi.vercel.app"
+  async>
+</script>
+```
+
+---
+
+## 🎮 Global API
+
+After the script loads, control tours 
+programmatically from anywhere:
+
+```js
+// Start tour for specific page
+window.TourKit.startFor('/dashboard')
+
+// Start from beginning
+window.TourKit.start()
+
+// Destroy active tour
+window.TourKit.destroy()
+
+// Reset seen flag for a path
+window.TourKit.reset('/dashboard')
+
+// Reset all seen flags
+window.TourKit.resetAll()
+```
+
+---
+
+## 🤖 AI Agent Integration (Pro)
+
+The fastest way to set up TourKit:
+
+1. Copy the AI prompt from your dashboard
+2. Paste into Cursor, Claude Code, 
+   or GitHub Copilot
+3. Agent analyzes your codebase,
+   adds data-tourkit attributes,
+   generates tour.json automatically
+4. Drag tour.json into TourKit dashboard
+5. Tour is live in under 2 minutes
+
+---
+
+## 📊 Analytics
+
+Every project gets built-in analytics:
+
+- Tour start rate
+- Completion rate  
+- Skip rate
+- Step-by-step drop-off
+- Session tracking
+
+No extra setup needed.
+
+---
+
+## 💰 Pricing
+
+**Free**
+- 1 project
+- Basic analytics
+- 3 prebuilt templates
+- Community support
+
+**Pro — $19/month**
+- Unlimited projects
+- Full analytics dashboard
+- All prebuilt templates
+- AI tour generator
+- JSON import with agent prompt
+- No TourKit branding
+- Priority support
 
 ---
 
@@ -92,11 +257,38 @@ cd Tourkit
 npm install
 ```
 
-### 3. Set up Supabase
+### 3. Set up environment variables
 
-- Create a project at supabase.com
-- Go to Settings → API and copy your keys
-- Run the schema in Supabase SQL Editor:
+```bash
+cp .env.local.example .env.local
+```
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+ANTHROPIC_API_KEY=your_anthropic_key
+```
+
+### 4. Run dev server
+
+```bash
+npm run dev
+```
+
+### 5. Build SDK
+
+```bash
+cd sdk
+npm install
+npm run build
+```
+
+### 6. Supabase Database Schema
+
+Run the following schema in the Supabase SQL Editor (or as a migration) to set up the necessary tables, indexes, and Row Level Security (RLS) policies:
+
 ```html
 // TourKit (Supabase) schema + RLS
 // Run in Supabase SQL Editor (or as a migration).
@@ -204,97 +396,29 @@ create policy "Users can read analytics events" on analytics_events
   using (
     project_id in (select id from projects where user_id = auth.uid())
   );
-
 ```
-
-### 4. Configure environment variables
-
-```bash
-cp .env.local.example .env.local
-```
-
-Fill in your values:
-
-```env
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
-NEXT_PUBLIC_APP_URL=http://localhost:3000
-```
-
-### 5. Run the dev server
-
-```bash
-npm run dev
-```
-
-Open http://localhost:3000
-
----
-
-## 📦 SDK Development
-
-The SDK is a standalone vanilla JS file that runs on 
-customer websites.
-
-### Build the SDK
-
-```bash
-cd sdk
-npm install
-npm run build
-```
-
-Output: `sdk/dist/tourkit.min.js`
-
-### Test locally
-
-Open `sdk/test.html` in your browser after building.
-
-### Build for production
-
-```bash
-$env:TK_API_ORIGIN="https://your-domain.vercel.app"; npm run build
-```
-
----
-
-## 🗄️ Database Schema
-
-| Table | Purpose |
-|-------|---------|
-| projects | One per website, stores script key |
-| tours | One per project |
-| steps | Ordered steps for each tour |
-| analytics_events | Tour and step events |
-
-Full schema in `doc/schema.sql`
-
----
-
-## ⚙️ Environment Variables
-
-| Variable | Description |
-|----------|-------------|
-| NEXT_PUBLIC_SUPABASE_URL | Supabase project URL |
-| NEXT_PUBLIC_SUPABASE_ANON_KEY | Supabase anon key |
-| SUPABASE_SERVICE_ROLE_KEY | Supabase service role key |
-| NEXT_PUBLIC_APP_URL | Your production app URL |
 
 ---
 
 ## 🗺️ Roadmap
 
-- [x] Dashboard and project management
-- [x] Step editor with CSS selector targeting
-- [x] Vanilla JS SDK
-- [x] CDN hosting
-- [x] Analytics event tracking
-- [ ] Analytics dashboard UI
-- [ ] Pricing and paid plans
-- [ ] Tour preview in dashboard
-- [ ] Drag and drop step reordering
+- [x] One script tag SDK
+- [x] Dashboard tour builder
+- [x] CSS selector targeting
+- [x] Analytics tracking
+- [x] URL-based tour triggers
+- [x] Mobile bottom sheet tours
+- [x] AI tour generator
+- [x] JSON drag and drop import
+- [x] Prebuilt tooltip templates
+- [x] Google OAuth
+- [ ] npm package
+- [ ] Vue plugin
+- [ ] Checklist widget
+- [ ] Video tours
+- [ ] A/B testing
 - [ ] Multi-language support
+- [ ] Team collaboration
 
 ---
 
@@ -307,4 +431,6 @@ MIT © Raj Chavan
 ## 🔗 Links
 
 - **Live app:** https://tourkit-phi.vercel.app
+- **Docs:** https://tourkit-phi.vercel.app/docs
+- **Live demo:** https://tourkit-phi.vercel.app/demo
 - **GitHub:** https://github.com/webdev-raj/Tourkit
