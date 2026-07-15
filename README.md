@@ -5,7 +5,7 @@
 > No npm install. No framework lock-in.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-orange.svg)](LICENSE)
-[![jsDelivr](https://img.shields.io/badge/CDN-jsDelivr-orange)](https://cdn.jsdelivr.net/gh/webdev-raj/Tourkit-sdk@v1.0.0/dist/tourkit.min.js)
+[![jsDelivr](https://img.shields.io/badge/CDN-jsDelivr-orange)](https://cdn.jsdelivr.net/gh/webdev-raj/Tourkit-sdk@v1.0.0-sdk/sdk/dist/tourkit.min.js)
 [![Dashboard](https://img.shields.io/badge/Dashboard-Live-orange)](https://tourkit-phi.vercel.app)
 [![Demo](https://img.shields.io/badge/Live-Demo-orange)](https://tourkit-phi.vercel.app/demo)
 
@@ -32,7 +32,7 @@ Paste before </body> on any website:
 
 ```html
 <script
-  src="https://cdn.jsdelivr.net/gh/webdev-raj/Tourkit-sdk@v1.0.0/dist/tourkit.min.js"
+  src="https://cdn.jsdelivr.net/gh/webdev-raj/Tourkit-sdk@v1.0.0-sdk/sdk/dist/tourkit.min.js"
   data-key="YOUR_SCRIPT_KEY"
   data-api="https://tourkit-phi.vercel.app"
   async>
@@ -124,7 +124,7 @@ router.afterEach((to) => {
 ```html
 <!-- Just paste before </body> -->
 <script
-  src="https://cdn.jsdelivr.net/gh/webdev-raj/Tourkit-sdk@v1.0.0/dist/tourkit.min.js"
+  src="https://cdn.jsdelivr.net/gh/webdev-raj/Tourkit-sdk@v1.0.0-sdk/sdk/dist/tourkit.min.js"
   data-key="YOUR_SCRIPT_KEY"
   data-api="https://tourkit-phi.vercel.app"
   async>
