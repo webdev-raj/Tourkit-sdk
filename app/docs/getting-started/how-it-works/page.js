@@ -16,7 +16,7 @@ export default function Page() {
       />
 
       <DocImage
-        src={null}
+        src="/ref-images/architecture-diagram.png"
         placeholder="Architecture diagram — SDK fetches config from API and renders tooltip"
         caption="How TourKit works: one script tag connects your site to the dashboard"
       />
