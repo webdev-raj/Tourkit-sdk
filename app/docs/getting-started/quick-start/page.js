@@ -50,7 +50,7 @@ export default function Page() {
         <DocH2>1. Create a project</DocH2>
         <DocP>In the dashboard, create a project and note your unique script key.</DocP>
         <DocImage
-          src={null}
+          src="/ref-images/deshboard.png"
           placeholder="Dashboard — Create a project and copy your script key"
           caption="Step 1: Create a project in the dashboard"
         />
@@ -67,7 +67,7 @@ export default function Page() {
           The <code className="rounded-md border border-white/10 bg-[#0c0c0c] px-1.5 py-0.5 font-mono text-[0.9em] text-primary">data-api</code> attribute tells the SDK where to fetch your tour configuration from.
         </p>
         <DocImage
-          src={null}
+          src="/ref-images/installsnipet.png"
           placeholder="Install snippet — Script tag in your HTML"
           caption="Step 2: Paste the script tag before </body>"
         />
@@ -81,7 +81,7 @@ export default function Page() {
           <DocLi>Activate the tour when you are ready.</DocLi>
         </DocOl>
         <DocImage
-          src={null}
+          src="/ref-images/toureditor.png"
           placeholder="Tour editor — Add steps with CSS selectors"
           caption="Step 3: Configure your tour steps"
         />
@@ -94,7 +94,7 @@ export default function Page() {
           Use the hosted demo route or your staging URL first, then roll out to production.
         </DocCallout>
         <DocImage
-          src={null}
+          src="/ref-images/livetour.png"
           placeholder="Live tour — Tooltip appearing on your website"
           caption="Step 4: Tour running on your website"
         />
