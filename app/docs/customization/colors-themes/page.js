@@ -1,6 +1,7 @@
 import { DocH2, DocLi, DocP, DocSection, DocUl } from '@/components/docs/doc-article'
 import { DocHeader } from '@/components/docs/doc-header'
 import DocImage from '@/components/docs/doc-image'
+import { DOC_IMAGES } from '@/lib/doc-images'
 
 export const metadata = {
   title: 'Colors and themes',
@@ -22,7 +23,7 @@ export default function Page() {
           <code className="rounded bg-[#0c0c0c] px-1.5 py-0.5 font-mono text-[13px] text-primary">#F15025</code>.
         </DocP>
         <DocImage
-          src="/ref-images/apperences.png"
+          src={DOC_IMAGES.appearances}
           placeholder="Appearance panel — Color swatches in tour editor"
           caption="Color customization in the tour editor"
         />
@@ -39,7 +40,7 @@ export default function Page() {
           </DocLi>
         </DocUl>
         <DocImage
-          src="/ref-images/customcolor.png"
+          src={DOC_IMAGES.customColor}
           placeholder="Custom colored tooltip — Orange vs Blue vs Green theme"
           caption="Tooltip with different primary colors applied"
         />

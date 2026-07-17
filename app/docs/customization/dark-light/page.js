@@ -1,6 +1,7 @@
 import { DocCallout, DocH2, DocLi, DocP, DocSection, DocUl } from '@/components/docs/doc-article'
 import { DocHeader } from '@/components/docs/doc-header'
 import DocImage from '@/components/docs/doc-image'
+import { DOC_IMAGES } from '@/lib/doc-images'
 
 export const metadata = {
   title: 'Dark vs Light mode',
@@ -16,7 +17,7 @@ export default function Page() {
       />
 
       <DocImage
-        src="/ref-images/theme.png"
+        src={DOC_IMAGES.theme}
         placeholder="Dark vs Light tooltip — Both themes side by side"
         caption="Dark theme (left) and Light theme (right)"
       />

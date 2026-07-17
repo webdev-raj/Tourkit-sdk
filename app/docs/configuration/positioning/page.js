@@ -1,6 +1,7 @@
 import { DocH2, DocLi, DocP, DocSection, DocUl } from '@/components/docs/doc-article'
 import { DocHeader } from '@/components/docs/doc-header'
 import DocImage from '@/components/docs/doc-image'
+import { DOC_IMAGES } from '@/lib/doc-images'
 
 export const metadata = {
   title: 'Step positioning',
@@ -29,7 +30,7 @@ export default function Page() {
           </DocLi>
         </DocUl>
         <DocImage
-          src="/ref-images/positiondiagram.png"
+          src={DOC_IMAGES.positionDiagram}
           placeholder="Position diagram — Top, Bottom, Left, Right tooltip positions"
           caption="Four tooltip positions relative to the highlighted element"
         />

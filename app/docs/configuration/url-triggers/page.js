@@ -2,6 +2,7 @@ import { DocH2, DocH3, DocLi, DocOl, DocP, DocSection, DocUl } from '@/component
 import { DocHeader } from '@/components/docs/doc-header'
 import CodeBlock from '@/components/docs/code-block'
 import DocImage from '@/components/docs/doc-image'
+import { DOC_IMAGES } from '@/lib/doc-images'
 
 const TRIGGER_EXAMPLE = `Step 1: no url → shows on / (welcome)
 Step 2: no url → shows on / (feature overview)
@@ -91,7 +92,7 @@ export default function Page() {
         </DocP>
         <ContextAwareTable />
         <DocImage
-          src="/ref-images/contextaware-diagram.png"
+          src={DOC_IMAGES.contextawareDiagram}
           placeholder="Context-aware diagram — Different steps showing on different pages"
           caption="Context-aware mode: each page gets its own tour"
         />
@@ -159,7 +160,7 @@ export default function Page() {
           </DocLi>
         </DocOl>
         <DocImage
-          src="/ref-images/muiltpage.png"
+          src={DOC_IMAGES.multipage}
           placeholder="Multi-page demo — Dashboard, Projects, Settings pages in demo"
           caption="Use the Live Demo to test URL triggers"
         />

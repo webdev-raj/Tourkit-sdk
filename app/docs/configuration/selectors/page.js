@@ -2,6 +2,7 @@ import { DocCallout, DocH2, DocH3, DocLi, DocP, DocSection, DocUl } from '@/comp
 import { DocHeader } from '@/components/docs/doc-header'
 import CodeBlock from '@/components/docs/code-block'
 import DocImage from '@/components/docs/doc-image'
+import { DOC_IMAGES } from '@/lib/doc-images'
 
 const SELECTOR_EXAMPLE = `document.querySelector('[data-tour="billing"]')`
 
@@ -32,7 +33,7 @@ export default function Page() {
         <DocH2>Practical reference</DocH2>
         <SelectorReferenceTable />
         <DocImage
-          src="/ref-images/cssinspect.png"
+          src={DOC_IMAGES.cssInspect}
           placeholder="Browser DevTools — Inspect element to find CSS selector"
           caption="Use DevTools to find the right CSS selector"
         />
@@ -96,7 +97,7 @@ export default function Page() {
           Without it, the SDK only runs on initial page load and misses route changes.
         </DocP>
         <DocImage
-          src="/ref-images/consoleapi.png"
+          src={DOC_IMAGES.consoleApi}
           placeholder="Browser console — window.TourKit API methods"
           caption="TourKit API available in browser console"
         />

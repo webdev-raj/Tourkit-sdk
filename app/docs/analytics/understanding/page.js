@@ -1,6 +1,7 @@
 import { DocH2, DocLi, DocP, DocSection, DocUl } from '@/components/docs/doc-article'
 import { DocHeader } from '@/components/docs/doc-header'
 import DocImage from '@/components/docs/doc-image'
+import { DOC_IMAGES } from '@/lib/doc-images'
 
 export const metadata = {
   title: 'Understanding your data',
@@ -29,7 +30,7 @@ export default function Page() {
           </DocLi>
         </DocUl>
         <DocImage
-          src="/ref-images/analyticsDashboard.png"
+          src={DOC_IMAGES.analyticsDashboard}
           placeholder="Analytics dashboard — Tour started, completed, skipped stats"
           caption="Analytics dashboard showing tour performance metrics"
         />

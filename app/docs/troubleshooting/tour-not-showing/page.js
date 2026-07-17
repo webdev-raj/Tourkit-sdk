@@ -1,6 +1,7 @@
 import { DocH2, DocP, DocSection } from '@/components/docs/doc-article'
 import { DocHeader } from '@/components/docs/doc-header'
 import DocImage from '@/components/docs/doc-image'
+import { DOC_IMAGES } from '@/lib/doc-images'
 
 export const metadata = {
   title: 'Tour not showing',
@@ -80,7 +81,7 @@ export default function Page() {
           </li>
         </ul>
         <DocImage
-          src="/ref-images/error.png"
+          src={DOC_IMAGES.error}
           placeholder="Network tab — Request to /api/tour/scriptKey"
           caption="Check Network tab to verify SDK is fetching tour config"
         />

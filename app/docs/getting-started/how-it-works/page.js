@@ -1,6 +1,7 @@
 import { DocCallout, DocH2, DocLi, DocP, DocSection, DocUl } from '@/components/docs/doc-article'
 import { DocHeader } from '@/components/docs/doc-header'
 import DocImage from '@/components/docs/doc-image'
+import { DOC_IMAGES } from '@/lib/doc-images'
 
 export const metadata = {
   title: 'How it works',
@@ -16,7 +17,7 @@ export default function Page() {
       />
 
       <DocImage
-        src="/ref-images/architecture-diagram.png"
+        src={DOC_IMAGES.architectureDiagram}
         placeholder="Architecture diagram — SDK fetches config from API and renders tooltip"
         caption="How TourKit works: one script tag connects your site to the dashboard"
       />
