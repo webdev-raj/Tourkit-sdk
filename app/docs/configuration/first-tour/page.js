@@ -24,12 +24,12 @@ export default function Page() {
           <DocLi>Preview positioning, then activate the tour.</DocLi>
         </DocOl>
         <DocImage
-          src={null}
+          src="/ref-images/project_form.png"
           placeholder="New project form — Project name and domain fields"
           caption="Creating a new project in the dashboard"
         />
         <DocImage
-          src={null}
+          src="/ref-images/toureditorr.png"
           placeholder="Tour editor — Empty state with Add step button"
           caption="Tour editor ready for your first step"
         />

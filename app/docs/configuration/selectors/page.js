@@ -32,7 +32,7 @@ export default function Page() {
         <DocH2>Practical reference</DocH2>
         <SelectorReferenceTable />
         <DocImage
-          src={null}
+          src="/ref-images/cssinspect.png"
           placeholder="Browser DevTools — Inspect element to find CSS selector"
           caption="Use DevTools to find the right CSS selector"
         />
@@ -96,7 +96,7 @@ export default function Page() {
           Without it, the SDK only runs on initial page load and misses route changes.
         </DocP>
         <DocImage
-          src={null}
+          src="/ref-images/consoleapi.png"
           placeholder="Browser console — window.TourKit API methods"
           caption="TourKit API available in browser console"
         />

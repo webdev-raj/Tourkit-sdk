@@ -53,7 +53,7 @@ export default function Page() {
           </DocLi>
         </DocUl>
         <DocImage
-          src={null}
+          src="/ref-images/stepeditor.png"
           placeholder="Step editor — Title, message, CSS selector and position fields"
           caption="Step editor with all configuration fields"
         />
@@ -109,7 +109,7 @@ export default function Page() {
         </DocP>
         <CodeBlock code={WILDCARD_EXAMPLE} language="text" />
         <DocImage
-          src={null}
+          src="/ref-images/trigger_url.png"
           placeholder="Trigger URL field — Optional URL path input in step editor"
           caption="Setting a Trigger URL for context-aware tours"
         />

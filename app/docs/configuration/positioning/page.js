@@ -29,7 +29,7 @@ export default function Page() {
           </DocLi>
         </DocUl>
         <DocImage
-          src={null}
+          src="/ref-images/positiondiagram.png"
           placeholder="Position diagram — Top, Bottom, Left, Right tooltip positions"
           caption="Four tooltip positions relative to the highlighted element"
         />

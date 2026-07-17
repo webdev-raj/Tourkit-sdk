@@ -91,7 +91,7 @@ export default function Page() {
         </DocP>
         <ContextAwareTable />
         <DocImage
-          src={null}
+          src="/ref-images/contextaware-diagram.png"
           placeholder="Context-aware diagram — Different steps showing on different pages"
           caption="Context-aware mode: each page gets its own tour"
         />
@@ -159,7 +159,7 @@ export default function Page() {
           </DocLi>
         </DocOl>
         <DocImage
-          src={null}
+          src="/ref-images/muiltpage.png"
           placeholder="Multi-page demo — Dashboard, Projects, Settings pages in demo"
           caption="Use the Live Demo to test URL triggers"
         />
