@@ -29,7 +29,7 @@ export default function Page() {
           </DocLi>
         </DocUl>
         <DocImage
-          src={null}
+          src="/ref-images/analyticsDashboard.png"
           placeholder="Analytics dashboard — Tour started, completed, skipped stats"
           caption="Analytics dashboard showing tour performance metrics"
         />

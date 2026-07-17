@@ -19,7 +19,7 @@ export default function Page() {
         <DocH2>Reading the funnel</DocH2>
         <DocP>Step-view counts show where attention concentrates; compare consecutive steps to spot cliffs.</DocP>
         <DocImage
-          src={null}
+          src="/ref-images/stepdropof.png"
           placeholder="Step dropoff chart — Bar chart showing views per step"
           caption="Step dropoff chart showing where users stop"
         />

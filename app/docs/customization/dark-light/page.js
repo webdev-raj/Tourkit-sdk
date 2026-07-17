@@ -16,7 +16,7 @@ export default function Page() {
       />
 
       <DocImage
-        src={null}
+        src="/ref-images/theme.png"
         placeholder="Dark vs Light tooltip — Both themes side by side"
         caption="Dark theme (left) and Light theme (right)"
       />

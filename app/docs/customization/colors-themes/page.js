@@ -22,7 +22,7 @@ export default function Page() {
           <code className="rounded bg-[#0c0c0c] px-1.5 py-0.5 font-mono text-[13px] text-primary">#F15025</code>.
         </DocP>
         <DocImage
-          src={null}
+          src="/ref-images/apperences.png"
           placeholder="Appearance panel — Color swatches in tour editor"
           caption="Color customization in the tour editor"
         />
@@ -39,7 +39,7 @@ export default function Page() {
           </DocLi>
         </DocUl>
         <DocImage
-          src={null}
+          src="/ref-images/customcolor.png"
           placeholder="Custom colored tooltip — Orange vs Blue vs Green theme"
           caption="Tooltip with different primary colors applied"
         />

@@ -80,7 +80,7 @@ export default function Page() {
           </li>
         </ul>
         <DocImage
-          src={null}
+          src="/ref-images/error.png"
           placeholder="Network tab — Request to /api/tour/scriptKey"
           caption="Check Network tab to verify SDK is fetching tour config"
         />
