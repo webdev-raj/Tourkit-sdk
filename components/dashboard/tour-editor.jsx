@@ -71,6 +71,7 @@ import AgentPrompt from '@/components/dashboard/agent-prompt'
 import JsonImport from '@/components/dashboard/json-import'
 import { TourPreview } from '@/components/dashboard/tour-preview'
 import { TEMPLATES } from '@/lib/templates'
+import { getSnippet, LATEST_SDK_VERSION } from '@/lib/sdk-version'
 
 const POSITION_OPTIONS = [
   { value: 'top', label: 'Top' },
@@ -98,21 +99,13 @@ const RADIUS_OPTIONS = [
   { value: '24px', label: 'Pill' },
 ]
 
-function buildInstallSnippet(scriptKey) {
-  return `<script 
-  src="https://cdn.jsdelivr.net/gh/webdev-raj/Tourkit@sdk-v14/sdk/dist/tourkit.min.js" 
-  data-key="${scriptKey}"
-  async>
-</script>`
-}
-
 function positionPillLabel(position) {
   return String(position || 'bottom').toUpperCase()
 }
 
 function InstallSnippetBlock({ scriptKey }) {
   const [copied, setCopied] = useState(false)
-  const snippet = useMemo(() => buildInstallSnippet(scriptKey), [scriptKey])
+  const snippet = useMemo(() => getSnippet(scriptKey, LATEST_SDK_VERSION), [scriptKey])
 
   async function onCopy() {
     await navigator.clipboard.writeText(snippet)
@@ -152,7 +145,7 @@ function normalizeStep(s) {
   }
 }
 
-export function TourEditor({ project, tour, initialSteps, analyticsHref }) {
+export function TourEditor({ project, tour, initialSteps, analyticsHref, sdkUpdateBanner }) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [actionError, setActionError] = useState(null)
@@ -497,6 +490,8 @@ export function TourEditor({ project, tour, initialSteps, analyticsHref }) {
         </div>
 
         <Separator className="bg-border/60" />
+
+        {sdkUpdateBanner}
 
         <div className="rounded-lg border border-border/60 bg-muted/20" data-tour="appearance" data-tourkit="tour-appearance">
           <button

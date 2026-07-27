@@ -13,6 +13,7 @@ import {
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
+import { getSnippet, LATEST_SDK_VERSION } from "@/lib/sdk-version"
 import { ScriptKey } from "@/components/dashboard/script-key"
 import { Label } from "@/components/ui/label"
 
@@ -74,17 +75,8 @@ function CopySnippetButton({ snippet }) {
   )
 }
 
-function buildInstallSnippet(scriptKey, appUrl) {
-  var src = "https://cdn.jsdelivr.net/gh/webdev-raj/Tourkit@sdk-v14/sdk/dist/tourkit.min.js"
-  var safeKey = String(scriptKey || "")
-  var safeApi = String(appUrl || "")
-
-  return `<script
-  src="${src}"
-  data-key="${safeKey}"
-  data-api="${safeApi}"
-  async>
-</script>`
+function buildInstallSnippet(scriptKey) {
+  return getSnippet(scriptKey, LATEST_SDK_VERSION)
 }
 
 function StatusBadge({ isActive }) {
@@ -109,8 +101,8 @@ function StatusBadge({ isActive }) {
 
 function ProjectCard({ project, appUrl, open, onToggle }) {
   const snippet = useMemo(
-    () => buildInstallSnippet(project.script_key, appUrl),
-    [project.script_key, appUrl]
+    () => buildInstallSnippet(project.script_key),
+    [project.script_key]
   )
 
   return (

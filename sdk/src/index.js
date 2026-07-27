@@ -257,6 +257,7 @@ import { buildSessionKey, tourkitSeenPrefix } from './session-key.js'
     var cachedSteps = []
     var cachedCustomization = null
     var cachedShowBranding = false
+    var cachedLatestVersion = null
     var isLoading = false
     var loadCallbacks = []
 
@@ -286,6 +287,11 @@ import { buildSessionKey, tourkitSeenPrefix } from './session-key.js'
         } catch (_) {
           cachedShowBranding = false
         }
+        try {
+          cachedLatestVersion = config.latest_version || null
+        } catch (_) {
+          cachedLatestVersion = null
+        }
         return cachedSteps.length > 0
       } catch (_) {
         cachedSteps = []
@@ -305,6 +311,9 @@ import { buildSessionKey, tourkitSeenPrefix } from './session-key.js'
         credentials: 'omit',
         cache: 'no-store',
         mode: 'cors',
+        headers: {
+          'X-TourKit-Version': '1.0.0',
+        },
       })
         .then(function (res) {
           if (!res.ok) return null
@@ -434,6 +443,12 @@ import { buildSessionKey, tourkitSeenPrefix } from './session-key.js'
     }
 
     window.TourKit = {
+      version: '1.0.0',
+
+      latestVersion: function () {
+        return cachedLatestVersion
+      },
+
       startFor: function (path) {
         try {
           var targetPath = path

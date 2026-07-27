@@ -133,3 +133,10 @@ create policy "Users can read own plan" on user_plans
   for select
   using (auth.uid() = user_id);
 
+-- SDK version detection (run if upgrading existing database)
+alter table projects
+  add column if not exists detected_sdk_version text default null;
+
+alter table projects
+  add column if not exists sdk_last_seen timestamptz default null;
+

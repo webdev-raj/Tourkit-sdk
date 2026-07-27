@@ -1,12 +1,13 @@
 import { NextResponse } from 'next/server'
 
+import { LATEST_SDK_VERSION } from '@/lib/sdk-version'
 import { createAdminClient } from '@/lib/supabase/admin'
 
 function corsHeaders() {
   return {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'GET,OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Headers': 'Content-Type, X-TourKit-Version',
     'Access-Control-Max-Age': '86400',
   }
 }
@@ -28,9 +29,10 @@ async function resolveShowBranding(supabase, userId) {
   return plan === 'free'
 }
 
-export async function GET(_request, { params }) {
+export async function GET(request, { params }) {
   const supabase = createAdminClient()
   const { scriptKey } = await params
+  const sdkVersion = request.headers.get('x-tourkit-version')
 
   const { data: project, error: projectError } = await supabase
     .from('projects')
@@ -44,6 +46,20 @@ export async function GET(_request, { params }) {
 
   if (!project || !project.is_active) {
     return NextResponse.json({ error: 'Not found' }, { status: 404, headers: corsHeaders() })
+  }
+
+  if (sdkVersion) {
+    try {
+      await supabase
+        .from('projects')
+        .update({
+          detected_sdk_version: sdkVersion,
+          sdk_last_seen: new Date().toISOString(),
+        })
+        .eq('script_key', scriptKey)
+    } catch (e) {
+      // Fail silently — don't break tour fetch
+    }
   }
 
   const showBranding = await resolveShowBranding(supabase, project.user_id)
@@ -77,6 +93,7 @@ export async function GET(_request, { params }) {
           border_radius: '10px',
           theme: 'dark',
         },
+        latest_version: LATEST_SDK_VERSION,
       },
       { status: 200, headers: corsHeaders() }
     )
@@ -106,6 +123,7 @@ export async function GET(_request, { params }) {
         border_radius: tour.border_radius || '10px',
         theme: tour.theme || 'dark',
       },
+      latest_version: LATEST_SDK_VERSION,
     },
     { status: 200, headers: corsHeaders() }
   )

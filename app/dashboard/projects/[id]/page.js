@@ -6,6 +6,7 @@ import { BarChart2Icon, PlayIcon } from 'lucide-react'
 
 import { deleteProject } from '@/app/actions/projects'
 import { getStepsByTourId, getTourByProjectId } from '@/app/actions/tours'
+import SdkUpdateBanner from '@/components/dashboard/sdk-update-banner'
 import { TourEditor } from '@/components/dashboard/tour-editor'
 import { TourEditorSkeleton } from '@/components/dashboard/tour-editor-skeleton'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
@@ -48,7 +49,7 @@ async function TourEditorGate({ projectId, deleteError }) {
 
   const { data: project, error: projectError } = await supabase
     .from('projects')
-    .select('id, name, domain, script_key')
+    .select('id, name, domain, script_key, detected_sdk_version')
     .eq('id', projectId)
     .maybeSingle()
 
@@ -110,6 +111,9 @@ async function TourEditorGate({ projectId, deleteError }) {
         tour={tourRes.data}
         initialSteps={stepsRes.data}
         analyticsHref={null}
+        sdkUpdateBanner={
+          <SdkUpdateBanner project={project} detectedVersion={project.detected_sdk_version} />
+        }
       />
 
       <section className="rounded-lg border border-red-900/70 bg-card/40 p-5">
