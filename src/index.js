@@ -312,7 +312,7 @@ import { buildSessionKey, tourkitSeenPrefix } from './session-key.js'
         cache: 'no-store',
         mode: 'cors',
         headers: {
-          'X-TourKit-Version': '1.0.0',
+          'X-TourKit-Version': 'v3.0.0-sdk',
         },
       })
         .then(function (res) {
@@ -443,7 +443,7 @@ import { buildSessionKey, tourkitSeenPrefix } from './session-key.js'
     }
 
     window.TourKit = {
-      version: '1.0.0',
+      version: 'v3.0.0-sdk',
 
       latestVersion: function () {
         return cachedLatestVersion
