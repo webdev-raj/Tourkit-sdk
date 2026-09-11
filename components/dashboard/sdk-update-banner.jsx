@@ -5,8 +5,25 @@ import { AlertTriangle, X, Copy, Check, ExternalLink } from 'lucide-react'
 
 import { LATEST_SDK_VERSION, SDK_CHANGELOG, getSnippet } from '@/lib/sdk-version'
 
-function normalizeVersion(version) {
-  return String(version || '').replace(/^v/i, '')
+function isOutdated(detected, latest) {
+  try {
+    const d = detected
+      .replace('v', '')
+      .split('.')
+      .map(Number)
+    const l = latest
+      .replace('v', '')
+      .split('.')
+      .map(Number)
+
+    for (let i = 0; i < 3; i++) {
+      if ((d[i] || 0) < (l[i] || 0)) return true
+      if ((d[i] || 0) > (l[i] || 0)) return false
+    }
+    return false
+  } catch (e) {
+    return false
+  }
 }
 
 export default function SdkUpdateBanner({ project, detectedVersion }) {
@@ -15,7 +32,8 @@ export default function SdkUpdateBanner({ project, detectedVersion }) {
 
   if (dismissed) return null
   if (!detectedVersion) return null
-  if (normalizeVersion(detectedVersion) === normalizeVersion(LATEST_SDK_VERSION)) return null
+  if (detectedVersion === LATEST_SDK_VERSION) return null
+  if (!isOutdated(detectedVersion, LATEST_SDK_VERSION)) return null
 
   const changelog = SDK_CHANGELOG[LATEST_SDK_VERSION]
 

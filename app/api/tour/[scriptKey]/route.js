@@ -48,7 +48,7 @@ export async function GET(request, { params }) {
     return NextResponse.json({ error: 'Not found' }, { status: 404, headers: corsHeaders() })
   }
 
-  if (sdkVersion) {
+  if (sdkVersion && typeof sdkVersion === 'string' && sdkVersion.length < 20) {
     try {
       await supabase
         .from('projects')
