@@ -137,7 +137,7 @@ function LandingNav() {
           <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground" asChild>
             <Link href="/pricing">Pricing</Link>
           </Button>
-          
+
           <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground" asChild>
             <Link href="/auth">Sign in</Link>
           </Button>
@@ -212,7 +212,7 @@ function HeroVisual() {
           <div className="h-full top-0 left-0 w-full bg-black/40 z-[4] absolute"></div>
           <div
             className="pointer-events-none absolute z-[5] rounded-lg border-2 border-primary max-md:hidden"
-            style={{ top: "32%", left: "21%", width: "5rem", height: "2.25rem"}}
+            style={{ top: "32%", left: "21%", width: "5rem", height: "2.25rem" }}
             aria-hidden
           />
         </div>
@@ -288,6 +288,19 @@ export function LandingPage() {
                 <Button size="lg" variant="outline" className="h-12 rounded-xl border-white/10 bg-white/[0.02] px-6 text-base hover:bg-white/[0.05]" asChild>
                   <Link href="/docs/getting-started/quick-start">Read the docs</Link>
                 </Button>
+                <div className="flex items-center">
+                  <a
+                    href="https://www.producthunt.com/products/tourkit?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-tourkit"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="TourKit on Product Hunt"
+                  >
+                    <img
+                      src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1258050&amp;theme=dark&amp;t=1790076789289"
+                      alt="TourKit - Lightweight product tours with a hosted dashboard | Product Hunt"
+                    />
+                  </a>
+                </div>
               </div>
 
               <p className="tk-landing-rise tk-landing-rise-delay-2 text-xs text-muted-foreground">
