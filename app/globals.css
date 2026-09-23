@@ -258,3 +258,12 @@
     }
   }
 }
+
+/* ── Docs image lightbox ────────────────────────────────────────── */
+.doc-image-wrapper {
+  cursor: zoom-in;
+}
+
+.doc-image-wrapper:hover img {
+  opacity: 0.92;
+}
