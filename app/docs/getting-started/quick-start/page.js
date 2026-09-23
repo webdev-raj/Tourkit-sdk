@@ -12,6 +12,7 @@ import {
 import { DocHeader } from '@/components/docs/doc-header'
 import CodeBlock from '@/components/docs/code-block'
 import DocImage from '@/components/docs/doc-image'
+import AiSetupPrompt from '@/components/docs/ai-setup-prompt'
 import { TOURKIT_SCRIPT_SNIPPET } from '@/app/docs/_constants'
 import { DOC_IMAGES } from '@/lib/doc-images'
 
@@ -27,8 +28,38 @@ export default function Page() {
         title="Quick start (5 minutes)"
         description="Create a project, drop in the script tag, and run your first tour end-to-end."
       />
-
+      
       <DocCallout variant="tip" title="New to TourKit?">
+        The prompt below (or your first tour steps
+        manually) will get you running fastest. Once
+        you have a project, Pro plans unlock an{' '}
+        <span className="font-medium text-foreground">
+          AI Generate steps
+        </span>{' '}
+        button right inside the tour editor —
+        describe your product and it drafts the
+        steps for you.{' '}
+        <Link href="/pricing" className="font-medium text-primary underline-offset-4 hover:underline">
+          See plans →
+        </Link>
+      </DocCallout>
+
+      <AiSetupPrompt />
+
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '12px',
+        margin: '10px 0 24px 0'
+      }}>
+        <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.08)' }} />
+        <span style={{ color: '#555', fontSize: '12px', whiteSpace: 'nowrap' }}>
+          Or set up manually
+        </span>
+        <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.08)' }} />
+      </div>
+
+      {/* <DocCallout variant="tip" title="New to TourKit?">
         Use our free{' '}
         <Link href="/tools/generate" className="font-medium text-primary underline-offset-4 hover:underline">
           AI Tour Generator
@@ -37,7 +68,9 @@ export default function Page() {
         <Link href="/tools/generate" className="font-medium text-primary underline-offset-4 hover:underline">
           Try it free →
         </Link>
-      </DocCallout>
+      </DocCallout> */}
+
+      
 
       <DocSection>
         <DocH2>Prerequisites</DocH2>
