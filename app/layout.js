@@ -2,6 +2,8 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Analytics } from "@vercel/analytics/next"
+import Script from 'next/script'
+import { TourKitProvider } from "@/components/dashboard/tourkit-provider";
 
 const generalSans = localFont({
   src: "./fonts/GeneralSans-Regular.otf",
@@ -104,6 +106,9 @@ export const viewport = {
 };
 
 export default function RootLayout({ children }) {
+  const onboardingScriptKey = process.env.NEXT_PUBLIC_TOURKIT_ONBOARDING_SCRIPT_KEY?.trim() || ''
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || ''
+
   return (
     <html lang="en" className={`dark ${generalSans.variable}`} suppressHydrationWarning>
       <body className="min-h-dvh font-sans antialiased" suppressHydrationWarning>
@@ -134,6 +139,18 @@ export default function RootLayout({ children }) {
         </a>
         <TooltipProvider>{children}</TooltipProvider>
         <Analytics />
+        {onboardingScriptKey ? (
+          <>
+            <TourKitProvider />
+            <Script
+              id="tourkit-onboarding-sdk"
+              src="/tourkit.min.js"
+              data-key={onboardingScriptKey}
+              data-api={appUrl}
+              strategy="afterInteractive"
+            />
+          </>
+        ) : null}
       </body>
     </html>
   );

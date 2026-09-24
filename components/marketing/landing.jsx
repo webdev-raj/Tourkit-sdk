@@ -119,6 +119,7 @@ function LandingNav() {
 
         <nav className="flex items-center gap-1 sm:gap-2" aria-label="Marketing">
           <Button
+            data-tourkit="github-link"
             variant="ghost"
             size="icon-sm"
             className="text-muted-foreground hover:text-foreground"
@@ -261,11 +262,11 @@ export function LandingPage() {
           <div className="grid items-center gap-12 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-16">
             <div className="flex flex-col gap-7">
               <div className="tk-landing-rise flex flex-col gap-5">
-                <span className="inline-flex w-fit items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
+                <span data-tourkit="hero-badge" className="inline-flex w-fit items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
                   <span className="size-1.5 rounded-full bg-primary animate-pulse" aria-hidden />
                   Guided onboarding for the real web
                 </span>
-                <h1 className="max-w-[14ch] text-balance text-4xl font-semibold leading-[1.05] tracking-[-0.03em] text-foreground sm:text-5xl lg:text-[3.25rem]">
+                <h1 data-tourkit="hero-headline" className="max-w-[14ch] text-balance text-4xl font-semibold leading-[1.05] tracking-[-0.03em] text-foreground sm:text-5xl lg:text-[3.25rem]">
                   Product tours that feel{" "}
                   <span className="bg-gradient-to-r from-foreground via-foreground to-muted-foreground bg-clip-text text-transparent">
                     built in
@@ -279,7 +280,7 @@ export function LandingPage() {
               </div>
 
               <div className="tk-landing-rise tk-landing-rise-delay-1 flex flex-col gap-3 sm:flex-row sm:items-center">
-                <Button size="lg" className="h-12 rounded-xl px-6 text-base shadow-[0_0_28px_color-mix(in_srgb,var(--primary)_30%,transparent)]" asChild>
+                <Button data-tourkit='start-free-btn' size="lg" className="h-12 rounded-xl px-6 text-base shadow-[0_0_28px_color-mix(in_srgb,var(--primary)_30%,transparent)]" asChild>
                   <Link href="/auth?mode=signup">
                     Start free
                     <ArrowRightIcon className="ml-2 size-4" aria-hidden />
