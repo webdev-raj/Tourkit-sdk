@@ -4,12 +4,6 @@
 - Pro only feature
 - Autoplay with sound off by default
 
-📝 Future feature: Prebuilt tooltip templates
-- 5-8 preset designs
-- One click apply
-- Free: basic templates
-- Pro: full library + custom
-
 Known bugs (fix later):
 - Modal/popup steps get skipped
 - Prev button requires double click 
@@ -326,3 +320,5 @@ a popup to your users."
 ## Depends on: V4 complete + paying customers
 
 this are the updates i have to add on V5 
+
+## Website chatbot integration layout just dev need to connect with api and everything work flowlessly into there website totally customizable 
