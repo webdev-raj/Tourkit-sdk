@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button"
 
 const CDN_SNIPPET = `<script src="https://cdn.jsdelivr.net/gh/webdev-raj/Tourkit@sdk-v14/sdk/dist/tourkit.min.js"
   data-key="YOUR_SCRIPT_KEY"
-  data-api="https://your-app.com"
+  data-api="https://tourkit-phi.vercel.app"
   async></script>`
 
 const stats = [
