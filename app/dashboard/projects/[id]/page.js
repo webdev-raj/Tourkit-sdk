@@ -1,7 +1,7 @@
 import { Suspense } from 'react'
 import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
-import { BarChart2Icon, PlayIcon } from 'lucide-react'
+import { BarChart2Icon, Megaphone, PlayIcon } from 'lucide-react'
 
 
 import { deleteProject } from '@/app/actions/projects'
@@ -91,6 +91,13 @@ async function TourEditorGate({ projectId, deleteError }) {
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-8">
       <div className="flex flex-wrap justify-end gap-2">
+        <Button variant="outline" asChild>
+          <Link href={`/dashboard/projects/${project.id}/announcements`}>
+            <Megaphone className="mr-2 size-4" />
+            Announcements
+          </Link>
+        </Button>
+
         <Button variant="outline" asChild>
           <Link href={`/demo/${project.script_key}`} target="_blank" rel="noreferrer" data-tour="live-demo">
             <PlayIcon className="mr-2 size-4" />

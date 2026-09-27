@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { BookOpen, LayoutGridIcon, LogOutIcon, Megaphone, Settings } from "lucide-react"
+import { BookOpen, LayoutGridIcon, LogOutIcon, Settings } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -20,20 +20,14 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar"
 
+const navItems = [
+  { href: "/dashboard", label: "Projects", icon: LayoutGridIcon },
+  { href: "/docs", label: "Docs", icon: BookOpen },
+  { href: "/dashboard/settings", label: "Settings", icon: Settings },
+]
+
 export function AppSidebar({ userEmail, onSignOut }) {
   const pathname = usePathname()
-  const projectMatch = pathname?.match(/^\/dashboard\/projects\/([^/]+)/)
-  const projectId = projectMatch?.[1] || null
-  const announcementsHref = projectId
-    ? `/dashboard/projects/${projectId}/announcements`
-    : '/dashboard'
-
-  const navItems = [
-    { href: "/dashboard", label: "Projects", icon: LayoutGridIcon },
-    { href: "/docs", label: "Docs", icon: BookOpen },
-    { href: announcementsHref, label: "Announcements", icon: Megaphone, kind: "announcements" },
-    { href: "/dashboard/settings", label: "Settings", icon: Settings },
-  ]
 
   return (
     <Sidebar collapsible="offcanvas">
@@ -56,18 +50,13 @@ export function AppSidebar({ userEmail, onSignOut }) {
           <SidebarGroupContent>
             <SidebarMenu>
               {navItems.map((item) => {
-                const onAnnouncements = Boolean(pathname?.includes('/announcements'))
                 const isActive =
-                  item.kind === 'announcements'
-                    ? onAnnouncements
-                    : item.href === '/dashboard'
-                      ? pathname === '/dashboard' ||
-                        (Boolean(pathname?.startsWith('/dashboard/projects')) && !onAnnouncements)
-                      : pathname === item.href ||
-                        (item.href === '/docs' && pathname?.startsWith('/docs'))
+                  pathname === item.href ||
+                  (item.href === '/dashboard' && pathname?.startsWith('/dashboard/projects')) ||
+                  (item.href === '/docs' && pathname?.startsWith('/docs'))
                 const Icon = item.icon
                 return (
-                  <SidebarMenuItem key={item.kind || item.href}>
+                  <SidebarMenuItem key={item.href}>
                     <SidebarMenuButton asChild isActive={isActive} tooltip={item.label}>
                       <Link
                         href={item.href}
