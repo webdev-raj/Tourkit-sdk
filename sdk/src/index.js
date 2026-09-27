@@ -2,6 +2,7 @@
 import { TK_API_ORIGIN } from './config.js'
 import { detectElements } from './scanner.js'
 import { startTour } from './renderer.js'
+import { runAnnouncements } from './announcements.js'
 import { buildSessionKey, tourkitSeenPrefix } from './session-key.js'
 
 ;(function tourkitBootstrap() {
@@ -255,6 +256,7 @@ import { buildSessionKey, tourkitSeenPrefix } from './session-key.js'
 
     var cachedConfig = null
     var cachedSteps = []
+    var cachedAnnouncements = []
     var cachedCustomization = null
     var cachedShowBranding = false
     var cachedLatestVersion = null
@@ -265,9 +267,15 @@ import { buildSessionKey, tourkitSeenPrefix } from './session-key.js'
       try {
         if (!config || config.error) {
           cachedSteps = []
+          cachedAnnouncements = []
           return false
         }
         cachedConfig = config
+        try {
+          cachedAnnouncements = Array.isArray(config.announcements) ? config.announcements : []
+        } catch (_) {
+          cachedAnnouncements = []
+        }
         try {
           cachedCustomization = config.customization || null
         } catch (_) {
@@ -300,7 +308,7 @@ import { buildSessionKey, tourkitSeenPrefix } from './session-key.js'
     }
 
     function getConfig() {
-      if (cachedConfig && cachedSteps.length) return Promise.resolve(cachedConfig)
+      if (cachedConfig) return Promise.resolve(cachedConfig)
       if (isLoading) {
         return new Promise(function (resolve) {
           loadCallbacks.push(resolve)
@@ -322,7 +330,7 @@ import { buildSessionKey, tourkitSeenPrefix } from './session-key.js'
         .then(function (config) {
           isLoading = false
           try {
-            if (config && !config.error && Array.isArray(config.steps) && config.steps.length) {
+            if (config && !config.error) {
               populateCacheFromConfig(config)
             }
           } catch (_) {}
@@ -442,6 +450,26 @@ import { buildSessionKey, tourkitSeenPrefix } from './session-key.js'
       }
     }
 
+    function maybeRunAnnouncements(config) {
+      try {
+        var list = []
+        try {
+          if (config && Array.isArray(config.announcements) && config.announcements.length) {
+            list = config.announcements
+          } else if (cachedAnnouncements && cachedAnnouncements.length) {
+            list = cachedAnnouncements
+          }
+        } catch (_) {
+          list = []
+        }
+        if (!list.length) return
+        var apiBaseResolved = API_BASE || (config && config.api_base) || TK_API_ORIGIN
+        runAnnouncements(list, apiBaseResolved, SCRIPT_KEY, sessionIdForAnalytics, isDemoGlobal)
+      } catch (_) {
+        /* silent */
+      }
+    }
+
     window.TourKit = {
       version: 'v3.0.0-sdk',
 
@@ -543,8 +571,7 @@ import { buildSessionKey, tourkitSeenPrefix } from './session-key.js'
     getConfig()
       .then(function (config) {
         try {
-          if (!config || !Array.isArray(config.steps) || !config.steps.length) return
-          if (!isDemoGlobal) {
+          if (config && Array.isArray(config.steps) && config.steps.length && !isDemoGlobal) {
             var autoPath = ''
             try {
               autoPath = String(window.location.pathname || '/') || '/'
@@ -553,6 +580,7 @@ import { buildSessionKey, tourkitSeenPrefix } from './session-key.js'
             }
             startForPath(autoPath)
           }
+          maybeRunAnnouncements(config)
         } catch (_) {}
       })
       .catch(function () {})

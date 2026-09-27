@@ -140,3 +140,53 @@ alter table projects
 alter table projects
   add column if not exists sdk_last_seen timestamptz default null;
 
+-- Announcements (V5 — modal type)
+create table if not exists announcements (
+  id uuid primary key default gen_random_uuid(),
+  project_id uuid references projects(id) on delete cascade,
+  title text not null,
+  description text not null,
+  cta_text text,
+  cta_url text,
+  image_url text,
+  frequency text default 'until_dismissed',
+  start_date timestamptz,
+  end_date timestamptz,
+  is_active boolean default true,
+  created_at timestamptz default now()
+);
+
+create table if not exists announcement_events (
+  id uuid primary key default gen_random_uuid(),
+  announcement_id uuid references announcements(id) on delete cascade,
+  project_id uuid references projects(id) on delete cascade,
+  event_type text not null,
+  session_id text,
+  created_at timestamptz default now()
+);
+
+create index if not exists announcements_project_id_idx on announcements(project_id);
+create index if not exists announcements_project_created_at_idx on announcements(project_id, created_at desc);
+create index if not exists announcement_events_announcement_id_idx on announcement_events(announcement_id);
+create index if not exists announcement_events_project_id_created_at_idx on announcement_events(project_id, created_at desc);
+
+alter table announcements enable row level security;
+alter table announcement_events enable row level security;
+
+drop policy if exists "Users own their announcements" on announcements;
+create policy "Users own their announcements" on announcements
+  for all
+  using (
+    project_id in (select id from projects where user_id = auth.uid())
+  )
+  with check (
+    project_id in (select id from projects where user_id = auth.uid())
+  );
+
+drop policy if exists "Users can read announcement events" on announcement_events;
+create policy "Users can read announcement events" on announcement_events
+  for select
+  using (
+    project_id in (select id from projects where user_id = auth.uid())
+  );
+

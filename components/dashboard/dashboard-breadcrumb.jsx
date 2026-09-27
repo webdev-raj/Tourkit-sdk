@@ -14,12 +14,13 @@ export function DashboardBreadcrumb() {
   const projectId = useMemo(() => {
     try {
       if (!pathname) return null
-      var m = pathname.match(/^\/dashboard\/projects\/([^/]+)$/)
+      var m = pathname.match(/^\/dashboard\/projects\/([^/]+)/)
       return m && m[1] ? m[1] : null
     } catch {
       return null
     }
   }, [pathname])
+  const onAnnouncements = Boolean(pathname?.includes('/announcements'))
 
   const [projectName, setProjectName] = useState(null)
 
@@ -56,6 +57,12 @@ export function DashboardBreadcrumb() {
             <span className="truncate text-sm font-medium text-foreground">
               {projectName ?? "Loading…"}
             </span>
+            {onAnnouncements ? (
+              <>
+                <span className="text-muted-foreground">›</span>
+                <BreadcrumbItem>Announcements</BreadcrumbItem>
+              </>
+            ) : null}
           </>
         ) : null}
       </div>
