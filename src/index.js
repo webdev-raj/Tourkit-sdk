@@ -2,8 +2,9 @@
 import { TK_API_ORIGIN } from './config.js'
 import { detectElements } from './scanner.js'
 import { startTour } from './renderer.js'
-import { runAnnouncements } from './announcements.js'
+import { evaluateAnnouncements } from './announcements.js'
 import { buildSessionKey, tourkitSeenPrefix } from './session-key.js'
+import { matchesPattern } from './url-match.js'
 
 ;(function tourkitBootstrap() {
   try {
@@ -70,36 +71,6 @@ import { buildSessionKey, tourkitSeenPrefix } from './session-key.js'
           } catch (_) {
             return false
           }
-        })
-      } catch (e) {
-        return false
-      }
-    }
-
-    function matchesPattern(pattern, path) {
-      try {
-        if (!pattern || !path) return false
-
-        var patternStr = String(pattern).trim()
-        var pathStr = String(path).trim()
-
-        if (patternStr.endsWith('/*')) {
-          var base = patternStr.slice(0, -2)
-          return pathStr.startsWith(base + '/')
-        }
-
-        var segments = patternStr.split('/')
-        var pathSegments = pathStr.split('/')
-
-        if (segments.length !== pathSegments.length) {
-          return false
-        }
-
-        return segments.every(function (seg, i) {
-          if (seg.startsWith('[') && seg.endsWith(']')) {
-            return pathSegments[i] && pathSegments[i].length > 0
-          }
-          return seg === pathSegments[i]
         })
       } catch (e) {
         return false
@@ -320,7 +291,7 @@ import { buildSessionKey, tourkitSeenPrefix } from './session-key.js'
         cache: 'no-store',
         mode: 'cors',
         headers: {
-          'X-TourKit-Version': 'v3.0.0-sdk',
+          'X-TourKit-Version': 'v3.1.0-sdk',
         },
       })
         .then(function (res) {
@@ -420,58 +391,81 @@ import { buildSessionKey, tourkitSeenPrefix } from './session-key.js'
       }
     }
 
-    function startForPath(path) {
+    var identityState = null
+    var firstSeenAt = (function () {
       try {
-        var currentPath = path
-        try {
-          if (currentPath == null || currentPath === '') {
-            currentPath = String(window.location.pathname || '/') || '/'
-          } else {
-            currentPath = String(currentPath)
-          }
-        } catch (_) {
-          currentPath = '/'
+        var key = 'tourkit_first_seen_' + SCRIPT_KEY
+        var existing = window.localStorage.getItem(key)
+        if (!existing) {
+          existing = String(Date.now())
+          window.localStorage.setItem(key, existing)
         }
+        var n = Number(existing)
+        return Number.isFinite(n) ? n : Date.now()
+      } catch (_) {
+        return Date.now()
+      }
+    })()
 
-        if (!cachedSteps.length) {
-          return getConfig()
-            .then(function () {
-              if (!cachedSteps.length) {
-                return
-              }
-              runTourForPath(currentPath)
-            })
-            .catch(function () {})
-        }
-
-        runTourForPath(currentPath)
-      } catch (e) {
-        /* silent */
+    function currentPathValue(path) {
+      try {
+        if (path == null || path === '') return String(window.location.pathname || '/') || '/'
+        return String(path)
+      } catch (_) {
+        return '/'
       }
     }
 
-    function maybeRunAnnouncements(config) {
+    function runAnnouncementsForPath(path) {
       try {
-        var list = []
-        try {
-          if (config && Array.isArray(config.announcements) && config.announcements.length) {
-            list = config.announcements
-          } else if (cachedAnnouncements && cachedAnnouncements.length) {
-            list = cachedAnnouncements
-          }
-        } catch (_) {
-          list = []
-        }
-        if (!list.length) return
-        var apiBaseResolved = API_BASE || (config && config.api_base) || TK_API_ORIGIN
-        runAnnouncements(list, apiBaseResolved, SCRIPT_KEY, sessionIdForAnalytics, isDemoGlobal)
+        var list = cachedAnnouncements
+        if (!list || !list.length) return
+        var apiBaseResolved = API_BASE || (cachedConfig && cachedConfig.api_base) || TK_API_ORIGIN
+        evaluateAnnouncements(list, {
+          path: currentPathValue(path),
+          identity: identityState,
+          firstSeen: firstSeenAt,
+          isDemo: isDemoGlobal,
+          apiBase: apiBaseResolved,
+          scriptKey: SCRIPT_KEY,
+          sessionId: sessionIdForAnalytics,
+          matchesPattern: matchesPattern,
+          customization: cachedCustomization || (cachedConfig && cachedConfig.customization) || null,
+        })
       } catch (_) {
         /* silent */
       }
     }
 
+    function startForPath(path) {
+      try {
+        var currentPath = currentPathValue(path)
+
+        function afterConfig() {
+          try {
+            runTourForPath(currentPath)
+          } catch (_) {}
+          try {
+            runAnnouncementsForPath(currentPath)
+          } catch (_) {}
+        }
+
+        if (!cachedConfig) {
+          return getConfig()
+            .then(function () {
+              afterConfig()
+            })
+            .catch(function () {})
+        }
+
+        afterConfig()
+      } catch (e) {
+        /* silent */
+      }
+    }
+
     window.TourKit = {
-      version: 'v3.0.0-sdk',
+      version: 'v3.1.0-sdk',
 
       latestVersion: function () {
         return cachedLatestVersion
@@ -506,6 +500,19 @@ import { buildSessionKey, tourkitSeenPrefix } from './session-key.js'
           }
           startForPath(p)
         } catch (e) {
+          /* silent */
+        }
+      },
+
+      identify: function (payload) {
+        try {
+          var src = payload && typeof payload === 'object' ? payload : {}
+          identityState = {
+            userId: src.userId != null ? src.userId : src.user_id,
+            plan: src.plan,
+          }
+          runAnnouncementsForPath(currentPathValue())
+        } catch (_) {
           /* silent */
         }
       },
@@ -569,18 +576,15 @@ import { buildSessionKey, tourkitSeenPrefix } from './session-key.js'
     }
 
     getConfig()
-      .then(function (config) {
+      .then(function () {
         try {
-          if (config && Array.isArray(config.steps) && config.steps.length && !isDemoGlobal) {
-            var autoPath = ''
+          var autoPath = currentPathValue()
+          if (!isDemoGlobal) {
             try {
-              autoPath = String(window.location.pathname || '/') || '/'
-            } catch (_) {
-              autoPath = '/'
-            }
-            startForPath(autoPath)
+              runTourForPath(autoPath)
+            } catch (_) {}
           }
-          maybeRunAnnouncements(config)
+          runAnnouncementsForPath(autoPath)
         } catch (_) {}
       })
       .catch(function () {})
