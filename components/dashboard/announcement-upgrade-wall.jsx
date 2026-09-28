@@ -4,9 +4,9 @@ import { Check, ChevronRight, Lock, Megaphone } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 const features = [
-  'Modal announcements on your site',
-  'Schedule start and end dates',
-  'Once-per-user or until dismissed',
+  'Modal and banner announcements',
+  'Slide-in cards on Pro',
+  'Audience and URL targeting',
   'View, click, and CTR tracking',
 ]
 

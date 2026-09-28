@@ -140,7 +140,7 @@ alter table projects
 alter table projects
   add column if not exists sdk_last_seen timestamptz default null;
 
--- Announcements (V5 — modal type)
+-- Announcements (V5)
 create table if not exists announcements (
   id uuid primary key default gen_random_uuid(),
   project_id uuid references projects(id) on delete cascade,
@@ -149,12 +149,29 @@ create table if not exists announcements (
   cta_text text,
   cta_url text,
   image_url text,
+  type text default 'modal',
+  size text default 'md',
+  variant text default 'info',
+  image_position text default 'top',
+  slide_position text default 'bottom-right',
+  show_on text default 'all',
+  audience text default 'all',
+  audience_plan text,
   frequency text default 'until_dismissed',
   start_date timestamptz,
   end_date timestamptz,
   is_active boolean default true,
   created_at timestamptz default now()
 );
+
+alter table announcements add column if not exists type text default 'modal';
+alter table announcements add column if not exists size text default 'md';
+alter table announcements add column if not exists variant text default 'info';
+alter table announcements add column if not exists image_position text default 'top';
+alter table announcements add column if not exists slide_position text default 'bottom-right';
+alter table announcements add column if not exists show_on text default 'all';
+alter table announcements add column if not exists audience text default 'all';
+alter table announcements add column if not exists audience_plan text;
 
 create table if not exists announcement_events (
   id uuid primary key default gen_random_uuid(),

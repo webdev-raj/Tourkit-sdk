@@ -16,6 +16,8 @@ const API_RESET = `window.TourKit.reset('/dashboard')`
 
 const API_RESET_ALL = `window.TourKit.resetAll()`
 
+const API_IDENTIFY = `window.TourKit.identify({ userId: 'user_123', plan: 'pro' })`
+
 export const metadata = {
   title: 'CSS selectors guide',
 }
@@ -90,6 +92,12 @@ export default function Page() {
 
         <DocH3>Reset all seen flags for this project</DocH3>
         <CodeBlock code={API_RESET_ALL} language="javascript" />
+
+        <DocH3>Identify a logged-in visitor</DocH3>
+        <DocP>
+          Call after login so announcements with a Logged-in audience (and optional plan) can show. Identity is kept in memory only.
+        </DocP>
+        <CodeBlock code={API_IDENTIFY} language="javascript" />
 
         <DocH3>When to use the API</DocH3>
         <DocP>

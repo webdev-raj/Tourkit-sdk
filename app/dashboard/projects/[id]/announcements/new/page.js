@@ -40,9 +40,9 @@ export default async function NewAnnouncementPage({ params }) {
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-8">
       <div>
         <h1 className="text-3xl font-semibold tracking-tight text-foreground">New announcement</h1>
-        <p className="mt-2 text-sm text-muted-foreground">A centered modal. Title and description are required.</p>
+        <p className="mt-2 text-sm text-muted-foreground">Modal, banner, or slide-in. Title and description are required.</p>
       </div>
-      <AnnouncementForm projectId={projectId} />
+      <AnnouncementForm projectId={projectId} plan={plan} />
     </div>
   )
 }

@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { PencilIcon, Trash2Icon } from 'lucide-react'
 
-import { deleteAnnouncement } from '@/app/actions/announcements'
+import { deleteAnnouncement, toggleAnnouncementActive } from '@/app/actions/announcements'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import {
   AlertDialog,
@@ -18,6 +18,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
+import { Switch } from '@/components/ui/switch'
 
 function announcementStatus(row, now) {
   if (!row?.is_active) return 'Inactive'
@@ -33,6 +34,12 @@ function statusClasses(status) {
   if (status === 'Scheduled') return 'border-sky-500/30 bg-sky-500/10 text-sky-300'
   if (status === 'Expired') return 'border-white/10 bg-white/5 text-[#888888]'
   return 'border-white/10 bg-[#0a0a0a] text-[#777777]'
+}
+
+function typeLabel(type) {
+  if (type === 'banner') return 'Banner'
+  if (type === 'slide_in') return 'Slide-in'
+  return 'Modal'
 }
 
 function formatCtr(ctr) {
@@ -62,6 +69,20 @@ export function AnnouncementsList({ projectId, announcements, statsById }) {
     })
   }
 
+  function onToggle(id, next) {
+    setError('')
+    setPendingId(id)
+    startTransition(async () => {
+      const result = await toggleAnnouncementActive(id, next)
+      setPendingId('')
+      if (!result?.ok) {
+        setError(result?.error || 'Could not update announcement.')
+        return
+      }
+      router.refresh()
+    })
+  }
+
   return (
     <div className="flex flex-col gap-3">
       {error ? (
@@ -83,8 +104,10 @@ export function AnnouncementsList({ projectId, announcements, statsById }) {
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-2">
                 <h2 className="truncate text-base font-semibold tracking-tight text-white">{row.title}</h2>
-                <span
-                  className={`inline-flex rounded-full border px-2 py-0.5 text-[11px] font-medium ${statusClasses(status)}`}>
+                <span className="inline-flex rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[11px] font-medium text-[#bbb]">
+                  {typeLabel(row.type)}
+                </span>
+                <span className={`inline-flex rounded-full border px-2 py-0.5 text-[11px] font-medium ${statusClasses(status)}`}>
                   {status}
                 </span>
               </div>
@@ -94,7 +117,13 @@ export function AnnouncementsList({ projectId, announcements, statsById }) {
               </p>
             </div>
 
-            <div className="flex shrink-0 items-center gap-2">
+            <div className="flex shrink-0 items-center gap-3">
+              <Switch
+                checked={Boolean(row.is_active)}
+                disabled={busy}
+                onCheckedChange={(checked) => onToggle(row.id, checked)}
+                aria-label="Toggle active"
+              />
               <Button variant="outline" size="sm" asChild className="rounded-xl border-white/10 bg-background/20 hover:bg-white/5">
                 <Link href={`/dashboard/projects/${projectId}/announcements/${row.id}`}>
                   <PencilIcon className="mr-1.5 size-3.5" aria-hidden />

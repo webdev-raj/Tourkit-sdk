@@ -53,7 +53,9 @@ async function fetchLiveAnnouncements(supabase, projectId) {
   try {
     const { data, error } = await supabase
       .from('announcements')
-      .select('id, title, description, cta_text, cta_url, image_url, frequency, start_date, end_date, is_active')
+      .select(
+        'id, title, description, cta_text, cta_url, image_url, type, size, variant, image_position, slide_position, show_on, audience, audience_plan, frequency, start_date, end_date, is_active',
+      )
       .eq('project_id', projectId)
       .eq('is_active', true)
       .order('created_at', { ascending: true })
@@ -70,6 +72,14 @@ async function fetchLiveAnnouncements(supabase, projectId) {
         cta_text: row.cta_text,
         cta_url: row.cta_url,
         image_url: row.image_url,
+        type: row.type || 'modal',
+        size: row.size || 'md',
+        variant: row.variant || 'info',
+        image_position: row.image_position || 'top',
+        slide_position: row.slide_position || 'bottom-right',
+        show_on: row.show_on || 'all',
+        audience: row.audience || 'all',
+        audience_plan: row.audience_plan || null,
         frequency: row.frequency || 'until_dismissed',
       }))
   } catch (_) {
@@ -119,7 +129,6 @@ export async function GET(request, { params }) {
     .from('tours')
     .select('id, name, is_active, primary_color, font_family, border_radius, theme')
     .eq('project_id', project.id)
-    .eq('is_active', true)
     .order('created_at', { ascending: true })
     .limit(1)
     .maybeSingle()
@@ -148,21 +157,26 @@ export async function GET(request, { params }) {
     return NextResponse.json(payload, { status: 200, headers: corsHeaders() })
   }
 
-  const { data: steps, error: stepsError } = await supabase
-    .from('steps')
-    .select('id, selector, title, message, position, step_order, url_pattern')
-    .eq('tour_id', tour.id)
-    .order('step_order', { ascending: true })
+  const tourActive = Boolean(tour.is_active)
+  let steps = []
+  if (tourActive) {
+    const { data: stepRows, error: stepsError } = await supabase
+      .from('steps')
+      .select('id, selector, title, message, position, step_order, url_pattern')
+      .eq('tour_id', tour.id)
+      .order('step_order', { ascending: true })
 
-  if (stepsError) {
-    return NextResponse.json({ error: stepsError.message }, { status: 500, headers: corsHeaders() })
+    if (stepsError) {
+      return NextResponse.json({ error: stepsError.message }, { status: 500, headers: corsHeaders() })
+    }
+    steps = stepRows ?? []
   }
 
   const payload = {
     projectId: project.id,
     is_active: true,
-    tour: { id: tour.id, name: tour.name, is_active: tour.is_active },
-    steps: steps ?? [],
+    tour: { id: tour.id, name: tour.name, is_active: tourActive },
+    steps,
     api_base: apiBase,
     show_branding: showBranding,
     customization: {

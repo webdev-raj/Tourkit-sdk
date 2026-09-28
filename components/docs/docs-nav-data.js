@@ -26,6 +26,7 @@ export const DOCS_NAV = [
       { title: 'Adding steps', href: '/docs/configuration/adding-steps' },
       { title: 'URL Triggers', href: '/docs/configuration/url-triggers' },
       { title: 'CSS selectors guide', href: '/docs/configuration/selectors' },
+      { title: 'Announcements', href: '/docs/announcements' },
       { title: 'Step positioning', href: '/docs/configuration/positioning' },
     ],
   },

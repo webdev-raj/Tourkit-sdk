@@ -38,7 +38,7 @@ export default async function EditAnnouncementPage({ params }) {
         <h1 className="text-3xl font-semibold tracking-tight text-foreground">Edit announcement</h1>
         <p className="mt-2 text-sm text-muted-foreground">Changes go live with the next SDK config fetch.</p>
       </div>
-      <AnnouncementForm projectId={projectId} announcement={announcement} />
+      <AnnouncementForm projectId={projectId} announcement={announcement} plan={plan} />
     </div>
   )
 }

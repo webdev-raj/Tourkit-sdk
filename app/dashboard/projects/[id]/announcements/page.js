@@ -67,7 +67,7 @@ export default async function AnnouncementsPage({ params }) {
         <div>
           <h1 className="text-3xl font-semibold tracking-tight text-foreground">Announcements</h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            Modal messages for {project.name}. Same script tag as your tour.
+            Modal, banner, or slide-in messages for {project.name}. Same script tag as your tour.
           </p>
         </div>
 
@@ -104,7 +104,7 @@ export default async function AnnouncementsPage({ params }) {
           </div>
           <h2 className="text-lg font-semibold text-white">No announcements yet</h2>
           <p className="mt-2 max-w-md text-sm text-[#888888]">
-            Create a modal to tell visitors about a launch, update, or notice. It ships with the same TourKit snippet.
+            Create a modal, banner, or slide-in to tell visitors about a launch, update, or notice.
           </p>
           {!atStarterLimit ? (
             <Button asChild className="mt-6 bg-[#F15025] hover:bg-[#F15025]/90">
